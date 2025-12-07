@@ -12,6 +12,15 @@ import { undo, redo } from '../redux/canvasSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import ShapesSidebar from '../components/ShapesSidebar';
+import {
+  FiType,
+  FiImage,
+  FiZap,
+  FiShapes,
+  FiUndo,
+  FiRedo,
+  FiTrash2
+} from 'react-icons/fi';
 
 export default function EditorPanel() {
   const [fabricCanvas, setFabricCanvas] = useState(null);
@@ -26,7 +35,7 @@ export default function EditorPanel() {
   const past = useSelector((state) => state.canvas.past);
   const future = useSelector((state) => state.canvas.future);
   console.log(useSelector(o => o.canvas.present))
-  const [isShapesOpen, setIsShapesOpen] = useState(false); 
+  const [isShapesOpen, setIsShapesOpen] = useState(false);
 
   return (
     <div className="container app">
@@ -36,20 +45,25 @@ export default function EditorPanel() {
       </header>
 
       <div className="main">
-        <ShapesSidebar 
-         isOpen={isShapesOpen} 
-         onClose={() => setIsShapesOpen(false)} 
-       />
+        <ShapesSidebar
+          isOpen={isShapesOpen}
+          onClose={() => setIsShapesOpen(false)}
+        />
         <aside className="left-panel">
-          <button onClick={() => addText(setSelectedId, setActiveTool)}>
-            Text
+          <button title='Add Text' onClick={() => addText(setSelectedId, setActiveTool)}>
+            <FiType size={20} />
           </button>
           <ImageHandler
             setSelectedId={setSelectedId}
             setActiveTool={setActiveTool}
-          />
-          <button>AI</button>
-          <button onClick={() => setIsShapesOpen(!isShapesOpen)}>Shapes</button>
+          ><FiImage size={20} />
+          </ImageHandler>
+          <button title="AI Design" className="ai-tool">
+            <FiZap size={20} />
+          </button>
+          <button title="Add Shapes" onClick={() => setIsShapesOpen(!isShapesOpen)}>
+            <FiShapes size={20} />
+          </button>
           <button onClick={() => console.log(fabricCanvas.getActiveObject())}>
             Testing
           </button>
@@ -65,7 +79,7 @@ export default function EditorPanel() {
               }}
               disabled={past.length === 0}
             >
-              Undo
+              <FiUndo size={20} />
             </button>
             <button
               onClick={() => {
@@ -75,9 +89,9 @@ export default function EditorPanel() {
               }}
               disabled={future.length === 0}
             >
-              Redo
+              <FiRedo size={20} />
             </button>
-            <button onClick={() => removeObject(selectedId)}>Delete</button>
+            <button onClick={() => removeObject(selectedId)}><FiTrash2 size={20} /></button>
             {fabricCanvas && (
               <SaveDesignButton
                 canvas={fabricCanvas}

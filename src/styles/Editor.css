@@ -249,3 +249,25 @@ html,
   color: #333;
   max-height: none;
 }
+
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.icon-spin {
+  animation: spin 1s linear infinite;
+}
+/* Ensure the save button acts as an icon-only button */
+.top-bar-button {
+    /* Inherits general styles, ensuring padding is consistent for icon-only buttons */
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

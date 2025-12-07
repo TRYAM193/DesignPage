@@ -1,12 +1,18 @@
+// src/components/Image.jsx
 import React from 'react';
 import { useRef } from 'react';
 import addImage from '../functions/image';
 
-export default function ImageHandler({setSelectedId, setActiveTool, FiImage}) {
+// Corrected Props: Remove FiImage and add 'children'
+export default function ImageHandler({setSelectedId, setActiveTool, children}) {
   const fileInput = useRef(null);
 
   const handleClick = () => {
     fileInput.current.click();
+    // Also trigger the sidebar to open on click
+    if (setActiveTool) {
+        setActiveTool('image');
+    }
   };
 
   const handleChange = (event) => {
@@ -29,7 +35,10 @@ export default function ImageHandler({setSelectedId, setActiveTool, FiImage}) {
 
   return (
     <>
-      <button onClick={handleClick}>  <FiImage size={20} /></button>
+      {/* Use children to render the icon and text passed from MainToolbar */}
+      <button onClick={handleClick} className="tool-button w-16 h-16">
+        {children || 'Upload'}
+      </button>
       <input
         type="file"
         ref={fileInput}

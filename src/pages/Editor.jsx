@@ -42,84 +42,42 @@ export default function EditorPanel() {
     // Updated root class
     <div className="container app">
       
-      {/* TOP BAR: Project Actions & Global Controls (Header) */}
-      <header className="header">
-        <div className="flex items-center gap-4">
-          <h1>TRYAM Designer</h1>
-          <a href="/saved-designs" className="text-sm text-gray-500 hover:text-indigo-700">Saved Designs</a>
-        </div>
-        
-        <div className="header-actions">
-            {/* Undo/Redo Buttons (Moved from top-bar to header) */}
-            <div className="header-undo-redo">
-                <button
-                title="Undo"
-                onClick={() => {
-                    fabricCanvas.discardActiveObject()
-                    fabricCanvas.renderAll();
-                    dispatch(undo())
-                }}
-                disabled={past.length === 0}
-                >
-                <FiRotateCcw size={20} />
-                </button>
-                <button
-                title="Redo"
-                onClick={() => {
-                    fabricCanvas.discardActiveObject()
-                    fabricCanvas.renderAll();
-                    dispatch(redo());
-                }}
-                disabled={future.length === 0}
-                >
-                <FiRotateCw size={20} />
-                </button>
+      {/* 💥 1. HEADER: Logo and Title Only */}
+      <header className="header simplified-header">
+        <div className="flex items-center gap-2">
+            <div className="logo-circle">
+                <span>T</span> {/* Placeholder for empty LOGO.svg */}
             </div>
-            <div className="header-divider" /> 
-
-            {/* Save Button */}
-            {fabricCanvas && (
-              <SaveDesignButton
-                canvas={fabricCanvas}
-                userId={userId}
-                currentDesign={currentDesign}
-                editingDesignId={editingDesignId}
-                className="header-button"
-              >
-                  <FiSave size={18} /> 
-                  <span>Save</span>
-              </SaveDesignButton>
-            )}
-
-            {/* Final Action Buttons */}
-            <button title="Download" className="header-button export">
-                <FiDownload size={18} />
-                <span>Export</span>
-            </button>
-            <button 
-                title="Order Print" 
-                className="header-button"
-                // This is the trigger for your final Shopify/POD logic
-                onClick={() => navigation('/checkout')}
-            >
-                <FiShoppingBag size={18} />
-                <span>Order Print</span>
-            </button>
+            <h1>TRYAM</h1>
         </div>
       </header>
+      
+      {/* 💥 2. CONTROL BAR: Undo, Redo, Save, Export */}
+      <CanvasControlBar
+          fabricCanvas={fabricCanvas}
+          dispatch={dispatch}
+          undo={undo}
+          redo={redo}
+          past={past}
+          future={future}
+          userId={userId}
+          currentDesign={currentDesign}
+          editingDesignId={editingDesignId}
+      />
 
-      {/* MAIN EDITOR BODY: Three Columns */}
+      {/* 💥 3. MAIN EDITOR BODY: Three Columns */}
       <div className="main">
         
-        {/* 1. Main Toolbar (Tool Selector) */}
+        {/* 1. Main Toolbar (With Saved Designs Link) */}
         <MainToolbar 
             activePanel={activePanel} 
             onSelectTool={handleToolClick} 
             setSelectedId={setSelectedId}
             setActiveTool={setActiveTool}
+            navigation={navigation} // Passed for the Saved Designs link
         />
 
-        {/* 2. Contextual Sidebar (Tool Content) */}
+        {/* 2. Contextual Sidebar */}
         {activePanel && (
             <ContextualSidebar 
                 activePanel={activePanel} 
@@ -130,7 +88,7 @@ export default function EditorPanel() {
         
         {/* 3. Center Preview Area (Canvas) */}
         <main className="preview-area">
-            {/* Canvas Controls (Only Delete remains here for object-specific action) */}
+            {/* Object Controls (Only Delete remains here) */}
             <div className="top-bar">
                  <button title="Delete" onClick={() => removeObject(selectedId)}>
                     <FiTrash2 size={20} />

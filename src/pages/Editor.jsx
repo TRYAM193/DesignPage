@@ -44,7 +44,7 @@ export default function EditorPanel() {
       
       {/* 💥 1. HEADER: Logo and Title Only */}
       <header className="header simplified-header">
-        <div className="header-">
+        <div className="header-brand">
             <div className="logo-circle">
                 <span>T</span> {/* Placeholder for empty LOGO.svg */}
             </div>

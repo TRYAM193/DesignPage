@@ -133,7 +133,7 @@ export default function EditorPanel() {
                     
                     <button 
                         title="Order Print" 
-                        className="top-bar-button text-button accent"
+                        className="top-bar-button text-button "
                         onClick={() => navigation('/checkout')}
                     >
                         <FiShoppingBag size={18} />

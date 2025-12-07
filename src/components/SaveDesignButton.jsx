@@ -7,6 +7,7 @@ import { FiSave, FiRotateCw } from 'react-icons/fi'; // <-- ADDED ICONS
 export default function SaveDesignButton({ canvas, userId, editingDesignId, className }) {
   const [saving, setSaving] = useState(false);
   const [showSavePrompt, setShowSavePrompt] = useState(false);
+  const classNam
 
   const handleSave = () => {
     if (!canvas) return;

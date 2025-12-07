@@ -32,15 +32,12 @@ export default function MainToolbar({ activePanel, onSelectTool, setSelectedId, 
         {/* Image Tool (Using ImageHandler for file input logic) */}
         <ImageHandler 
             setSelectedId={setSelectedId} 
-            setActiveTool={() => onSelectTool('image')} // Ensures sidebar opens on click
+            setActiveTool={onSelectTool} // Pass the tool selector function
+            // FIX: Pass the styling class directly to ImageHandler
+            className={`tool-button-wrapper ${activePanel === 'image' ? 'active' : ''}`}
         >
-            <div 
-                className={`tool-button-wrapper ${activePanel === 'image' ? 'active' : ''}`}
-                // The actual file input is hidden, this div handles the visual part
-            >
-                <FiImage size={24} />
-                <span>Image</span>
-            </div>
+            <FiImage size={24} />
+            <span>Image</span>
         </ImageHandler>
 
         {/* AI Tool - Next major feature! */}

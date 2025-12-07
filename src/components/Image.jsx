@@ -2,7 +2,7 @@ import React from 'react';
 import { useRef } from 'react';
 import addImage from '../functions/image';
 
-export default function ImageHandler({setSelectedId, setActiveTool}) {
+export default function ImageHandler({setSelectedId, setActiveTool, FiImage}) {
   const fileInput = useRef(null);
 
   const handleClick = () => {
@@ -29,7 +29,7 @@ export default function ImageHandler({setSelectedId, setActiveTool}) {
 
   return (
     <>
-      <button onClick={handleClick}>Upload</button>
+      <button onClick={handleClick}>  <FiImage size={20} /></button>
       <input
         type="file"
         ref={fileInput}

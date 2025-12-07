@@ -16,9 +16,9 @@ import {
   FiType,
   FiImage,
   FiZap,
-  FiShapes,
-  FiUndo,
-  FiRedo,
+  FiSquare,
+  FiRotateCcw,   // For Undo (Counter-Clockwise)
+  FiRotateCw,
   FiTrash2
 } from 'react-icons/fi';
 
@@ -56,13 +56,13 @@ export default function EditorPanel() {
           <ImageHandler
             setSelectedId={setSelectedId}
             setActiveTool={setActiveTool}
-          ><FiImage size={20} />
-          </ImageHandler>
+            FiImage={FiImage}
+          />
           <button title="AI Design" className="ai-tool">
             <FiZap size={20} />
           </button>
           <button title="Add Shapes" onClick={() => setIsShapesOpen(!isShapesOpen)}>
-            <FiShapes size={20} />
+            <FiSquare size={20} />
           </button>
           <button onClick={() => console.log(fabricCanvas.getActiveObject())}>
             Testing
@@ -79,7 +79,7 @@ export default function EditorPanel() {
               }}
               disabled={past.length === 0}
             >
-              <FiUndo size={20} />
+              <FiRotateCcw size={20} />
             </button>
             <button
               onClick={() => {
@@ -89,7 +89,7 @@ export default function EditorPanel() {
               }}
               disabled={future.length === 0}
             >
-              <FiRedo size={20} />
+              <FiRotateCw size={20} />
             </button>
             <button onClick={() => removeObject(selectedId)}><FiTrash2 size={20} /></button>
             {fabricCanvas && (

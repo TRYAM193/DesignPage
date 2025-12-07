@@ -101,8 +101,8 @@ export default function EditorPanel() {
                             fabricCanvas.renderAll();
                             dispatch(redo());
                         }}
-                        disabled={future.length === 0}t
-                        s
+                        disabled={future.length === 0}
+                        style={{o}}
                     >
                         <FiRotateCw size={20} />
                     </button>

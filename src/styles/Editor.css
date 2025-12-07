@@ -27,37 +27,19 @@ body, html, #root, .app {
     font-weight: bold;
     color: #000000; /* Primary accent color */
 }
-.header-button {
-    background: #4949e5;
+
+.logo-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #4949e5; /* Primary accent color */
     color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.2s;
     display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 14px;
-}
-.header-button.export {
-    background: #f0f0f0;
-    color: #555;
-}
-.header-button.export:hover {
-    background: #e0e0e0;
-}
-.header-undo-redo button {
-    background: transparent;
-    border: 1px solid #ddd;
-    color: #555;
-    padding: 6px;
-    border-radius: 4px;
-    transition: 0.2s;
-}
-.header-undo-redo button:hover {
-    background: #f0f0f0;
-    color: #4949e5;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 /* Main Editor Body: Three Columns */

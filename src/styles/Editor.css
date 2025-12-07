@@ -25,7 +25,7 @@ body, html, #root, .app {
 .header h1 {
     font-size: 20px;
     font-weight: bold;
-    color: #4949e5; /* Primary accent color */
+    color: #000000; /* Primary accent color */
 }
 .header-actions {
     display: flex;

@@ -27,11 +27,6 @@ body, html, #root, .app {
     font-weight: bold;
     color: #000000; /* Primary accent color */
 }
-.header-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
 .header-button {
     background: #4949e5;
     color: white;

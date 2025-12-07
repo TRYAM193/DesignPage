@@ -1,274 +1,197 @@
-.container {
+/* ===========================
+   CANVA-STYLE LAYOUT REFACTOR
+   =========================== */
+
+/* Full Screen Setup */
+body, html, #root, .app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+.container.app {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #007bff, #6610f2);
-  color: white;
-  text-align: center;
-  width: 100%;
-}
-#root {
-  margin: 0;
-  padding: 0;
-  text-align: center;
+  background-color: #f8f9fb; /* Light background for canvas area */
 }
 
-body,
-html,
-.app {
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', sans-serif;
-  width: 100%;
-}
-
-.app{
-  height: 100%;
-}
-
+/* Header (Top Bar) */
 .header {
-  color: white;
-  padding: 15px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  text-align: center;
-  width: calc(100% - 30px);
-  height: calc(8vw - 10px);
+  height: 60px; /* Fixed height for the header */
+  padding: 0 15px;
+  width: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  color: #333;
+}
+.header h1 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #4949e5; /* Primary accent color */
+}
+.header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.header-button {
+    background: #4949e5;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+}
+.header-button.export {
+    background: #f0f0f0;
+    color: #555;
+}
+.header-button.export:hover {
+    background: #e0e0e0;
+}
+.header-undo-redo button {
+    background: transparent;
+    border: 1px solid #ddd;
+    color: #555;
+    padding: 6px;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+.header-undo-redo button:hover {
+    background: #f0f0f0;
+    color: #4949e5;
 }
 
+/* Main Editor Body: Three Columns */
 .main {
   display: flex;
-  height: calc(100% - 120px);
+  flex-grow: 1; /* Take up all remaining vertical space */
+  height: auto;
   width: 100%;
+  overflow: hidden;
+  /* Old .main styles from previous CSS are now overridden */
 }
 
-.left-panel {
-  width: calc(17vw - 30px);
-  color: white;
-  padding: 15px;
-  padding-top: 50px;
+/* 1. Main Toolbar (Far Left - Fixed Width) */
+.main-toolbar {
+  width: 70px;
+  min-width: 70px;
+  background-color: white;
+  border-right: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  align-items: center;
-}
-.left-panel button {
-  background: #4949e5;
-  border: none;
-  padding: 10px;
-  color: white;
-  text-align: center;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: 0.3s;
-  width: 10vw;
-}
-.left-panel button:hover {
-  background: #e7e7e7;
+  padding-top: 20px;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+  overflow-y: auto;
+  /* Replaces old .left-panel */
 }
 
-.preview-area {
-  flex: 1;
-  background: #fff;
-  width: 40vw;
+.tool-button-wrapper {
+  /* Used for all tool buttons in MainToolbar */
+  width: 100%;
+  height: 70px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: relative;
-  border-radius: 20px;
-  height: 80vh;
-  top: -7px;
-}
-
-#canvas{
-  top: 30px;
-}
-
-#canvas-wrapper{
-  position: absolute;
-  top: 20px;
-}
-
-.top-bar {
-  position: absolute;
-  top: 2px;
-  display: flex;
-  gap: 10px;
-  z-index: 2;
-}
-.top-bar-button {
-  background: #fff;
-  padding: 8px 12px;
-  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 500;
+  color: #555;
+  background: none;
+  border: none;
   cursor: pointer;
-}
-
-.top-bar-button:hover {
-  cursor: pointer;
-  background: rgb(79, 176, 214);
-  transition: 0.2s;
-}
-
-.right-panel {
-  width: calc(17vw - 30px);
-  padding: 15px;
-  color: #1e1e2f;
-  overflow-y: auto;
-  max-height: calc(100vh - 120px);
-}
-
-button{
-  color: white;
-}
-
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #555;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin: 20px auto;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* ===========================
-   PAGE WRAPPER
-=========================== */
-.saved-designs-page {
-  width: 100%;
-  min-height: 100vh;
-  padding: 20px 20px 20px; 
+  transition: background-color 0.2s, color 0.2s;
+  padding: 0;
   box-sizing: border-box;
-  position: relative;
-  text-align: center;
-  background: #f8f9fb;
+}
+.tool-button-wrapper:hover {
+    background-color: #f0f0f0;
+    color: #4949e5;
+}
+.tool-button-wrapper.active {
+    background-color: #e6e6ff; /* Light indigo background */
+    color: #4949e5;
+    border-left: 3px solid #4949e5;
 }
 
-/* ===========================
-   BACK BUTTON
-=========================== */
-.back-btn {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  font-size: 22px;
-  cursor: pointer;
-  padding: 10px;
-  border-radius: 8px;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  transition: 0.2s ease;
+/* 2. Contextual Sidebar (Tool Content) */
+.contextual-sidebar {
+  width: 300px;
+  min-width: 300px;
+  background-color: white;
+  border-right: 1px solid #e0e0e0;
+  box-shadow: 3px 0 5px rgba(0,0,0,0.05);
+  overflow-y: auto;
+  /* Content styles */
+}
+.sidebar-header {
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+    border-bottom: 1px solid #eee;
+}
+.sidebar-content {
+    padding: 15px;
 }
 
-.back-btn:hover {
-  transform: translateX(-4px);
-  background: #f0f0f0;
-}
 
-/* ===========================
-   PAGE HEADING
-=========================== */
-.saved-designs-page h2 {
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  margin-top: 10px;
-}
-
-/* ===========================
-   LOADING SPINNER
-=========================== */
-.spinner {
-  margin: 80px auto;
-  width: 50px;
-  height: 50px;
-  border: 6px solid #ddd;
-  border-top-color: #4e73df;
-  border-radius: 50%;
-  animation: spin 0.9s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.design-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 25px;
-  padding: 20px;
-}
-
-.design-card {
-  position: relative;
-  background: white;
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-  transition: 0.2s ease;
-  overflow: hidden;
-}
-
-.design-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-}
-
-.design-image-wrapper {
-  position: relative;
-}
-
-.design-image-wrapper img {
-  width: 100%;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-.overlay-icons {
-  position: absolute;
-  top: 8px;
-  right: 8px;
+/* 3. Preview Area (Canvas) - Center Area */
+.preview-area {
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  overflow: auto;
+  background-color: #f8f9fb; /* Light gray background */
+  /* Remove old fixed height and top positioning */
+  height: auto;
+  top: auto;
+}
+
+#canvas-wrapper {
+  position: relative; 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  background-color: white;
+}
+
+/* Top Bar Controls (Delete, etc.) */
+.top-bar {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
   gap: 8px;
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: 0.2s ease;
+  z-index: 2;
+  background-color: white;
+  padding: 5px 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.design-card:hover .overlay-icons {
-  opacity: 1;
-  transform: translateY(0);
+/* 4. Right Properties Panel */
+.right-panel {
+  width: 300px;
+  min-width: 300px;
+  background-color: white;
+  border-left: 1px solid #e0e0e0;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+  overflow-y: auto;
+  padding: 15px;
+  color: #333;
+  max-height: none;
+  /* Old styles are overridden by new fixed width and flex context */
 }
-
-.overlay-icons .icon {
-  background: rgba(0,0,0,0.6);
-  padding: 8px;
-  border-radius: 50%;
-  color: white;
-  font-size: 14px;
-  transition: 0.2s ease;
-}
-
-.overlay-icons .icon:hover {
-  background: rgba(0,0,0,0.9);
-  transform: scale(1.1);
-}
-
-.design-card p {
-  margin-top: 10px;
-  font-size: 15px;
-  font-weight: 500;
-  color: #444;
-}
-

@@ -2,8 +2,9 @@
 import React, { useState } from 'react';
 import SavePromptModal from './SavePromptModal';
 import { saveNewDesign, overwriteDesign } from '../utils/saveDesign';
+import { FiSave, FiRotateCw } from 'react-icons/fi'; // <-- ADDED ICONS
 
-export default function SaveDesignButton({ canvas, userId, editingDesignId }) {
+export default function SaveDesignButton({ canvas, userId, editingDesignId, className }) {
   const [saving, setSaving] = useState(false);
   const [showSavePrompt, setShowSavePrompt] = useState(false);
 
@@ -12,7 +13,7 @@ export default function SaveDesignButton({ canvas, userId, editingDesignId }) {
 
     // NEW DESIGN → save directly
     if (!editingDesignId) {
-      saveNewDesign(userId, canvas, setSaving);
+      saveNewDesign(userId, canvas, setSaving); //
       return;
     }
 
@@ -21,19 +22,29 @@ export default function SaveDesignButton({ canvas, userId, editingDesignId }) {
   };
 
   const handleOverwrite = async () => {
-    await overwriteDesign(userId, editingDesignId, canvas, setSaving);
+    await overwriteDesign(userId, editingDesignId, canvas, setSaving); //
     setShowSavePrompt(false);
   };
 
   const handleSaveCopy = async () => {
-    await saveNewDesign(userId, canvas, setSaving);
+    await saveNewDesign(userId, canvas, setSaving); //
     setShowSavePrompt(false);
   };
 
   return (
     <>
-      <button onClick={handleSave} disabled={saving}>
-        {saving ? 'Saving...' : 'Save Design'}
+      {/* FIX: Render FiSave icon or FiRotateCw spinner based on 'saving' state */}
+      <button 
+        onClick={handleSave} 
+        disabled={saving} 
+        title={saving ? 'Saving...' : 'Save Design'}
+        className={className} 
+      >
+        {saving ? (
+          <FiRotateCw size={20} className="icon-spin" /> // Spinner during saving
+        ) : (
+          <FiSave size={20} /> // Save icon when ready
+        )}
       </button>
       <SavePromptModal
         open={showSavePrompt}

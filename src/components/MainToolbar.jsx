@@ -1,26 +1,25 @@
+// src/components/MainToolbar.jsx
 import React from 'react';
 import ImageHandler from './Image';
 import { 
     FiType, FiImage, FiZap, FiSquare, FiTool 
-} from 'react-icons/fi'; // Re-use the confirmed icons
+} from 'react-icons/fi'; 
 
 // Component for a single tool button
 const ToolButton = ({ icon: Icon, label, isActive, onClick }) => (
     <button 
         title={label}
         onClick={onClick}
-        className={`w-16 h-16 flex flex-col items-center justify-center text-xs font-medium transition-colors 
-            ${isActive ? 'bg-gray-200 text-indigo-700 border-l-4 border-indigo-700' : 'text-gray-600 hover:bg-gray-100'}
-        `}
+        className={`tool-button-wrapper ${isActive ? 'active' : ''}`}
     >
-        <Icon size={24} className="mb-1" />
+        <Icon size={24} />
         {label}
     </button>
 );
 
-export default function MainToolbar({ activePanel, onSelectTool, addText, setSelectedId, setActiveTool }) {
+export default function MainToolbar({ activePanel, onSelectTool, setSelectedId, setActiveTool }) {
   return (
-    <div className="main-toolbar w-16 border-r bg-white flex flex-col shadow-sm shrink-0">
+    <div className="main-toolbar">
         
         {/* Text Tool */}
         <ToolButton 
@@ -33,20 +32,18 @@ export default function MainToolbar({ activePanel, onSelectTool, addText, setSel
         {/* Image Tool (Using ImageHandler for file input logic) */}
         <ImageHandler 
             setSelectedId={setSelectedId} 
-            setActiveTool={setActiveTool}
+            setActiveTool={() => onSelectTool('image')} // Ensures sidebar opens on click
         >
             <div 
-                className={`w-16 h-16 flex flex-col items-center justify-center text-xs font-medium transition-colors 
-                    ${activePanel === 'image' ? 'bg-gray-200 text-indigo-700 border-l-4 border-indigo-700' : 'text-gray-600 hover:bg-gray-100'}
-                `}
-                onClick={() => onSelectTool('image')} // Keep sidebar open on click
+                className={`tool-button-wrapper ${activePanel === 'image' ? 'active' : ''}`}
+                // The actual file input is hidden, this div handles the visual part
             >
-                <FiImage size={24} className="mb-1" />
+                <FiImage size={24} />
                 <span>Image</span>
             </div>
         </ImageHandler>
 
-        {/* AI Tool */}
+        {/* AI Tool - Next major feature! */}
         <ToolButton 
             icon={FiZap} 
             label="AI" 
@@ -64,7 +61,7 @@ export default function MainToolbar({ activePanel, onSelectTool, addText, setSel
 
         <hr className="my-2 border-gray-200" />
         
-        {/* Other Tools (e.g., Templates, Tools) */}
+        {/* Other Tools */}
         <ToolButton 
             icon={FiTool} 
             label="More" 

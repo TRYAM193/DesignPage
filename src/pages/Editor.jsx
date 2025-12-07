@@ -122,11 +122,8 @@ export default function EditorPanel() {
                             userId={userId}
                             currentDesign={currentDesign}
                             editingDesignId={editingDesignId}
-                            className="top-bar-button text-button primary"
-                        >
-                            <FiSave size={18} /> 
-                            <span>Save</span>
-                        </SaveDesignButton>
+                            className="top-bar-button" 
+                        />
                     )}
                     
                     <button title="Download" className="top-bar-button text-button">

@@ -1,38 +1,48 @@
-/* ===========================
-   CANVA-STYLE LAYOUT REFACTOR
-   =========================== */
-
-/* Full Screen Setup */
-body, html, #root, .app {
-  height: 100%;
+/* ===================================
+   BASE STYLES (Ensuring full screen)
+   =================================== */
+body,
+html,
+.app {
   margin: 0;
   padding: 0;
+  font-family: 'Segoe UI', sans-serif;
   width: 100%;
+  height: 100%; /* Ensure root elements take full viewport height */
 }
+
 .container.app {
   display: flex;
   flex-direction: column;
+  height: 100vh; /* Use 100vh for primary container */
   background-color: #f8f9fb; /* Light background for canvas area */
 }
 
-/* Header (Top Bar) */
+/* ===================================
+   1. HEADER: Logo and Title Only
+   =================================== */
 .header {
     height: 50px; /* Shorter header */
     padding: 0 20px;
-    justify-content: flex-start; /* Align content to the left */
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
     gap: 15px;
+    background-color: white;
+    border-bottom: 1px solid #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    color: #333;
 }
 .header h1 {
     font-size: 20px;
     font-weight: bold;
-    color: #000000; /* Primary accent color */
+    color: #000000;
 }
-
 .logo-circle {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background-color: #4949e5; /* Primary accent color */
+    background-color: #4949e5;
     color: white;
     display: flex;
     align-items: center;
@@ -42,7 +52,87 @@ body, html, #root, .app {
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* 1. Main Toolbar (Far Left - Fixed Width) */
+/* ===================================
+   2. CONTROL BAR: Undo, Redo, Save, Export
+   =================================== */
+.canvas-control-bar {
+    width: 100%;
+    height: 50px;
+    background-color: white;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    z-index: 10;
+}
+.control-bar-inner {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background-color: white;
+    padding: 5px 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+/* FIX: Divider Style */
+.header-divider {
+    width: 1px;
+    height: 24px;
+    background-color: #ddd;
+}
+/* FIX: Button Styles */
+.header-button {
+    background: #4949e5;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    font-weight: 500;
+}
+.header-button.export {
+    background: #f0f0f0;
+    color: #555;
+}
+.header-button.export:hover {
+    background: #e0e0e0;
+}
+.header-undo-redo {
+    display: flex;
+    gap: 5px;
+}
+.header-undo-redo button {
+    background: transparent;
+    border: 1px solid #ddd;
+    color: #555;
+    padding: 6px;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+.header-undo-redo button:hover {
+    background: #f0f0f0;
+    color: #4949e5;
+}
+
+
+/* ===================================
+   3. MAIN EDITOR BODY: Three Columns
+   =================================== */
+/* FIX: Calculate remaining height */
+.main {
+  display: flex;
+  flex-grow: 1; 
+  height: calc(100vh - 100px); /* 100vh - Header(50px) - ControlBar(50px) */
+  width: 100%;
+  overflow: hidden;
+}
+
+/* 3.1 Main Toolbar (Far Left - Fixed Width) */
 .main-toolbar {
   width: 70px;
   min-width: 70px;
@@ -50,14 +140,16 @@ body, html, #root, .app {
   border-right: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
-  padding-top: 20px;
+  padding-top: 5px;
   box-shadow: 2px 0 5px rgba(0,0,0,0.05);
   overflow-y: auto;
-  /* Replaces old .left-panel */
 }
-
+.toolbar-divider {
+    border-top: 1px solid #e0e0e0;
+    width: 80%;
+    margin: 10px auto;
+}
 .tool-button-wrapper {
-  /* Used for all tool buttons in MainToolbar */
   width: 100%;
   height: 70px;
   display: flex;
@@ -79,12 +171,13 @@ body, html, #root, .app {
     color: #4949e5;
 }
 .tool-button-wrapper.active {
-    background-color: #e6e6ff; /* Light indigo background */
+    background-color: #e6e6ff;
     color: #4949e5;
     border-left: 3px solid #4949e5;
 }
 
-/* 2. Contextual Sidebar (Tool Content) */
+
+/* 3.2 Contextual Sidebar (Tool Content) */
 .contextual-sidebar {
   width: 300px;
   min-width: 300px;
@@ -92,10 +185,9 @@ body, html, #root, .app {
   border-right: 1px solid #e0e0e0;
   box-shadow: 3px 0 5px rgba(0,0,0,0.05);
   overflow-y: auto;
-  /* Content styles */
 }
 .sidebar-header {
-    height: 60px;
+    height: 50px; 
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -107,7 +199,7 @@ body, html, #root, .app {
 }
 
 
-/* 3. Preview Area (Canvas) - Center Area */
+/* 3.3 Preview Area (Canvas) - Center Area */
 .preview-area {
   flex-grow: 1;
   display: flex;
@@ -116,19 +208,18 @@ body, html, #root, .app {
   justify-content: center;
   padding: 30px;
   overflow: auto;
-  background-color: #f8f9fb; /* Light gray background */
-  /* Remove old fixed height and top positioning */
+  background-color: #f8f9fb;
   height: auto;
   top: auto;
+  position: relative; /* Essential for top-bar absolute position */
 }
-
 #canvas-wrapper {
   position: relative; 
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
   background-color: white;
 }
 
-/* Top Bar Controls (Delete, etc.) */
+/* Object Controls (Delete only) */
 .top-bar {
   position: absolute;
   top: 15px;
@@ -142,8 +233,19 @@ body, html, #root, .app {
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
+.top-bar button {
+    background: none;
+    border: none;
+    color: #555;
+    cursor: pointer;
+    padding: 5px;
+}
+.top-bar button:hover {
+    color: #4949e5;
+}
 
-/* 4. Right Properties Panel */
+
+/* 3.4 Right Properties Panel */
 .right-panel {
   width: 300px;
   min-width: 300px;
@@ -154,5 +256,9 @@ body, html, #root, .app {
   padding: 15px;
   color: #333;
   max-height: none;
-  /* Old styles are overridden by new fixed width and flex context */
+}
+/* Ensure canvas editor is below top bar */
+#canvas {
+    top: 50px;
+    position: relative;
 }

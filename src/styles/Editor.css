@@ -213,7 +213,7 @@ html,
 /* Text Buttons (Save, Export, Order Print) */
 .top-bar-button.text-button {
     padding: 8px 12px;
-    gap: 5px;
+    gap: 9px;
     font-size: 14px;
     font-weight: 500;
 }

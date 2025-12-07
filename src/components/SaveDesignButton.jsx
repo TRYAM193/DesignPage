@@ -41,7 +41,7 @@ export default function SaveDesignButton({ canvas, userId, editingDesignId, clas
         className={className} 
       >
         {saving ? (
-          <FiRotateCw size={20} className="icon-spin" /> // Spinner during saving
+          <FiRotateCw size={20} className="icon-spin" />
         ) : (
           <FiSave size={20} /> // Save icon when ready
         )}

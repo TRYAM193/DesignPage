@@ -42,16 +42,6 @@ body, html, #root, .app {
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* Main Editor Body: Three Columns */
-.main {
-  display: flex;
-  flex-grow: 1; /* Take up all remaining vertical space */
-  height: auto;
-  width: 100%;
-  overflow: hidden;
-  /* Old .main styles from previous CSS are now overridden */
-}
-
 /* 1. Main Toolbar (Far Left - Fixed Width) */
 .main-toolbar {
   width: 70px;

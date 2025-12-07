@@ -34,8 +34,6 @@ export default function MainToolbar({ activePanel, onSelectTool, addText, setSel
         <ImageHandler 
             setSelectedId={setSelectedId} 
             setActiveTool={setActiveTool}
-            // Since ImageHandler manages file input, we can't directly use ToolButton
-            // We apply similar styles here
         >
             <div 
                 className={`w-16 h-16 flex flex-col items-center justify-center text-xs font-medium transition-colors 

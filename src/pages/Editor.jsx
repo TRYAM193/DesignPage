@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 // New Components
 import MainToolbar from '../components/MainToolbar'; 
 import ContextualSidebar from '../components/ContextualSidebar'; 
+import CanvasControlBar from '../components/CanvasControlBar';
 // Re-import icons that we know work
 import { 
   FiRotateCcw, FiRotateCw, FiTrash2, FiDownload, FiSave, FiShoppingBag 

@@ -38,7 +38,7 @@ export default function SaveDesignButton({ canvas, userId, editingDesignId, clas
         onClick={handleSave} 
         disabled={saving} 
         title={saving ? 'Saving...' : 'Save Design'}
-        className={className 'text'} 
+        className={className} 
       >
         {saving ? (
           <FiRotateCw size={20} className="icon-spin" />

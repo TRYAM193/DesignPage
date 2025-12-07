@@ -6,12 +6,11 @@ import addText from '../functions/text';
 import updateObject from '../functions/update';
 import removeObject from '../functions/remove';
 import SaveDesignButton from '../components/SaveDesignButton';
-import ImageHandler from '../components/Image';
 import RightPanel from '../components/Toolbar';
 import { undo, redo } from '../redux/canvasSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-// Components we need to create or modify
+// New Components
 import MainToolbar from '../components/MainToolbar'; 
 import ContextualSidebar from '../components/ContextualSidebar'; 
 // Re-import icons that we know work
@@ -36,7 +35,6 @@ export default function EditorPanel() {
   // NEW STATE: Controls which panel is open (e.g., 'ai', 'shapes', 'text')
   const [activePanel, setActivePanel] = useState('text'); 
   
-  // Function to toggle the sidebar
   const handleToolClick = (tool) => {
       // If the same tool is clicked, close the sidebar. Otherwise, open the new tool.
       setActivePanel(prev => prev === tool ? null : tool);
@@ -44,42 +42,43 @@ export default function EditorPanel() {
 
 
   return (
-    <div className="container app h-screen flex flex-col bg-gray-50"> {/* Use full height and background */}
+    // Updated root class
+    <div className="container app">
       
-      {/* 💥 TOP BAR: Project Actions & Global Controls (Header) */}
-      <header className="header flex justify-between items-center h-16 px-4 border-b bg-white shadow-sm z-10">
+      {/* TOP BAR: Project Actions & Global Controls (Header) */}
+      <header className="header">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-bold text-indigo-700">TRYAM Designer</h1>
+          <h1>TRYAM Designer</h1>
           <a href="/saved-designs" className="text-sm text-gray-500 hover:text-indigo-700">Saved Designs</a>
         </div>
         
-        <div className="flex items-center gap-2">
-            {/* Undo/Redo Buttons */}
-            <button
-              title="Undo"
-              className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50 transition-colors"
-              onClick={() => {
-                fabricCanvas.discardActiveObject()
-                fabricCanvas.renderAll();
-                dispatch(undo())
-              }}
-              disabled={past.length === 0}
-            >
-              <FiRotateCcw size={20} />
-            </button>
-            <button
-              title="Redo"
-              className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50 transition-colors"
-              onClick={() => {
-                fabricCanvas.discardActiveObject()
-                fabricCanvas.renderAll();
-                dispatch(redo());
-              }}
-              disabled={future.length === 0}
-            >
-              <FiRotateCw size={20} />
-            </button>
-            <div className="h-6 w-px bg-gray-200 mx-2" /> 
+        <div className="header-actions">
+            {/* Undo/Redo Buttons (Moved from top-bar to header) */}
+            <div className="header-undo-redo">
+                <button
+                title="Undo"
+                onClick={() => {
+                    fabricCanvas.discardActiveObject()
+                    fabricCanvas.renderAll();
+                    dispatch(undo())
+                }}
+                disabled={past.length === 0}
+                >
+                <FiRotateCcw size={20} />
+                </button>
+                <button
+                title="Redo"
+                onClick={() => {
+                    fabricCanvas.discardActiveObject()
+                    fabricCanvas.renderAll();
+                    dispatch(redo());
+                }}
+                disabled={future.length === 0}
+                >
+                <FiRotateCw size={20} />
+                </button>
+            </div>
+            <div className="header-divider" /> 
 
             {/* Save Button */}
             {fabricCanvas && (
@@ -88,46 +87,59 @@ export default function EditorPanel() {
                 userId={userId}
                 currentDesign={currentDesign}
                 editingDesignId={editingDesignId}
-              />
+                className="header-button"
+              >
+                  <FiSave size={18} /> 
+                  <span>Save</span>
+              </SaveDesignButton>
             )}
 
             {/* Final Action Buttons */}
-            <button title="Download" className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
+            <button title="Download" className="header-button export">
                 <FiDownload size={18} />
-                Export
+                <span>Export</span>
             </button>
             <button 
                 title="Order Print" 
-                className="flex items-center gap-2 px-3 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-                // This will be the Shopify Checkout trigger
+                className="header-button"
+                // This is the trigger for your final Shopify/POD logic
+                onClick={() => navigation('/checkout')}
             >
                 <FiShoppingBag size={18} />
-                Order Print
+                <span>Order Print</span>
             </button>
         </div>
       </header>
 
-      {/* 💥 MAIN EDITOR BODY: Three Columns */}
-      <div className="main flex flex-grow overflow-hidden">
+      {/* MAIN EDITOR BODY: Three Columns */}
+      <div className="main">
         
-        {/* 1. Thin Left Vertical Toolbar (MainTool Selector) */}
+        {/* 1. Main Toolbar (Tool Selector) */}
         <MainToolbar 
             activePanel={activePanel} 
             onSelectTool={handleToolClick} 
-            addText={addText} // Pass initial text function
             setSelectedId={setSelectedId}
             setActiveTool={setActiveTool}
         />
 
-        {/* 2. Wider Contextual Sidebar (Content changes based on activePanel) */}
-        <ContextualSidebar 
-            activePanel={activePanel} 
-            setActivePanel={setActivePanel}
-            // You will connect the image upload/AI components here later
-        />
+        {/* 2. Contextual Sidebar (Tool Content) */}
+        {activePanel && (
+            <ContextualSidebar 
+                activePanel={activePanel} 
+                setActivePanel={setActivePanel}
+                addText={addText}
+            />
+        )}
+        
+        {/* 3. Center Preview Area (Canvas) */}
+        <main className="preview-area">
+            {/* Canvas Controls (Only Delete remains here for object-specific action) */}
+            <div className="top-bar">
+                 <button title="Delete" onClick={() => removeObject(selectedId)}>
+                    <FiTrash2 size={20} />
+                </button>
+            </div>
 
-        {/* 3. Center Preview Area (Canvas) - Takes up remaining space */}
-        <main className="preview-area flex-grow flex flex-col items-center justify-center p-8 overflow-auto bg-gray-100">
             <CanvasEditor
                 setFabricCanvas={setFabricCanvas}
                 canvasObjects={canvasObjects}
@@ -139,8 +151,8 @@ export default function EditorPanel() {
             />
         </main>
 
-        {/* 4. Right Properties Panel (Toolbar for Object Properties) */}
-        <aside className="right-panel w-72 border-l bg-white shadow-lg overflow-y-auto shrink-0">
+        {/* 4. Right Properties Panel */}
+        <aside className="right-panel">
           <RightPanel
             id={selectedId}
             type={activeTool}
@@ -152,11 +164,8 @@ export default function EditorPanel() {
           />
         </aside>
       </div>
-
-      {/* FOOTER is now integrated into the Header's action buttons, simplifying the layout */}
     </div>
   );
 }
-
 
 // https://github.com/TRYAM193/DesignPage.git

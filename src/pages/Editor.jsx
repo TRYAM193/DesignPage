@@ -102,7 +102,7 @@ export default function EditorPanel() {
                             dispatch(redo());
                         }}
                         disabled={future.length === 0}
-                        style={{o}}
+                        style=}
                     >
                         <FiRotateCw size={20} />
                     </button>

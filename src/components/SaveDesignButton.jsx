@@ -45,6 +45,7 @@ export default function SaveDesignButton({ canvas, userId, editingDesignId, clas
         ) : (
           <FiSave size={20} /> // Save icon when ready
         )}
+        
       </button>
       <SavePromptModal
         open={showSavePrompt}

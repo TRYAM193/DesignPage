@@ -3,13 +3,15 @@ import React from 'react';
 import { useRef } from 'react';
 import addImage from '../functions/image';
 
-// Corrected Props: Remove FiImage and add 'children'
-export default function ImageHandler({setSelectedId, setActiveTool, children}) {
+// CHANGED: Added 'className' and 'onClick' to props
+export default function ImageHandler({setSelectedId, setActiveTool, children, className}) { 
   const fileInput = useRef(null);
 
   const handleClick = () => {
+    // 1. Open the file dialog
     fileInput.current.click();
-    // Also trigger the sidebar to open on click
+    
+    // 2. Trigger the active state in the parent (opens the sidebar)
     if (setActiveTool) {
         setActiveTool('image');
     }
@@ -35,9 +37,9 @@ export default function ImageHandler({setSelectedId, setActiveTool, children}) {
 
   return (
     <>
-      {/* Use children to render the icon and text passed from MainToolbar */}
-      <button onClick={handleClick} className="tool-button w-16 h-16">
-        {children || 'Upload'}
+      {/* FIX: Apply className directly to the button for correct CSS inheritance */}
+      <button onClick={handleClick} className={className}>
+        {children || <span>Upload</span>}
       </button>
       <input
         type="file"

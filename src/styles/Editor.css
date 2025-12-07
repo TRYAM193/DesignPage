@@ -17,16 +17,10 @@ body, html, #root, .app {
 
 /* Header (Top Bar) */
 .header {
-  height: 60px; /* Fixed height for the header */
-  padding: 0 15px;
-  width: auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: white;
-  border-bottom: 1px solid #e0e0e0;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  color: #333;
+    height: 50px; /* Shorter header */
+    padding: 0 20px;
+    justify-content: flex-start; /* Align content to the left */
+    gap: 15px;
 }
 .header h1 {
     font-size: 20px;

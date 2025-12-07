@@ -102,6 +102,7 @@ export default function EditorPanel() {
                             dispatch(redo());
                         }}
                         disabled={future.length === 0}
+                        {}
                     >
                         <FiRotateCw size={20} />
                     </button>

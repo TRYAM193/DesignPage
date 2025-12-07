@@ -10,11 +10,9 @@ import RightPanel from '../components/Toolbar';
 import { undo, redo } from '../redux/canvasSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-// New Components
 import MainToolbar from '../components/MainToolbar'; 
 import ContextualSidebar from '../components/ContextualSidebar'; 
 import CanvasControlBar from '../components/CanvasControlBar';
-// Re-import icons that we know work
 import { FiTrash2 } from 'react-icons/fi';
 
 

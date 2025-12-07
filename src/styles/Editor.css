@@ -1,4 +1,4 @@
-/* ===================================
+//* ===================================
    BASE STYLES (Ensuring full screen)
    =================================== */
 body,
@@ -8,42 +8,42 @@ html,
   padding: 0;
   font-family: 'Segoe UI', sans-serif;
   width: 100%;
-  height: 100%; /* Ensure root elements take full viewport height */
+  height: 100%; 
 }
 
 .container.app {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Use 100vh for primary container */
-  background-color: #f8f9fb; /* Light background for canvas area */
+  height: 100vh;
+  background-color: #f8f9fb;
 }
 
 /* ===================================
    1. HEADER: Logo and Title Only
    =================================== */
 .header {
-    height: 50px; /* Shorter header */
+    height: 50px;
     padding: 0 20px;
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    gap: 15px;
     background-color: white;
     border-bottom: 1px solid #e0e0e0;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     color: #333;
+}
+
+/* FIX: Ensure logo and title are in a row */
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px; 
 }
 .header h1 {
     font-size: 20px;
     font-weight: bold;
     color: #000000;
 }
-.header-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
 .logo-circle {
     width: 32px;
     height: 32px;
@@ -59,86 +59,18 @@ html,
 }
 
 /* ===================================
-   2. CONTROL BAR: Undo, Redo, Save, Export
+   2. MAIN EDITOR BODY: Three Columns
    =================================== */
-.canvas-control-bar {
-    width: 100%;
-    height: 50px;
-    background-color: white;
-    border-bottom: 1px solid #e0e0e0;
-    display: flex;
-    align-items: center;
-    justify-content: center; 
-    z-index: 10;
-}
-.control-bar-inner {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    background-color: white;
-    padding: 5px 15px;
-    border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-}
-/* FIX: Divider Style */
-.header-divider {
-    width: 1px;
-    height: 24px;
-    background-color: #ddd;
-}
-/* FIX: Button Styles */
-.header-button {
-    background: #4949e5;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 14px;
-    font-weight: 500;
-}
-.header-button.export {
-    background: #f0f0f0;
-    color: #555;
-}
-.header-button.export:hover {
-    background: #e0e0e0;
-}
-.header-undo-redo {
-    display: flex;
-    gap: 5px;
-}
-.header-undo-redo button {
-    background: transparent;
-    border: 1px solid #ddd;
-    color: #555;
-    padding: 6px;
-    border-radius: 4px;
-    transition: 0.2s;
-}
-.header-undo-redo button:hover {
-    background: #f0f0f0;
-    color: #4949e5;
-}
-
-
-/* ===================================
-   3. MAIN EDITOR BODY: Three Columns
-   =================================== */
-/* FIX: Calculate remaining height */
+/* FIX: MAIN takes remaining height (Header is 50px) */
 .main {
   display: flex;
   flex-grow: 1; 
-  height: calc(100vh - 100px); /* 100vh - Header(50px) - ControlBar(50px) */
+  height: calc(100vh - 50px); 
   width: 100%;
   overflow: hidden;
 }
 
-/* 3.1 Main Toolbar (Far Left - Fixed Width) */
+/* 2.1 Main Toolbar (Far Left - Fixed Width) */
 .main-toolbar {
   width: 70px;
   min-width: 70px;
@@ -183,7 +115,7 @@ html,
 }
 
 
-/* 3.2 Contextual Sidebar (Tool Content) */
+/* 2.2 Contextual Sidebar (Tool Content) */
 .contextual-sidebar {
   width: 300px;
   min-width: 300px;
@@ -205,7 +137,7 @@ html,
 }
 
 
-/* 3.3 Preview Area (Canvas) - Center Area */
+/* 2.3 Preview Area (Canvas) - Center Area */
 .preview-area {
   flex-grow: 1;
   display: flex;
@@ -216,42 +148,96 @@ html,
   overflow: auto;
   background-color: #f8f9fb;
   height: auto;
-  top: auto;
-  position: relative; /* Essential for top-bar absolute position */
+  position: relative; 
 }
 #canvas-wrapper {
-  position: relative; 
+  position: absolute;
+  top: 60px; /* IMPORTANT: Push canvas down to clear the consolidated bar */
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
   background-color: white;
 }
+#canvas {
+    top: 50px;
+    position: relative;
+}
 
-/* Object Controls (Delete only) */
-.top-bar {
+/* -------------------------------------------
+   CONSOLIDATED FLOATING TOOLBAR (top-bar)
+   ------------------------------------------- */
+.top-bar.consolidated-bar {
+  /* Positioning */
   position: absolute;
-  top: 15px;
+  top: 15px; 
   left: 50%;
   transform: translateX(-50%);
+  z-index: 100;
+
+  /* Appearance */
   display: flex;
-  gap: 8px;
-  z-index: 2;
+  align-items: center;
+  gap: 15px; 
   background-color: white;
-  padding: 5px 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  padding: 8px 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
-.top-bar button {
-    background: none;
+
+.control-group {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+.control-group.divider {
+    padding-right: 15px; 
+    border-right: 1px solid #eee;
+}
+
+/* --- Consolidated Button Styles --- */
+.top-bar-button {
+    background: transparent;
     border: none;
     color: #555;
     cursor: pointer;
-    padding: 5px;
+    padding: 8px; 
+    border-radius: 8px;
+    transition: background-color 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.top-bar button:hover {
+.top-bar-button:hover {
+    background-color: #f0f0f0;
     color: #4949e5;
 }
 
+/* Text Buttons (Save, Export, Order Print) */
+.top-bar-button.text-button {
+    padding: 8px 12px;
+    gap: 5px;
+    font-size: 14px;
+    font-weight: 500;
+}
 
-/* 3.4 Right Properties Panel */
+/* Primary Accent Button (Order Print) */
+.top-bar-button.accent {
+    background: #4949e5; /* Indigo */
+    color: white;
+}
+.top-bar-button.accent:hover {
+    background: #5a5ae9;
+    color: white;
+}
+
+/* Danger Button (Delete) */
+.top-bar-button.danger {
+    color: #cc3333;
+}
+.top-bar-button.danger:hover {
+    background-color: #ffe6e6;
+}
+
+
+/* 2.4 Right Properties Panel */
 .right-panel {
   width: 300px;
   min-width: 300px;
@@ -262,9 +248,4 @@ html,
   padding: 15px;
   color: #333;
   max-height: none;
-}
-/* Ensure canvas editor is below top bar */
-#canvas {
-    top: 50px;
-    position: relative;
 }

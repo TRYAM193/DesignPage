@@ -90,6 +90,7 @@ export default function EditorPanel() {
                             dispatch(undo())
                         }}
                         disabled={past.length === 0}
+                        style={{'opacity:'}}
                     >
                         <FiRotateCcw size={20} />
                     </button>

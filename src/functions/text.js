@@ -34,7 +34,12 @@ export default function Text(setSelectedId, setActiveTool) {
     store.dispatch(setCanvasObjects(newObjects));
   };
 
-  const 
+  const addHeading1 = () => {
+    const newText = {
+      id: Date.now(), 
+      type: 'text',
+      props: {
+        text: 'Heading 1',
 
   // Keep local UI state in sync
   if (setActiveTool) setActiveTool(newText.type);

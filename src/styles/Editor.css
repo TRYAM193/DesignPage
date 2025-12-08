@@ -96,7 +96,10 @@ html,
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-
+.logo-circle:hover {
+  background-color: #202020;
+  box-shadow: ;
+} 
 
 /* FIX 2: Ensure the image fills the container perfectly, stripping any padding/margins */
 .logo-circle img {

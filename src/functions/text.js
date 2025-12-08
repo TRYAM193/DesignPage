@@ -7,8 +7,10 @@ export default function Text(setSelectedId, setActiveTool) {
   const canvasObjects = state.canvas.present;
 
   function handleAddText(obj) {
-
-
+const newObjects = [...canvasObjects, newText];
+    store.dispatch(setCanvasObjects(newObjects));
+if (setActiveTool) setActiveTool(newText.type);
+    if (setSelectedId) setSelectedId(newText.id);
 
   const addText = () => {
     const newText = {

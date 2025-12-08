@@ -76,27 +76,36 @@ html,
 }
 /* src/styles/Editor.css (Find and modify the existing rules) */
 
+/* src/styles/Editor.css (Modify the existing logo styles) */
+
+/* FIX 1: Force Clipping and Reset Display Properties */
 .logo-circle {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    /* background-color: #4949e5; */
+    background-color: #4949e5;
     color: white;
-    /* FIX 1: Change display to block/inline-block for better image handling */
-    display: block; 
-    /* Remove old text centering properties */
-    font-size: 18px; 
-    font-weight: bold;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    /* FIX 2: ESSENTIAL for clipping content to the circle */
+    
+    /* ESSENTIAL: Must be set to clip the content */
     overflow: hidden; 
+    
+    /* Ensure child is centered if the image is smaller than 32px (e.g., if object-fit is 'contain') */
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
+/* FIX 2: Ensure the image fills the container perfectly without a margin */
 .logo-circle img {
-    /* FIX 3: Ensure image fills the container perfectly */
     display: block;
     width: 100%;
     height: 100%;
+    /* Prevents the image from being distorted, keeping its aspect ratio */
+    object-fit: contain; 
+    margin: 0;
+    padding: 0;
 }
 
 .toolbar-divider {

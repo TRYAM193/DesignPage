@@ -52,7 +52,11 @@ export default function Text(setSelectedId, setActiveTool) {
         charSpacing: 1,
         stroke: null,
         strokeWidth: 0,
-        
+        textStyle: 'straight'
+      },
+    };
+    const newObjects = [...canvasObjects, newText];
+    store.dispatch(setCanvasObjects(newObjects));
 
   // Keep local UI state in sync
   if (setActiveTool) setActiveTool(newText.type);

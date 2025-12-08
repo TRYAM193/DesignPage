@@ -81,6 +81,7 @@ html,
   border-radius: 50%;
   color: white;
   width: fit-content;
+  height: fit-content;
   overflow: hidden;
   display: flex;
   align-items: center;

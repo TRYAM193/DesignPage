@@ -15,7 +15,7 @@ export default function ContextualSidebar({ activePanel, setActivePanel, addText
           <button 
              onClick={() => addText()}
              className="header-button"
-             style={{padding: '10px', border: '1px solid #ccc', borderRadius: '6px', cursor: 'pointer'}}
+             style={{padding: '10px', border: '1px solid #ccc', borderRadius: '6px', cursor: 'pointer', color: '#fff', backgroundColor: '#007bff', marginBottom: '15px'}}
           >
             Add a Text Box
           </button>

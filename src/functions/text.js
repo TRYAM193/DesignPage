@@ -67,6 +67,7 @@ export default function Text(setSelectedId, setActiveTool) {
     if (setSelectedId) setSelectedId(newText.id);
   }
 
-  const addSun
+  const addSubheading = () => {
+    
   return { addText, addHeading };
 }

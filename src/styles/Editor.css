@@ -83,10 +83,7 @@ html,
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    /* background-color: #4949e5; */
     color: white;
-    
-    /* ESSENTIAL: Must be set to clip the content */
     overflow: hidden; 
     
     /* Ensure child is centered if the image is smaller than 32px (e.g., if object-fit is 'contain') */

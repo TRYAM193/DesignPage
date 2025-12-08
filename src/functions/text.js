@@ -40,6 +40,19 @@ export default function Text(setSelectedId, setActiveTool) {
       type: 'text',
       props: {
         text: 'Heading 1',
+        left: 200,
+        top: 200,
+        angle: 0, 
+        fill: '#000000',
+        fontSize: 48,
+        fontFamily: 'Helvetica Neue',
+        fontWeight: 'bold',
+        opacity: 1,
+        shadow: false,
+        charSpacing: 1,
+        stroke: null,
+        strokeWidth: 0,
+        
 
   // Keep local UI state in sync
   if (setActiveTool) setActiveTool(newText.type);

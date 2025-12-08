@@ -420,7 +420,7 @@ export default function CanvasEditor({
           } 
         }
 
-        fabricCanvas.setActiveObject(active);
+        fabricCanvas.setActiveObject(existing);
         fabricCanvas.renderAll();
       } else {
 

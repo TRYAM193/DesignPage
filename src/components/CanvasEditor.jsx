@@ -420,7 +420,8 @@ export default function CanvasEditor({
           } 
         }
 
-        existing
+        existing.setActiveObject();
+        fabricCanvas.renderAll();
       } else {
 
         let newObj;

@@ -70,10 +70,8 @@ html,
   background-color: #4949e5;
   border-radius: 50%;
   overflow: hidden;
-  /* Ensure image styles are still applied to img within logo-circle */
 }
 
-/* FIX 3: Increase Brand Name text size (from 12px to 14px) */
 .header-brand.toolbar-brand h1 {
   font-size: 14px;
   font-weight: 600;

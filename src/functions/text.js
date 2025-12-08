@@ -45,7 +45,7 @@ export default function Text(setSelectedId, setActiveTool) {
       id: Date.now(),
       type: 'text',
       props: {
-        text: 'Heading 1',
+        text: 'Heading',
         left: 200,
         top: 200,
         angle: 0,
@@ -73,7 +73,7 @@ export default function Text(setSelectedId, setActiveTool) {
       id: Date.now(),
       type: 'text',
       props: {
-        text: 'Sub Head',
+        text: 'Sub Heading',
         left: 200,
         top: 200,
         angle: 0,

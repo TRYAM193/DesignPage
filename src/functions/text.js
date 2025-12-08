@@ -91,6 +91,6 @@ export default function Text(setSelectedId, setActiveTool) {
         strokeWidth: 0,
         textStyle: 'straight'
       },
-    };
-    const newObjects = [...canvasObjects, newText];
-    store.dispatch(setCanvasObjects(newObjects));
+  }
+  return { addText, addHeading };
+}

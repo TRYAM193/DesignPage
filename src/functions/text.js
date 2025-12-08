@@ -23,7 +23,7 @@ export default function addText(setSelectedId, setActiveTool) {
       shadowOffsetY: 0,
       shadowColor: '#000000',
       charSpacing: 1,
-      stroke: '#ff0202ff',
+      stroke: '#f70000',
       strokeWidth: 1,
       textStyle: 'straight'
     },

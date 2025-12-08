@@ -419,6 +419,8 @@ export default function CanvasEditor({
             }
           } 
         }
+
+        existing
       } else {
 
         let newObj;

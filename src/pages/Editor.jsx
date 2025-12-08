@@ -7,7 +7,7 @@ import addText from '../functions/text';
 import updateObject from '../functions/update';
 import removeObject from '../functions/remove';
 import SaveDesignButton from '../components/SaveDesignButton';
-import RightPanel from '../components/Toolbar';
+import RightSidebarTabs from '../components/RightSidebarTabs';
 import { undo, redo } from '../redux/canvasSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';

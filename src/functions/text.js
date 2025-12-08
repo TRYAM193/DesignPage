@@ -73,7 +73,7 @@ export default function Text(setSelectedId, setActiveTool) {
       id: Date.now(),
       type: 'text',
       props: {
-        text: 'Heading 1',
+        text: 'Sub Head',
         left: 200,
         top: 200,
         angle: 0,

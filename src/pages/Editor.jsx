@@ -3,7 +3,7 @@ import React from 'react';
 import '../styles/Editor.css';
 import CanvasEditor from '../components/CanvasEditor';
 import { useState } from 'react';
-import addText from '../functions/text';
+import Text from '../functions/text';
 import updateObject from '../functions/update';
 import removeObject from '../functions/remove';
 import SaveDesignButton from '../components/SaveDesignButton';

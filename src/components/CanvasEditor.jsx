@@ -421,7 +421,7 @@ export default function CanvasEditor({
         }
 
         active.set({ ...objData.props });
-        existing.setCoords();
+        active.setCoords();
         fabricCanvas.requestRenderAll();
       } else {
 

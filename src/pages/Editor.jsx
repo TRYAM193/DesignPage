@@ -163,7 +163,7 @@ export default function EditorPanel() {
 
         {/* 4. Right Properties Panel */}
         <aside className="right-panel">
-          <RightPanel
+          <RightSidebarTabs
             id={selectedId}
             type={activeTool}
             object={canvasObjects.find((obj) => obj.id === selectedId)}

@@ -65,12 +65,7 @@ export default function Text(setSelectedId, setActiveTool) {
         textStyle: 'straight'
       },
     };
-    const newObjects = [...canvasObjects, newText];
-    store.dispatch(setCanvasObjects(newObjects));
-
-    // Keep local UI state in sync
-    if (setActiveTool) setActiveTool(newText.type);
-    if (setSelectedId) setSelectedId(newText.id);
+    handleAddText(newText);
   }
 
   const addSubheading = () => {
@@ -98,6 +93,7 @@ export default function Text(setSelectedId, setActiveTool) {
         textStyle: 'straight'
       },
     }
+    handleAddText(newText);
   }
   return { addText, addHeading };
 }

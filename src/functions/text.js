@@ -66,3 +66,4 @@ export default function Text(setSelectedId, setActiveTool) {
   if (setActiveTool) setActiveTool(newText.type);
   if (setSelectedId) setSelectedId(newText.id);
 }
+}

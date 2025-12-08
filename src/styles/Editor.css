@@ -84,6 +84,7 @@ html,
   border-radius: 50%;
   background-color: #080808;
   color: white;
+  cursor: pointer;
 
   /* ESSENTIAL: Must be set to clip the square image */
   overflow: hidden;
@@ -94,6 +95,8 @@ html,
 
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
+
 
 /* FIX 2: Ensure the image fills the container perfectly, stripping any padding/margins */
 .logo-circle img {

@@ -85,12 +85,9 @@ html,
     border-radius: 50%;
     color: white;
     overflow: hidden; 
-    
-    /* Ensure child is centered if the image is smaller than 32px (e.g., if object-fit is 'contain') */
     display: flex; 
     align-items: center;
     justify-content: center;
-    
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 

@@ -75,11 +75,6 @@ html,
   margin: 0;
 }
 
-/* src/styles/Editor.css (Find and modify the existing rules) */
-
-/* src/styles/Editor.css (Modify the existing logo styles) */
-
-/* FIX 1: Force Clipping and Reset Display Properties */
 .logo-circle {
   width: 32px;
   height: 32px;

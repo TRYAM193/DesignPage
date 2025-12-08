@@ -47,36 +47,38 @@ html,
   overflow-y: auto;
 }
 
-/* FIX: Brand Display styles inside the toolbar */
+/* src/styles/Editor.css (Modify the existing toolbar-brand styles) */
+
+/* FIX 1: Adjust Brand container spacing */
 .header-brand.toolbar-brand {
-  display: flex;
-  flex-direction: column;
-  /* Stack logo and name */
-  align-items: center;
-  justify-content: center;
-  padding: 15px 0 10px 0;
-  border-bottom: 1px solid #eee;
-  margin-bottom: 5px;
-  gap: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 18px 0 12px 0; /* Increased padding for better vertical spacing */
+    border-bottom: 1px solid #eee;
+    margin-bottom: 5px;
+    gap: 5px;
 }
 
+/* FIX 2: Increase Logo Circle size (from 32px to 40px) */
 .header-brand.toolbar-brand .logo-circle {
-  /* width: 32px;
-  height: 32px; */
-  font-size: 16px;
-  /* background-color: #4949e5; */
-  border-radius: 50%;
+    width: 40px; 
+    height: 40px;
+    font-size: 16px;
+    background-color: #4949e5;
+    border-radius: 50%;
+    overflow: hidden;
+    /* Ensure image styles are still applied to img within logo-circle */
 }
 
+/* FIX 3: Increase Brand Name text size (from 12px to 14px) */
 .header-brand.toolbar-brand h1 {
-  font-size: 12px;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-}
-/* src/styles/Editor.css (Modify the existing logo styles) */
-
-/* FIX 1: Ensure Clipping is set on the container */
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}sure Clipping is set on the container */
 .logo-circle {
     width: 32px;
     height: 32px;

@@ -95,5 +95,5 @@ export default function Text(setSelectedId, setActiveTool) {
     }
     handleAddText(newText);
   }
-  return { addText, addHeading };
+  return { addText, addHeading, addSubheading };
 }

@@ -88,140 +88,6 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
         {type.charAt(0).toUpperCase() + type.slice(1)} Properties
       </h2>
 
-      {/* --- 1. TYPE-SPECIFIC PROPERTIES --- */}
-      {type === 'text' && (
-        <div className="property-group">
-          <h3 className="property-group-title">Text Content & Style</h3>
-
-          {/* Text Content Input */}
-          <div className="control-row full-width">
-            <textarea
-              className="text-input"
-              rows="3"
-              value={liveProps.text || ''}
-              // Final update on blur
-              onBlur={(e) => handleUpdateAndHistory('text', e.target.value)}
-              // Live update on every change
-              onChange={(e) => handleLiveUpdate('text', e.target.value)}
-              placeholder="Enter your text here"
-            />
-          </div>
-
-          {/* Text Style Buttons & Font Family */}
-          <div className="control-row-buttons">
-            {/* ... (Bold, Italic, Underline buttons use history handler) ... */}
-            <button
-              className={`style-button ${liveProps.fontWeight === 'bold' ? 'active' : ''}`}
-              onClick={() => toggleTextStyle('bold')}
-              title="Bold"
-            >
-              <FiBold size={16} />
-            </button>
-            <button
-              className={`style-button ${liveProps.fontStyle === 'italic' ? 'active' : ''}`}
-              onClick={() => toggleTextStyle('italic')}
-              title="Italic"
-            >
-              <FiItalic size={16} />
-            </button>
-            <button
-              className={`style-button ${liveProps.underline ? 'active' : ''}`}
-              onClick={() => toggleTextStyle('underline')}
-              title="Underline"
-            >
-              <FiUnderline size={16} />
-            </button>
-
-            {/* Font Family Dropdown - HISTORY update on change */}
-            <select
-              className="font-select"
-              value={liveProps.fontFamily || 'Arial'}
-              onChange={(e) => handleUpdateAndHistory('fontFamily', e.target.value)}
-              title="Font Family"
-            >
-              {FONT_OPTIONS.map(font => (
-                <option key={font} value={font}>{font}</option>
-              ))}
-            </select>
-          </div>
-
-
-          {/* Font Size Slider */}
-          <div className="control-row">
-            <label className="control-label">Font Size</label>
-            <input
-              type="number"
-              className="number-input small"
-              value={Math.round(liveProps.fontSize || 30)}
-              // Live update on every keystroke
-              onChange={(e) => handleLiveUpdate('fontSize', Number(e.target.value))}
-              // Final update on blur
-              onBlur={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))}
-            />
-          </div>
-          <input
-            type="range"
-            className="slider-input"
-            min="10"
-            max="200"
-            step="1"
-            value={liveProps.fontSize || 30}
-            // Live update on input (drag)
-            onInput={(e) => handleLiveUpdate('fontSize', Number(e.target.value))}
-            // Final update on mouse up
-            onMouseUp={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))}
-          />
-
-          {/* Text Color Control */}
-          <div className="control-row">
-            <label className="control-label">Text Color</label>
-            <input
-              type="color"
-              className="color-input"
-              value={liveProps.fill || '#000000'}
-              // Live update on input (drag)
-              onInput={(e) => handleLiveUpdate('fill', e.target.value)}
-              // Final update on change (when color selection modal closes)
-              onChange={(e) => handleUpdateAndHistory('fill', e.target.value)}
-            />
-          </div>
-
-          {/* Stroke Color and Width */}
-          <h3 className="property-group-subtitle">Outline</h3>
-
-          <div className="control-row">
-            <label className="control-label">Color</label>
-            <input
-              type="color"
-              className="color-input"
-              value={liveProps.stroke || '#000000'}
-              onInput={(e) => handleLiveUpdate('stroke', e.target.value)}
-              onChange={(e) => handleUpdateAndHistory('stroke', e.target.value)}
-            />
-          </div>
-          <div className="control-row">
-            <label className="control-label">Width</label>
-            <input
-              type="number"
-              className="number-input small"
-              value={Math.round(liveProps.strokeWidth || 0)}
-              onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value))}
-              onBlur={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
-            />
-          </div>
-          <input
-            type="range"
-            className="slider-input"
-            min="0"
-            max="10"
-            step="0.5"
-            value={liveProps.strokeWidth || 0}
-            onInput={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value))}
-            onMouseUp={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
-          />
-
-        </div>
-      )}
 
       {/* --- 2. GENERIC PROPERTIES (Opacity) --- */}
       <div className="property-group">
@@ -347,3 +213,137 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
     </div>
   );
 }
+      // {/* --- 1. TYPE-SPECIFIC PROPERTIES --- */}
+      // {type === 'text' && (
+      //   <div className="property-group">
+      //     <h3 className="property-group-title">Text Content & Style</h3>
+
+      //     {/* Text Content Input */}
+      //     <div className="control-row full-width">
+      //       <textarea
+      //         className="text-input"
+      //         rows="3"
+      //         value={liveProps.text || ''}
+      //         // Final update on blur
+      //         onBlur={(e) => handleUpdateAndHistory('text', e.target.value)}
+      //         // Live update on every change
+      //         onChange={(e) => handleLiveUpdate('text', e.target.value)}
+      //         placeholder="Enter your text here"
+      //       />
+      //     </div>
+
+      //     {/* Text Style Buttons & Font Family */}
+      //     <div className="control-row-buttons">
+      //       {/* ... (Bold, Italic, Underline buttons use history handler) ... */}
+      //       <button
+      //         className={`style-button ${liveProps.fontWeight === 'bold' ? 'active' : ''}`}
+      //         onClick={() => toggleTextStyle('bold')}
+      //         title="Bold"
+      //       >
+      //         <FiBold size={16} />
+      //       </button>
+      //       <button
+      //         className={`style-button ${liveProps.fontStyle === 'italic' ? 'active' : ''}`}
+      //         onClick={() => toggleTextStyle('italic')}
+      //         title="Italic"
+      //       >
+      //         <FiItalic size={16} />
+      //       </button>
+      //       <button
+      //         className={`style-button ${liveProps.underline ? 'active' : ''}`}
+      //         onClick={() => toggleTextStyle('underline')}
+      //         title="Underline"
+      //       >
+      //         <FiUnderline size={16} />
+      //       </button>
+
+      //       {/* Font Family Dropdown - HISTORY update on change */}
+      //       <select
+      //         className="font-select"
+      //         value={liveProps.fontFamily || 'Arial'}
+      //         onChange={(e) => handleUpdateAndHistory('fontFamily', e.target.value)}
+      //         title="Font Family"
+      //       >
+      //         {FONT_OPTIONS.map(font => (
+      //           <option key={font} value={font}>{font}</option>
+      //         ))}
+      //       </select>
+      //     </div>
+
+
+      //     {/* Font Size Slider */}
+      //     <div className="control-row">
+      //       <label className="control-label">Font Size</label>
+      //       <input
+      //         type="number"
+      //         className="number-input small"
+      //         value={Math.round(liveProps.fontSize || 30)}
+      //         // Live update on every keystroke
+      //         onChange={(e) => handleLiveUpdate('fontSize', Number(e.target.value))}
+      //         // Final update on blur
+      //         onBlur={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))}
+      //       />
+      //     </div>
+      //     <input
+      //       type="range"
+      //       className="slider-input"
+      //       min="10"
+      //       max="200"
+      //       step="1"
+      //       value={liveProps.fontSize || 30}
+      //       // Live update on input (drag)
+      //       onInput={(e) => handleLiveUpdate('fontSize', Number(e.target.value))}
+      //       // Final update on mouse up
+      //       onMouseUp={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))}
+      //     />
+
+      //     {/* Text Color Control */}
+      //     <div className="control-row">
+      //       <label className="control-label">Text Color</label>
+      //       <input
+      //         type="color"
+      //         className="color-input"
+      //         value={liveProps.fill || '#000000'}
+      //         // Live update on input (drag)
+      //         onInput={(e) => handleLiveUpdate('fill', e.target.value)}
+      //         // Final update on change (when color selection modal closes)
+      //         onChange={(e) => handleUpdateAndHistory('fill', e.target.value)}
+      //       />
+      //     </div>
+
+      //     {/* Stroke Color and Width */}
+      //     <h3 className="property-group-subtitle">Outline</h3>
+
+      //     <div className="control-row">
+      //       <label className="control-label">Color</label>
+      //       <input
+      //         type="color"
+      //         className="color-input"
+      //         value={liveProps.stroke || '#000000'}
+      //         onInput={(e) => handleLiveUpdate('stroke', e.target.value)}
+      //         onChange={(e) => handleUpdateAndHistory('stroke', e.target.value)}
+      //       />
+      //     </div>
+      //     <div className="control-row">
+      //       <label className="control-label">Width</label>
+      //       <input
+      //         type="number"
+      //         className="number-input small"
+      //         value={Math.round(liveProps.strokeWidth || 0)}
+      //         onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value))}
+      //         onBlur={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
+      //       />
+      //     </div>
+      //     <input
+      //       type="range"
+      //       className="slider-input"
+      //       min="0"
+      //       max="10"
+      //       step="0.5"
+      //       value={liveProps.strokeWidth || 0}
+      //       onInput={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value))}
+      //       onMouseUp={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
+      //     />
+
+      //   </div>
+      // )}

@@ -42,7 +42,7 @@ export default function EditorPanel() {
     <div className="header-brand toolbar-brand">
         <div className="logo-circle">
             <img 
-                src="/assets/LOGO.png" 
+                src="/assets/LOGO.svg" 
                 alt="TRYAM Logo" 
                 style={{ width: '100%', height: '100%', objectFit: 'contain' }}
             />

@@ -6,8 +6,8 @@ export default function Text(setSelectedId, setActiveTool) {
   const state = store.getState();
   const canvasObjects = state.canvas.present;
 
-  function handleAddText() {
-    
+  function handleAddText(obj) {
+
 
 
   const addText = () => {

@@ -41,7 +41,11 @@ export default function EditorPanel() {
   const BrandDisplay = (
     <div className="header-brand toolbar-brand">
         <div className="logo-circle">
-            <span>T</span>
+            <img 
+                src="/assets/LOGO.svg" 
+                alt="TRYAM Logo" 
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
         </div>
         <h1>TRYAM</h1>
     </div>

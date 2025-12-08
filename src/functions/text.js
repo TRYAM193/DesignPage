@@ -14,7 +14,7 @@ export default function addText(setSelectedId, setActiveTool) {
       left: 200,
       top: 200,
       angle: 0,
-      fill: '#fe0404ff',
+      fill: '#fe0404',
       fontSize: 30,
       fontFamily: 'Arial',
       opacity: 1,

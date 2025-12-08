@@ -12,6 +12,7 @@ export default function Text(setSelectedId, setActiveTool) {
     if (setActiveTool) setActiveTool(obj.type);
     if (setSelectedId) setSelectedId(obj.id);
   }
+
   const addText = () => {
     const newText = {
       id: Date.now(),
@@ -36,8 +37,7 @@ export default function Text(setSelectedId, setActiveTool) {
         textStyle: 'straight'
       },
     };
-    const newObjects = [...canvasObjects, newText];
-    store.dispatch(setCanvasObjects(newObjects));
+    handleAddText(newText);
   };
 
   const addHeading = () => {

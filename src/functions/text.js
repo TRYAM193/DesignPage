@@ -2,7 +2,7 @@
 import { store } from '../redux/store';
 import { setCanvasObjects } from '../redux/canvasSlice';
 
-export default function TexText(setSelectedId, setActiveTool) {
+export default function Text(setSelectedId, setActiveTool) {
   const state = store.getState();
   const canvasObjects = state.canvas.present;
 

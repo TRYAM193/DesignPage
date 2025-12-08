@@ -34,7 +34,6 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
              return;
         }
 
-        // Font Weight/Bold: Fabric uses the 'fontWeight' property, typically 'normal' or 'bold'
         if (style === 'bold') {
             const newWeight = props.fontWeight === 'bold' ? 'normal' : 'bold';
             handleUpdate('fontWeight', newWeight);

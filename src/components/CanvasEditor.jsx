@@ -413,11 +413,7 @@ export default function CanvasEditor({
             if (activeIds.includes(objData.id)) {
               return;
             }
-          } else {
-            if (active.customId === objData.id) {
-              return;
-            }
-          }
+          } 
         }
 
         let shouldRecalculateDimensions = false;

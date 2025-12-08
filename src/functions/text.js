@@ -68,6 +68,29 @@ export default function Text(setSelectedId, setActiveTool) {
   }
 
   const addSubheading = () => {
-    
-  return { addText, addHeading };
-}
+    const newText = {
+      id: Date.now(),
+      type: 'text',
+      props: {
+        text: 'Heading 1',
+        left: 200,
+        top: 200,
+        angle: 0,
+        fill: '#000000',
+        fontSize: 48,
+        fontFamily: 'Helvetica Neue',
+        fontWeight: 'bold',
+        opacity: 1,
+        shadow: true,
+        shadowBlur: 5,
+        shadowOffsetX: 3,
+        shadowOffsetY: -2,
+        shadowColor: '#000000',
+        charSpacing: 1,
+        stroke: null,
+        strokeWidth: 0,
+        textStyle: 'straight'
+      },
+    };
+    const newObjects = [...canvasObjects, newText];
+    store.dispatch(setCanvasObjects(newObjects));

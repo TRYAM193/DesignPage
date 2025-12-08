@@ -1,4 +1,4 @@
-import { FabricText } from 'fabric';
+import { FabricText, Textbox } from 'fabric';
 
 export default function StraightText(obj) {
   if (!obj) return;

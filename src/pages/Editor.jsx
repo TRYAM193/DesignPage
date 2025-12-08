@@ -79,7 +79,8 @@ export default function EditorPanel() {
                 activePanel={activePanel} 
                 setActivePanel={setActivePanel}
                 addText={addText}
-                a
+                addHeading={addHeading}
+                addSubheading={addSubheading}   
             />
         )}
         

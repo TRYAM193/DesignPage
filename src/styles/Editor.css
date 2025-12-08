@@ -61,8 +61,8 @@ html,
 }
 
 .header-brand.toolbar-brand .logo-circle {
-  width: 32px;
-  height: 32px;
+  /* width: 32px;
+  height: 32px; */
   font-size: 16px;
   /* background-color: #4949e5; */
   border-radius: 50%;

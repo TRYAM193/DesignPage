@@ -2,7 +2,7 @@
 import React from 'react';
 import ShapesSidebar from './ShapesSidebar'; 
 
-export default function ContextualSidebar({ activePanel, setActivePanel, addText,  }) {
+export default function ContextualSidebar({ activePanel, setActivePanel, addText, addHeading, addSubheading }) {
   
   let ContentComponent = null;
   let title = "";

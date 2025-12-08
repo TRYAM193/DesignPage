@@ -64,7 +64,7 @@ html,
   width: 32px;
   height: 32px;
   font-size: 16px;
-  background-color: #4949e5;
+  /* background-color: #4949e5; */
   border-radius: 50%;
 }
 
@@ -80,7 +80,7 @@ html,
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background-color: #4949e5;
+    /* background-color: #4949e5; */
     color: white;
     /* FIX 1: Change display to block/inline-block for better image handling */
     display: block; 

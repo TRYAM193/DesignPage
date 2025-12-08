@@ -18,6 +18,7 @@ export default function addText(setSelectedId, setActiveTool) {
       fontSize: 30,
       fontFamily: 'Arial',
       opacity: 1,
+      shadow: true,
       shadowBlur: 5,
       shadowOffsetX: 3,
       shadowOffsetY: -2,

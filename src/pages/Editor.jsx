@@ -31,7 +31,7 @@ export default function EditorPanel() {
   const past = useSelector((state) => state.canvas.past);
   const future = useSelector((state) => state.canvas.future);
   const present = useSelector((state) => state.canvas.present);
-  console.log(fabricCanvas.getActiveObject());
+  console.log( if (fabricCanvas) fabricCanvas.getActiveObject());
   
   const [activePanel, setActivePanel] = useState('text'); 
   

@@ -32,7 +32,9 @@ export default function Text(setSelectedId, setActiveTool) {
     };
     const newObjects = [...canvasObjects, newText];
     store.dispatch(setCanvasObjects(newObjects));
-  }
+  };
+
+  const 
 
   // Keep local UI state in sync
   if (setActiveTool) setActiveTool(newText.type);

@@ -6,7 +6,8 @@ export default function Text(setSelectedId, setActiveTool) {
   const state = store.getState();
   const canvasObjects = state.canvas.present;
 
-  const newText = () => {
+  
+  const newText = {
     id: Date.now(),
     type: 'text',
     props: {

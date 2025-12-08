@@ -19,7 +19,7 @@ export default function addText(setSelectedId, setActiveTool) {
       fontFamily: 'Arial',
       opacity: 1,
       shadowBlur: 0,
-      shadowOffsetX: 0,
+      shadowOffsetX: 3,
       shadowOffsetY: 0,
       shadowColor: '#000000',
       charSpacing: 1,

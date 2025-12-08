@@ -420,6 +420,18 @@ export default function CanvasEditor({
           }
         }
 
+        let shouldRecalculateDimensions = false;
+
+        // Check if properties that affect size (text, font) have changed
+        if (objData.type === 'text') {
+            if (existing.text !== objData.props.text || 
+                existing.fontFamily !== objData.props.fontFamily ||
+                existing.fontSize !== objData.props.fontSize) {
+                
+                shouldRecalculateDimensions = true;
+            }
+        }
+
         existing.set({ ...objData.props });
         existing.setCoords();
         fabricCanvas.requestRenderAll();

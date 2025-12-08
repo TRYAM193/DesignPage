@@ -50,7 +50,7 @@ export default function Text(setSelectedId, setActiveTool) {
         top: 200,
         angle: 0,
         fill: '#000000',
-        fontSize: 48,
+        fontSize: 68,
         fontFamily: 'Helvetica Neue',
         fontWeight: 'bold',
         opacity: 1,

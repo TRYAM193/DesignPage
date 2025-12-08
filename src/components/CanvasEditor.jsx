@@ -406,6 +406,10 @@ export default function CanvasEditor({
 
       if (existing) {
         const active = fabricCanvas.getActiveObject();
+        
+        existing.set({ ...objData.props });
+        existing.setCoords();
+        fabricCanvas.requestRenderAll();
 
         if (active) {
           if (active.type === 'activeselection') {
@@ -415,10 +419,6 @@ export default function CanvasEditor({
             }
           } 
         }
-        
-        existing.set({ ...objData.props });
-        existing.setCoords();
-        fabricCanvas.requestRenderAll();
       } else {
 
         let newObj;

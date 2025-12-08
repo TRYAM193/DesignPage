@@ -83,7 +83,7 @@ html,
   width: fit-content;
   height: fit-content;
   overflow: hidden;
-  display: flex;
+  display: block;
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);

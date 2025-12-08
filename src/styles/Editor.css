@@ -57,7 +57,7 @@ html,
     margin-bottom: 5px;
     gap: 5px;
 }
-.header-brand.toolbar-brand .logo-circle {
+.header-brand.toolbar-brand {
     width: 32px;
     height: 32px;
     font-size: 16px;

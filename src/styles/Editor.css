@@ -11,61 +11,24 @@ html,
   height: 100%; 
 }
 
-.container.app {
+/* FIX: New wrapper container for full height context */
+.main-app-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
   background-color: #f8f9fb;
 }
 
-/* ===================================
-   1. HEADER: Logo and Title Only
-   =================================== */
-.header {
-    height: 50px;
-    padding: 0 20px;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    background-color: white;
-    border-bottom: 1px solid #e0e0e0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    color: #333;
-}
-
-/* FIX: Ensure logo and title are in a row */
-.header-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px; 
-}
-.header h1 {
-    font-size: 20px;
-    font-weight: bold;
-    color: #000000;
-}
-.logo-circle {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: #4949e5;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    font-weight: bold;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
+/* 💥 HEADER STYLES REMOVED 💥 */
 
 /* ===================================
    2. MAIN EDITOR BODY: Three Columns
    =================================== */
-/* FIX: MAIN takes remaining height (Header is 50px) */
-.main {
+/* FIX: MAIN takes full 100vh height */
+.main.full-height-main {
   display: flex;
   flex-grow: 1; 
-  height: calc(100vh - 50px); 
+  height: 100vh; 
   width: 100%;
   overflow: hidden;
 }
@@ -78,9 +41,34 @@ html,
   border-right: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
-  padding-top: 5px;
+  padding-top: 0; /* No top padding needed */
   box-shadow: 2px 0 5px rgba(0,0,0,0.05);
   overflow-y: auto;
+}
+
+/* FIX: Brand Display styles inside the toolbar */
+.header-brand.toolbar-brand {
+    display: flex;
+    flex-direction: column; /* Stack logo and name */
+    align-items: center;
+    justify-content: center;
+    padding: 15px 0 10px 0; 
+    border-bottom: 1px solid #eee;
+    margin-bottom: 5px;
+    gap: 5px;
+}
+.header-brand.toolbar-brand .logo-circle {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    background-color: #4949e5;
+    border-radius: 50%;
+}
+.header-brand.toolbar-brand h1 {
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
 }
 .toolbar-divider {
     border-top: 1px solid #e0e0e0;
@@ -152,10 +140,11 @@ html,
 }
 #canvas-wrapper {
   position: absolute;
-  top: 60px; /* IMPORTANT: Push canvas down to clear the consolidated bar */
+  top: 60px; /* Space for the floating top-bar */
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
   background-color: white;
 }
+/* Ensure canvas editor is below top bar */
 #canvas {
     top: 50px;
     position: relative;
@@ -210,7 +199,7 @@ html,
     color: #4949e5;
 }
 
-/* Text Buttons (Save, Export, Order Print) */
+/* Text Buttons (Export, Order Print) */
 .top-bar-button.text-button {
     padding: 8px 12px;
     gap: 5px;
@@ -236,6 +225,19 @@ html,
     background-color: #ffe6e6;
 }
 
+/* Save Spinner Animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.icon-spin {
+  animation: spin 1s linear infinite;
+}
+
 
 /* 2.4 Right Properties Panel */
 .right-panel {
@@ -248,26 +250,4 @@ html,
   padding: 15px;
   color: #333;
   max-height: none;
-}
-
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.icon-spin {
-  animation: spin 1s linear infinite;
-}
-/* Ensure the save button acts as an icon-only button */
-.top-bar-button {
-    /* Inherits general styles, ensuring padding is consistent for icon-only buttons */
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }

@@ -2,7 +2,7 @@
 import React from 'react';
 import ImageHandler from './Image';
 import { 
-    FiType, FiImage, FiZap, FiSquare, FiTool, FiFolder // <-- Added FiFolder
+    FiType, FiImage, FiZap, FiSquare, FiTool, FiFolder 
 } from 'react-icons/fi'; 
 
 // Component for a single tool button
@@ -17,10 +17,15 @@ const ToolButton = ({ icon: Icon, label, isActive, onClick }) => (
     </button>
 );
 
-export default function MainToolbar({ activePanel, onSelectTool, setSelectedId, setActiveTool, navigation }) {
+// CHANGED: Added brandDisplay prop
+export default function MainToolbar({ activePanel, onSelectTool, setSelectedId, setActiveTool, navigation, brandDisplay }) {
   return (
     <div className="main-toolbar">
-        {/* NEW: Saved Designs Link */}
+        
+        {/* FIX: Render Brand Display at the very top */}
+        {brandDisplay} 
+
+        {/* Saved Designs Link (Now below the brand) */}
         <button 
             title="Saved Designs"
             onClick={() => navigation('/saved-designs')}
@@ -31,14 +36,13 @@ export default function MainToolbar({ activePanel, onSelectTool, setSelectedId, 
         </button>
         <hr className="toolbar-divider" />
         
-        {/* Text Tool */}
+        {/* ... rest of tools remain the same ... */}
         <ToolButton 
             icon={FiType} 
             label="Text" 
             isActive={activePanel === 'text'}
             onClick={() => onSelectTool('text')}
         />
-        {/* ... rest of the tools ... */}
         <ImageHandler 
             setSelectedId={setSelectedId} 
             setActiveTool={onSelectTool} 
@@ -47,14 +51,12 @@ export default function MainToolbar({ activePanel, onSelectTool, setSelectedId, 
             <FiImage size={24} />
             <span>Image</span>
         </ImageHandler>
-         {/* AI Tool - Next major feature! */}
-        <ToolButton 
+         <ToolButton 
             icon={FiZap} 
             label="AI" 
             isActive={activePanel === 'ai'}
             onClick={() => onSelectTool('ai')}
         />
-        {/* Shapes Tool */}
         <ToolButton 
             icon={FiSquare} 
             label="Shapes" 

@@ -80,6 +80,7 @@ html,
   height: 32px;
   border-radius: 50%;
   color: white;
+  width: fit-content;
   overflow: hidden;
   display: flex;
   align-items: center;

@@ -422,12 +422,15 @@ export default function CanvasEditor({
 
         let shouldRecalculateDimensions = false;
         if (objData.type === 'text') {
-            if (existing.text !== objData.props.text || 
-                existing.fontFamily !== objData.props.fontFamily ||
-                existing.fontSize !== objData.props.fontSize) {
-                
-                shouldRecalculateDimensions = true;
-            }
+          if (existing.text !== objData.props.text ||
+            existing.fontFamily !== objData.props.fontFamily ||
+            existing.fontSize !== objData.props.fontSize) {
+
+            shouldRecalculateDimensions = true;
+          }
+        }
+        if (shouldRecalculateDimensions && existing.initDimensions) {
+          existing.initDimensions();
         }
 
         existing.set({ ...objData.props });

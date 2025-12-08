@@ -34,15 +34,15 @@ export default function Text(setSelectedId, setActiveTool) {
     store.dispatch(setCanvasObjects(newObjects));
   };
 
-  const addHeading1 = () => {
+  const addHeading = () => {
     const newText = {
-      id: Date.now(), 
+      id: Date.now(),
       type: 'text',
       props: {
         text: 'Heading 1',
         left: 200,
         top: 200,
-        angle: 0, 
+        angle: 0,
         fill: '#000000',
         fontSize: 48,
         fontFamily: 'Helvetica Neue',
@@ -62,8 +62,9 @@ export default function Text(setSelectedId, setActiveTool) {
     const newObjects = [...canvasObjects, newText];
     store.dispatch(setCanvasObjects(newObjects));
 
-  // Keep local UI state in sync
-  if (setActiveTool) setActiveTool(newText.type);
-  if (setSelectedId) setSelectedId(newText.id);
-}
+    // Keep local UI state in sync
+    if (setActiveTool) setActiveTool(newText.type);
+    if (setSelectedId) setSelectedId(newText.id);
+  }
+  return { addText, addHeading };
 }

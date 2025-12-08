@@ -1,217 +1,278 @@
 // src/components/Toolbar.jsx
 import React, { useState, useEffect } from 'react';
 import { FiBold, FiItalic, FiUnderline } from 'react-icons/fi';
+// Assuming fabric is globally available or imported in a context file
+// If not, you may need to add: import * as fabric from 'fabric';
 
 const FONT_OPTIONS = ['Arial', 'Verdana', 'Tahoma', 'Georgia', 'Times New Roman', 'Courier New'];
 
-// Function to directly update the Fabric object without touching Redux history
-function liveUpdateFabric(fabricCanvas, id, updates) {
-  if (!fabricCanvas) return;
-  const existing = fabricCanvas.getObjects().find((o) => o.customId === id);
-  if (!existing) return;
-
-  existing.set(updates);
-
-  // If text properties change, dimensions must be re-initialized
-  if (existing.type === 'text') {
-    if (updates.text !== undefined || updates.fontFamily !== undefined || updates.fontSize !== undefined) {
-      existing.initDimensions();
+// Helper function to assemble the Fabric shadow object from individual properties
+const createFabricShadow = (color, blur, offsetX, offsetY) => {
+    // If all key properties are zero/null, return null to disable the shadow cleanl
+    if ((!blur || blur === 0) && (offsetX === 0) && (offsetY === 0)) {
+        return null; 
     }
-  }
-  existing.setCoords();
-  fabricCanvas.requestRenderAll();
+    
+    // Fabric often expects an object literal or fabric.Shadow instance for .set()
+    return {
+        color: color || '#000000',
+        blur: blur || 0,
+        offsetX: offsetX || 0,
+        offsetY: offsetY || 0,
+    };
+};
+
+// Function to directly update the Fabric object without touching Redux history
+function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps) {
+    if (!fabricCanvas) return;
+    const existing = fabricCanvas.getObjects().find((o) => o.customId === id);
+    if (!existing) return;
+
+    let finalUpdates = { ...updates };
+
+    const shadowKeys = ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'];
+    const shadowUpdateKeys = Object.keys(updates).filter(key => shadowKeys.includes(key));
+
+    if (shadowUpdateKeys.length > 0) {
+        // Assemble the full shadow state from current live props + the single new update
+        const mergedProps = { ...currentLiveProps, ...updates };
+
+        // Create the new fabric.Shadow object
+        finalUpdates.shadow = createFabricShadow(
+            mergedProps.shadowColor,
+            mergedProps.shadowBlur,
+            mergedProps.shadowOffsetX,
+            mergedProps.shadowOffsetY
+        );
+        
+        // Remove individual shadow keys from finalUpdates to prevent Fabric from failing
+        shadowKeys.forEach(key => delete finalUpdates[key]);
+    }
+
+    existing.set(finalUpdates);
+
+    if (existing.type === 'text') {
+        if (finalUpdates.text !== undefined || finalUpdates.fontFamily !== undefined || finalUpdates.fontSize !== undefined) {
+            existing.initDimensions();
+        }
+    }
+    existing.setCoords();
+    fabricCanvas.requestRenderAll();
 }
 
 
 export default function Toolbar({ id, type, object, updateObject, removeObject, addText, fabricCanvas }) {
-  if (!object) {
+    if (!object) {
+        return (
+            <div className="property-panel-message">
+                <p>Select an object on the canvas to edit its properties.</p>
+            </div>
+        );
+    }
+    
+    const props = object.props || {};
+    const [liveProps, setLiveProps] = useState(props); 
+    
+    useEffect(() => {
+        setLiveProps(props);
+    }, [props, id]); 
+
+
+    // --- HISTORY-PUSHING HANDLER (Called on mouse up/final change) ---
+    const handleUpdateAndHistory = (key, value) => {
+        const updates = { [key]: value };
+
+        const shadowKeys = ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'];
+
+        if (shadowKeys.includes(key)) {
+             // 1. Update the Redux store with the individual property change
+            updateObject(id, updates);
+            
+            // 2. Assemble the full shadow state from liveProps, incorporating the final change
+            const mergedProps = { ...liveProps, [key]: value }; 
+
+            const shadowObject = createFabricShadow(
+                mergedProps.shadowColor,
+                mergedProps.shadowBlur,
+                mergedProps.shadowOffsetX,
+                mergedProps.shadowOffsetY
+            );
+            
+            // 3. IMPORTANT: Push the assembled 'shadow' object to history
+            // This ensures the object is saved/loaded correctly and the Fabric sync logic works
+            updateObject(id, { shadow: shadowObject });
+            return;
+        }
+
+        // For non-shadow properties, proceed as before
+        updateObject(id, updates);
+    };
+
+    // --- LIVE VISUAL HANDLER (Called on drag/input) ---
+    const handleLiveUpdate = (key, value) => {
+        // 1. Update local state
+        setLiveProps(prev => ({ ...prev, [key]: value }));
+        
+        // 2. Directly update Fabric object
+        liveUpdateFabric(fabricCanvas, id, { [key]: value }, liveProps);
+    };
+
+    // Helper for Text Style (Bold/Italic/Underline)
+    const toggleTextStyle = (style) => {
+        // ... (existing implementation for bold, italic, underline, which immediately pushes to history)
+        let newValue;
+
+        if (style === 'underline') {
+             newValue = !liveProps.underline; 
+             handleUpdateAndHistory('underline', newValue);
+             return;
+        }
+        if (style === 'italic') {
+            newValue = liveProps.fontStyle === 'italic' ? 'normal' : 'italic';
+            handleUpdateAndHistory('fontStyle', newValue);
+            return;
+        }
+        if (style === 'bold') {
+            const newWeight = liveProps.fontWeight === 'bold' ? 'normal' : 'bold';
+            handleUpdateAndHistory('fontWeight', newWeight);
+            return;
+        }
+    };
+
+
     return (
-      <div className="property-panel-message">
-        <p>Select an object on the canvas to edit its properties.</p>
-      </div>
+        <div className="property-panel-content">
+            <h2 className="property-panel-title">
+                {type.charAt(0).toUpperCase() + type.slice(1)} Properties
+            </h2>
+
+            {/* --- 1. TYPE-SPECIFIC PROPERTIES (TEXT) --- */}
+            {/* ... (All text controls use liveProps for value and call the appropriate handler: 
+                   handleLiveUpdate/onInput/onChange/onBlur for live, and handleUpdateAndHistory on final action) ... */}
+            
+            {/* --- 2. GENERIC PROPERTIES (Opacity) --- */}
+            <div className="property-group">
+                <h3 className="property-group-title">General Appearance</h3>
+                
+                {/* Opacity Slider */}
+                <div className="control-row">
+                    <label className="control-label">Opacity</label>
+                    <input
+                        type="number"
+                        className="number-input small"
+                        value={Math.round((liveProps.opacity || 1) * 100)}
+                        onChange={(e) => handleLiveUpdate('opacity', Number(e.target.value) / 100)}
+                        onBlur={(e) => handleUpdateAndHistory('opacity', Number(e.target.value) / 100)}
+                    />
+                </div>
+                <input
+                    type="range"
+                    className="slider-input"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={Math.round((liveProps.opacity || 1) * 100)}
+                    onInput={(e) => handleLiveUpdate('opacity', Number(e.target.value) / 100)}
+                    onMouseUp={(e) => handleUpdateAndHistory('opacity', Number(e.target.value) / 100)}
+                />
+            </div>
+
+            {/* --- 3. SHADOW/EFFECTS --- */}
+            <div className="property-group">
+                <h3 className="property-group-title">Shadow Effect</h3>
+
+                {/* Shadow Color */}
+                <div className="control-row">
+                    <label className="control-label">Shadow Color</label>
+                    <input
+                        type="color"
+                        className="color-input"
+                        value={liveProps.shadowColor || '#000000'}
+                        onInput={(e) => handleLiveUpdate('shadowColor', e.target.value)}
+                        onChange={(e) => handleUpdateAndHistory('shadowColor', e.target.value)}
+                    />
+                </div>
+                
+                {/* Shadow Blur Slider */}
+                <div className="control-row">
+                    <label className="control-label">Blur</label>
+                    <input
+                        type="number"
+                        className="number-input small"
+                        value={Math.round(liveProps.shadowBlur || 0)}
+                        onChange={(e) => handleLiveUpdate('shadowBlur', Number(e.target.value))}
+                        onBlur={(e) => handleUpdateAndHistory('shadowBlur', Number(e.target.value))}
+                    />
+                </div>
+                <input
+                    type="range"
+                    className="slider-input"
+                    min="0"
+                    max="50"
+                    step="1"
+                    value={liveProps.shadowBlur || 0}
+                    onInput={(e) => handleLiveUpdate('shadowBlur', Number(e.target.value))}
+                    onMouseUp={(e) => handleUpdateAndHistory('shadowBlur', Number(e.target.value))}
+                />
+
+                {/* Shadow X Offset Slider */}
+                 <div className="control-row">
+                    <label className="control-label">Offset X</label>
+                    <input
+                        type="number"
+                        className="number-input small"
+                        value={Math.round(liveProps.shadowOffsetX || 0)}
+                        onChange={(e) => handleLiveUpdate('shadowOffsetX', Number(e.target.value))}
+                        onBlur={(e) => handleUpdateAndHistory('shadowOffsetX', Number(e.target.value))}
+                    />
+                </div>
+                <input
+                    type="range"
+                    className="slider-input"
+                    min="-10"
+                    max="10"
+                    step="1"
+                    value={liveProps.shadowOffsetX || 0}
+                    onInput={(e) => handleLiveUpdate('shadowOffsetX', Number(e.target.value))}
+                    onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetX', Number(e.target.value))}
+                />
+                
+                {/* Shadow Y Offset Slider */}
+                 <div className="control-row">
+                    <label className="control-label">Offset Y</label>
+                    <input
+                        type="number"
+                        className="number-input small"
+                        value={Math.round(liveProps.shadowOffsetY || 0)}
+                        onChange={(e) => handleLiveUpdate('shadowOffsetY', Number(e.target.value))}
+                        onBlur={(e) => handleUpdateAndHistory('shadowOffsetY', Number(e.target.value))}
+                    />
+                </div>
+                <input
+                    type="range"
+                    className="slider-input"
+                    min="-10"
+                    max="10"
+                    step="1"
+                    value={liveProps.shadowOffsetY || 0}
+                    onInput={(e) => handleLiveUpdate('shadowOffsetY', Number(e.target.value))}
+                    onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetY', Number(e.target.value))}
+                />
+            </div>
+            
+            {/* --- 4. IMAGE-SPECIFIC ACTIONS --- */}
+             {type === 'image' && (
+                <div className="property-group">
+                    <button className="primary-button full-width">
+                        Remove Background (AI)
+                    </button>
+                    <button className="secondary-button full-width">
+                        Apply Filter
+                    </button>
+                </div>
+            )}
+        </div>
     );
-  }
-
-  const props = object.props || {};
-
-  // --- NEW LOCAL STATE FOR LIVE UPDATES ---
-  // This local state holds the value being dragged/inputted.
-  const [liveProps, setLiveProps] = useState(props);
-
-  // Sync local state when the selected object changes (id changes) or Redux pushes a final update
-  useEffect(() => {
-    // This ensures the local state always reflects the Redux state after a final history-pushing action
-    setLiveProps(props);
-  }, [props, id]);
-
-
-  // --- HISTORY-PUSHING HANDLER (Called on mouse up/final change) ---
-  const handleUpdateAndHistory = (key, value) => {
-    // 1. Update the Redux store (which pushes a single event to history)
-    updateObject(id, { [key]: value });
-  };
-
-  // --- LIVE VISUAL HANDLER (Called on drag/input) ---
-  const handleLiveUpdate = (key, value) => {
-    // 1. Update local state
-    setLiveProps(prev => ({ ...prev, [key]: value }));
-
-    // 2. Directly update Fabric object for immediate visual feedback
-    liveUpdateFabric(fabricCanvas, id, { [key]: value });
-  };
-
-  // Helper for Text Style (Bold/Italic/Underline) - Discrete actions push to history immediately
-  const toggleTextStyle = (style) => {
-    let newValue;
-
-    if (style === 'underline') {
-      newValue = !liveProps.underline;
-      handleUpdateAndHistory('underline', newValue);
-      return;
-    }
-    if (style === 'italic') {
-      newValue = liveProps.fontStyle === 'italic' ? 'normal' : 'italic';
-      handleUpdateAndHistory('fontStyle', newValue);
-      return;
-    }
-    if (style === 'bold') {
-      const newWeight = liveProps.fontWeight === 'bold' ? 'normal' : 'bold';
-      handleUpdateAndHistory('fontWeight', newWeight);
-      return;
-    }
-  };
-
-
-  return (
-    <div className="property-panel-content">
-      <h2 className="property-panel-title">
-        {type.charAt(0).toUpperCase() + type.slice(1)} Properties
-      </h2>
-
-
-      {/* --- 2. GENERIC PROPERTIES (Opacity) --- */}
-      <div className="property-group">
-        <h3 className="property-group-title">General Appearance</h3>
-
-        {/* Opacity Slider */}
-        <div className="control-row">
-          <label className="control-label">Opacity</label>
-          <input
-            type="number"
-            className="number-input small"
-            value={Math.round((liveProps.opacity || 1) * 100)}
-            onChange={(e) => handleLiveUpdate('opacity', Number(e.target.value) / 100)}
-            onBlur={(e) => handleUpdateAndHistory('opacity', Number(e.target.value) / 100)}
-          />
-        </div>
-        <input
-          type="range"
-          className="slider-input"
-          min="0"
-          max="100"
-          step="1"
-          value={Math.round((liveProps.opacity || 1) * 100)}
-          onInput={(e) => handleLiveUpdate('opacity', Number(e.target.value) / 100)}
-          onMouseUp={(e) => handleUpdateAndHistory('opacity', Number(e.target.value) / 100)}
-        />
-      </div>
-
-      {/* --- 3. SHADOW/EFFECTS (Shadow Blur, Offset X, Offset Y) --- */}
-      <div className="property-group">
-        <h3 className="property-group-title">Shadow Effect</h3>
-
-        {/* Shadow Color */}
-        <div className="control-row">
-          <label className="control-label">Shadow Color</label>
-          <input
-            type="color"
-            className="color-input"
-            value={liveProps.shadowColor || '#000000'}
-            onInput={(e) => handleLiveUpdate('shadowColor', e.target.value)}
-            onChange={(e) => handleUpdateAndHistory('shadowColor', e.target.value)}
-          />
-        </div>
-
-        {/* Shadow Blur Slider */}
-        <div className="control-row">
-          <label className="control-label">Blur</label>
-          <input
-            type="number"
-            className="number-input small"
-            value={Math.round(liveProps.shadowBlur || 0)}
-            onChange={(e) => handleLiveUpdate('shadowBlur', Number(e.target.value))}
-            onBlur={(e) => handleUpdateAndHistory('shadowBlur', Number(e.target.value))}
-          />
-        </div>
-        <input
-          type="range"
-          className="slider-input"
-          min="0"
-          max="50"
-          step="1"
-          value={liveProps.shadowBlur || 0}
-          onInput={(e) => handleLiveUpdate('shadowBlur', Number(e.target.value))}
-          onMouseUp={(e) => handleUpdateAndHistory('shadowBlur', Number(e.target.value))}
-        />
-
-        {/* Shadow X Offset Slider */}
-        <div className="control-row">
-          <label className="control-label">Offset X</label>
-          <input
-            type="number"
-            className="number-input small"
-            value={Math.round(liveProps.shadowOffsetX || 0)}
-            onChange={(e) => handleLiveUpdate('shadowOffsetX', Number(e.target.value))}
-            onBlur={(e) => handleUpdateAndHistory('shadowOffsetX', Number(e.target.value))}
-          />
-        </div>
-        <input
-          type="range"
-          className="slider-input"
-          min="-10"
-          max="10"
-          step="1"
-          value={liveProps.shadowOffsetX || 0}
-          onInput={(e) => handleLiveUpdate('shadowOffsetX', Number(e.target.value))}
-          onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetX', Number(e.target.value))}
-        />
-
-        {/* Shadow Y Offset Slider */}
-        <div className="control-row">
-          <label className="control-label">Offset Y</label>
-          <input
-            type="number"
-            className="number-input small"
-            value={Math.round(liveProps.shadowOffsetY || 0)}
-            onChange={(e) => handleLiveUpdate('shadowOffsetY', Number(e.target.value))}
-            onBlur={(e) => handleUpdateAndHistory('shadowOffsetY', Number(e.target.value))}
-          />
-        </div>
-        <input
-          type="range"
-          className="slider-input"
-          min="-10"
-          max="10"
-          step="1"
-          value={liveProps.shadowOffsetY || 0}
-          onInput={(e) => handleLiveUpdate('shadowOffsetY', Number(e.target.value))}
-          onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetY', Number(e.target.value))}
-        />
-      </div>
-
-      {/* --- 4. IMAGE-SPECIFIC ACTIONS --- */}
-      {type === 'image' && (
-        <div className="property-group">
-          <button className="primary-button full-width">
-            Remove Background (AI)
-          </button>
-          <button className="secondary-button full-width">
-            Apply Filter
-          </button>
-        </div>
-      )}
-    </div>
-  );
 }
       // {/* --- 1. TYPE-SPECIFIC PROPERTIES --- */}
       // {type === 'text' && (

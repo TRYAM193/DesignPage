@@ -1,19 +1,14 @@
 // src/components/Toolbar.jsx
 import React, { useState, useEffect } from 'react';
 import { FiBold, FiItalic, FiUnderline } from 'react-icons/fi';
-// Assuming fabric is globally available or imported in a context file
-// If not, you may need to add: import * as fabric from 'fabric';
 
 const FONT_OPTIONS = ['Arial', 'Verdana', 'Tahoma', 'Georgia', 'Times New Roman', 'Courier New'];
 
-// Helper function to assemble the Fabric shadow object from individual properties
 const createFabricShadow = (color, blur, offsetX, offsetY) => {
-  // If all key properties are zero/null, return null to disable the shadow cleanl
   if ((!blur || blur === 0) && (offsetX === 0) && (offsetY === 0)) {
     return null;
   }
 
-  // Fabric often expects an object literal or fabric.Shadow instance for .set()
   return {
     color: color || '#000000',
     blur: blur || 0,

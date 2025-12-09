@@ -589,3 +589,12 @@ input[type="range"],
     padding: 6px 10px;
     font-size: 12px;
 }
+/* src/styles/Editor.css (Ensure this is in your file) */
+
+.property-group-subtitle {
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}

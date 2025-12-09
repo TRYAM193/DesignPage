@@ -18,15 +18,15 @@ const createFabricShadow = (color, blur, offsetX, offsetY) => {
 };
 
 function extractFontNameFromUrl(url) {
-    if (!url) return null;
-    
-    // Pattern 1: Finds family=Font+Name in link tag or @import URL
-    const matchFamily = url.match(/family=([^&:]+)/);
-    if (matchFamily && matchFamily[1]) {
-        // Decode and clean up (+ signs replaced by spaces)
-        return decodeURIComponent(matchFamily[1].replace(/\+/g, ' '));
-    }
-    return null;
+  if (!url) return null;
+
+  // Pattern 1: Finds family=Font+Name in link tag or @import URL
+  const matchFamily = url.match(/family=([^&:]+)/);
+  if (matchFamily && matchFamily[1]) {
+    // Decode and clean up (+ signs replaced by spaces)
+    return decodeURIComponent(matchFamily[1].replace(/\+/g, ' '));
+  }
+  return null;
 }
 
 // Function to directly update the Fabric object without touching Redux history
@@ -198,16 +198,78 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             </button>
 
             {/* Font Family Dropdown - HISTORY update on change */}
-            <select
-              className="font-select"
-              value={liveProps.fontFamily || 'Arial'}
-              onChange={(e) => handleUpdateAndHistory('fontFamily', e.target.value)}
-              title="Font Family"
-            >
-              {FONT_OPTIONS.map(font => (
-                <option key={font} value={font}>{font}</option>
-              ))}
-            </select>
+            <div className="control-row full-width font-control-group">
+              <label className="control-label">Font Family</label>
+
+              {/* Custom Input for Font Name */}
+              <input
+                type="text"
+                className="text-input font-input"
+                value={liveProps.fontFamily || 'Arial'}
+                // Live update on input
+                onChange={(e) => handleLiveUpdate('fontFamily', e.target.value)}
+                // Final update on blur
+                onBlur={(e) => handleUpdateAndHistory('fontFamily', e.target.value)}
+                placeholder="Enter font name (e.g., Roboto)"
+                title="Enter a custom font name (must be loaded in your app)"
+              />
+
+              {/* Google Fonts Link Helper Button */}
+              <div className="font-link-helper">
+                <button
+                  className="style-button"
+                  title="Use Google Fonts Link"
+                  onClick={() => setShowFontUrlInput(prev => !prev)}
+                >
+                  <FiSearch size={16} />
+                </button>
+                <a
+                  href="https://fonts.google.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="style-button external-link-button"
+                  title="Go to Google Fonts"
+                >
+                  <FiExternalLink size={16} />
+                </a>
+              </div>
+            </div>
+
+            {/* Google Fonts URL Input Section (Conditionally Rendered) */}
+            {showFontUrlInput && (
+              <div className="control-row full-width font-url-input-group">
+                <p className="font-helper-text">Paste the full Google Fonts **link** or **@import** statement:</p>
+                <textarea
+                  rows="2"
+                  className="text-input"
+                  value={googleFontUrl}
+                  onChange={(e) => setGoogleFontUrl(e.target.value)}
+                  placeholder="e.g., https://fonts.googleapis.com/css2?family=Roboto..."
+                />
+                <button
+                  className="primary-button small-button"
+                  onClick={handleUrlPaste}
+                  disabled={!googleFontUrl.trim()}
+                >
+                  Extract & Apply
+                </button>
+              </div>
+            )}
+
+            {/* System Font Dropdown */}
+            <div className="control-row full-width" style={{ marginTop: '15px' }}>
+              <label className="control-label">System Presets</label>
+              <select
+                className="font-select"
+                value={liveProps.fontFamily || 'Arial'}
+                onChange={(e) => handleUpdateAndHistory('fontFamily', e.target.value)}
+                title="Select System Font Preset"
+              >
+                {FONT_OPTIONS.map(font => (
+                  <option key={font} value={font}>{font}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
 

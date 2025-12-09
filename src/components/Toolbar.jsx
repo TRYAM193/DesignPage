@@ -1,5 +1,5 @@
 // src/components/Toolbar.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FiBold, FiItalic, FiUnderline, FiSearch, FiExternalLink, FiLoader } from 'react-icons/fi'; // ADDED FiLoader
 import WebFont from 'webfontloader'; // <-- NEW IMPORT
 

@@ -391,7 +391,14 @@ export default function CanvasEditor({
   }, []);
 
   // 🟩 Sync Redux state → Fabric
-  
+  const canvasObjectsMap = useMemo(() => {
+    const map = new Map();
+    canvasObjects.forEach(obj => {
+        map.set(obj.id, obj);
+    });
+    return map;
+}, [canvasObjects]);
+
   useEffect(() => {
     if (!initialized) return;
     const fabricCanvas = fabricCanvasRef.current;

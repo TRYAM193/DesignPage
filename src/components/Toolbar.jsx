@@ -165,8 +165,6 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
 
     if (style === 'underline') {
       propKey = 'underline';
-      // CRITICAL FIX: Explicitly check for active state (true). Toggle off to false.
-      // This is safer than relying on !currentProps.underline.
       nextValue = currentProps.underline === true ? false : true; 
     } else if (style === 'italic') {
       propKey = 'fontStyle';

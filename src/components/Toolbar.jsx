@@ -165,13 +165,13 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
 
     if (style === 'underline') {
       propKey = 'underline';
-      nextValue = currentProps.underline === true ? false : false; 
+      nextValue = currentProps.underline === true ? false : true; 
     } else if (style === 'italic') {
       propKey = 'fontStyle';
-      nextValue = currentProps.fontStyle === 'italic' ? 'normal' : null;
+      nextValue = currentProps.fontStyle === 'italic' ? 'normal' : 'italic';
     } else if (style === 'bold') {
       propKey = 'fontWeight';
-      nextValue = currentProps.fontWeight === 'bold' ? 'normal' : null;
+      nextValue = currentProps.fontWeight === 'bold' ? 'normal' : 'bold';
     } else {
       return;
     }

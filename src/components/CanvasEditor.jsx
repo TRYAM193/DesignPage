@@ -456,9 +456,9 @@ export default function CanvasEditor({
           // Apply ONLY the needed updates
           existing.set(updatesNeeded);
 
-          if (shouldRecalculateDimensions && existing.initDimensions) {
-            existing.initDimensions();
-          }
+          // if (shouldRecalculateDimensions && existing.initDimensions) {
+          //   existing.initDimensions();
+          // }
 
           existing.setCoords();
           fabricCanvas.requestRenderAll();

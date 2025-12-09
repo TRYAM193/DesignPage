@@ -158,10 +158,6 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
     liveUpdateFabric(fabricCanvas, id, { [key]: value }, liveProps);
   };
 
-  // Helper for Text Style (Bold/Italic/Underline)
-  // src/components/Toolbar.jsx (Replace the existing toggleTextStyle function)
-
-  // Helper for Text Style (Bold/Italic/Underline)
   const toggleTextStyle = (style) => {
     let propKey;
     let nextValue;

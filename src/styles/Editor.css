@@ -565,7 +565,7 @@ input[type="range"],
 }
 .font-link-helper {
     display: flex;
-    gap: 5px;
+    gap: 20px;
     flex-shrink: 0; /* Prevents helper buttons from being squeezed */
 }
 .external-link-button {

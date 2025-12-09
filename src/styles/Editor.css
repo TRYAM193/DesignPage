@@ -411,7 +411,7 @@ html,
     gap: 10px;
 }
 .control-row.full-width {
-    display: block;
+    display: grid;
 }
 .control-label {
     font-size: 13px;

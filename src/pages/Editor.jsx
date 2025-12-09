@@ -95,9 +95,7 @@ export default function EditorPanel() {
                     <button
                         title="Undo"
                         className="top-bar-button"
-                        onClick={() => {
-                            // fabricCanvas.discardActiveObject()
-                            // fabricCanvas.renderAll();
+                        onClick={() => 
                             dispatch(undo())
                         }}
                         disabled={past.length === 0}

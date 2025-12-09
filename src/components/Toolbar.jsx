@@ -161,7 +161,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const toggleTextStyle = (style) => {
     let propKey;
     let nextValue;
-    const currentProps = liveProps; 
+    const currentProps = object; 
     console.log(liveProps)
 
     if (style === 'underline') {

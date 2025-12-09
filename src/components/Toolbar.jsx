@@ -365,7 +365,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           </div>
 
           {/* Stroke Color and Width */}
-          <h3 className="property-group-subtitle">Outline</h3>
+          <h3 className="property-group-title">Outline</h3>
 
           <div className="control-row">
             <label className="control-label">Color</label>

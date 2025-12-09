@@ -230,6 +230,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               className={`style-button ${liveProps.fontStyle === 'italic' ? 'active' : ''}`}
               onClick={() => toggleTextStyle('italic')}
               title="Italic"
+              style={{backgroundColor: object.props.fontStyle === 'italic' ? '#4949e5' : '', color: 'black'}}
             >
               <FiItalic size={16} />
             </button>

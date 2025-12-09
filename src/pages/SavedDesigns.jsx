@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaEdit, FaTrash, FaArrowLeft } from 'react-icons/fa';
 import { firestore } from '../firebase';
 import { doc, deleteDoc } from "firebase/firestore";
-import '../styles/SavedDesigns.css';
+import '../styles/SavedDesign.css';
 
 export default function SavedDesignsPage() {
   const userId = 'test-user-123';

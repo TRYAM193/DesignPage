@@ -296,9 +296,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               type="number"
               className="number-input small"
               value={Math.round(liveProps.fontSize || 30)}
-              // Live update on every keystroke
               onChange={(e) => handleLiveUpdate('fontSize', Number(e.target.value))}
-              // Final update on blur
               onBlur={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))}
             />
           </div>

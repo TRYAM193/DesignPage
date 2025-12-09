@@ -165,7 +165,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
 
     if (style === 'underline') {
       propKey = 'underline';
-      nextValue = currentProps.underline === true ? false : true; 
+      nextValue = currentProps.underline === true ? false : false; 
     } else if (style === 'italic') {
       propKey = 'fontStyle';
       nextValue = currentProps.fontStyle === 'italic' ? 'normal' : 'italic';

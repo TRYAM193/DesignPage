@@ -79,6 +79,22 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
 
   const props = object.props || {};
   const [liveProps, setLiveProps] = useState(props);
+  const [googleFontUrl, setGoogleFontUrl] = useState(''); 
+    const [showFontUrlInput, setShowFontUrlInput] = useState(false);
+
+    // Handler to parse the URL and update the font family
+    const handleUrlPaste = () => {
+        const fontName = extractFontNameFromUrl(googleFontUrl);
+        if (fontName) {
+            // Apply the extracted font name directly (pushes to history)
+            handleUpdateAndHistory('fontFamily', fontName);
+            setGoogleFontUrl(''); // Clear input
+            setShowFontUrlInput(false);
+            alert(`Font name '${fontName}' applied! Ensure the font is loaded in your app.`);
+        } else {
+            alert('Could not extract a valid font name from the link. Please ensure you pasted the correct Google Fonts link (look for "family=").');
+        }
+    };
 
   useEffect(() => {
     setLiveProps(props);

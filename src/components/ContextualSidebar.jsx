@@ -20,7 +20,7 @@ export default function ContextualSidebar({ activePanel, setActivePanel, addText
             Add a Text Box
           </button>
           <h3 style={{fontSize: '16px', fontWeight: 'bold', marginBottom: '10px'}}>Font Presets</h3>
-          <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
+          <div style={{display: 'flex', gridTemplateColumns: '1fr 1fr', gap: '10px'}}>
              <div className='p-3 border rounded-md cursor-pointer hover:bg-gray-100' style={{padding: '10px', border: '1px solid #ccc', borderRadius: '6px', cursor: 'pointer'}} onClick={() => addHeading()}><h1> Add Heading </h1></div>
              <div className='p-3 border rounded-md cursor-pointer hover:bg-gray-100' style={{padding: '10px', border: '1px solid #ccc', borderRadius: '6px', cursor: 'pointer'}} onClick={() => addSubheading()}> Add Subheading</div>
              {/* ... more text presets ... */}

@@ -70,19 +70,6 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const [googleFontUrl, setGoogleFontUrl] = useState('');
   const [showFontUrlInput, setShowFontUrlInput] = useState(false);
 
-  // Sync local state when the selected object changes or Redux pushes a final update
-  useEffect(() => {
-    // 1. Check if the object ID changed (initialization/reset)
-    if (id !== liveProps.id) {
-        setLiveProps(props);
-        return;
-    }
-
-    if (JSON.stringify(props) !== JSON.stringify(liveProps)) {
-        setLiveProps(props);
-    }
-    
-  }, [props, id]);
   
   // --- HANDLERS (Defined below hooks) ---
 

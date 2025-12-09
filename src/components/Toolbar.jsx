@@ -73,6 +73,8 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const [liveProps, setLiveProps] = useState(props);
   const [googleFontUrl, setGoogleFontUrl] = useState('');
   const [showFontUrlInput, setShowFontUrlInput] = useState(false);
+
+  
   if (!object) {
     return (
       <div className="property-panel-message">

@@ -391,6 +391,7 @@ export default function CanvasEditor({
   }, []);
 
   // 🟩 Sync Redux state → Fabric
+  
   useEffect(() => {
     if (!initialized) return;
     const fabricCanvas = fabricCanvasRef.current;

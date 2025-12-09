@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import * as fabric from 'fabric';
 import StraightText from '../objectAdders/straightText';

@@ -215,50 +215,46 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           </div>
 
           {/* Font Family Dropdown - HISTORY update on change */}
+          <h3 className="property-group-subtitle">Custom Font Name</h3>
           <div className="control-row full-width font-control-group">
-            <label className="control-label">Font Family</label>
+              <input
+                  type="text"
+                  className="text-input font-input"
+                  value={liveProps.fontFamily || ''}
+                  // FIX: Only update local state on change (no direct Fabric update)
+                  onChange={(e) => setLiveProps(prev => ({ ...prev, fontFamily: e.target.value }))}
+                  placeholder="Enter font name (e.g., Roboto)"
+                  title="Enter a custom font name (must be loaded in your app)"
+              />
 
-            {/* Custom Input for Font Name */}
-            <input
-              type="text"
-              className="text-input font-input"
-              value={liveProps.fontFamily}
-              // Live update on input
-              onChange={(e) => handleLiveUpdate('fontFamily', e.target.value)}
-              // Final update on blur
-              onBlur={(e) => handleUpdateAndHistory('fontFamily', e.target.value)}
-              placeholder="Enter font name (e.g., Roboto)"
-              title="Enter a custom font name (must be loaded in your app)"
-            />
-
-            {/* Google Fonts Link Helper Button */}
-            <div className="font-link-helper">
-              <button
-                className="style-button primary-button small-button apply-button"
-                title="Apply Custom Font Name"
-                // Final history update on click
-                onClick={() => handleUpdateAndHistory('fontFamily', liveProps.fontFamily)}
-                disabled={!liveProps.fontFamily}
-              >
-                Apply
-              </button>
-              <button
-                className="style-button"
-                title="Use Google Fonts Link"
-                onClick={() => setShowFontUrlInput(prev => !prev)}
-              >
-                <FiSearch size={16} />
-              </button>
-              <a
-                href="https://fonts.google.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="style-button external-link-button"
-                title="Go to Google Fonts"
-              >
-                <FiExternalLink size={16} />
-              </a>
-            </div>
+              <div className="font-link-helper">
+                  {/* NEW: Apply Button for Custom Input */}
+                  <button
+                      className="style-button primary-button small-button apply-button"
+                      title="Apply Custom Font Name"
+                      onClick={() => handleUpdateAndHistory('fontFamily', liveProps.fontFamily)}
+                      disabled={!liveProps.fontFamily}
+                  >
+                      Apply
+                  </button>
+                  
+                  <button
+                      className="style-button"
+                      title="Use Google Fonts Link"
+                      onClick={() => setShowFontUrlInput(prev => !prev)}
+                  >
+                      <FiSearch size={16} />
+                  </button>
+                  <a 
+                      href="https://fonts.google.com/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="style-button external-link-button"
+                      title="Go to Google Fonts"
+                  >
+                      <FiExternalLink size={16} />
+                  </a>
+              </div>
           </div>
 
           {/* Google Fonts URL Input Section (Conditionally Rendered) */}

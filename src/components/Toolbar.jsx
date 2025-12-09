@@ -74,23 +74,6 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   // NEW STATE: Track the font name *before* loading, in case of failure
   const [originalFontFamily, setOriginalFontFamily] = useState(props.fontFamily || 'Arial'); 
 
-  // Sync local state when the selected object changes or Redux pushes a final update
-  useEffect(() => {
-    // 1. Check if the object ID changed (initialization/reset)
-    if (id !== liveProps.id) {
-        setLiveProps(props);
-        return;
-    }
-
-    // 2. Check if the content of the props has changed deeply (Final Redux Push)
-    if (JSON.stringify(props) !== JSON.stringify(liveProps)) {
-        setLiveProps(props);
-        // Also update the stable font reference
-        setOriginalFontFamily(props.fontFamily || 'Arial');
-    }
-    
-  }, [props, id]);
-
 
   // --- FONT APPLICATION HANDLER (Consolidated Logic) ---
   const handleApplyFont = (fontName) => {

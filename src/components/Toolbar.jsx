@@ -221,7 +221,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             <button
               className={`style-button ${liveProps.fontWeight === 'bold' ? 'active' : ''}`}
               onClick={() => toggleTextStyle('bold')}
-              style={{backgroundColor: object.props.fontWeight === 'bold' ? '#4949e5' : ''}}
+              style={{backgroundColor: object.props.fontWeight === 'bold' ? '#4949e5' : '', color: 'black'}}
               title="Bold"
             >
               <FiBold size={16} />

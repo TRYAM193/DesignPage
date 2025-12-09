@@ -160,23 +160,30 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
 
   // Helper for Text Style (Bold/Italic/Underline)
   const toggleTextStyle = (style) => {
-    let newValue;
+    let propKey;
+    let nextValue;
+    const currentProps = liveProps; 
 
     if (style === 'underline') {
-      newValue = !liveProps.underline;
-      handleUpdateAndHistory('underline', newValue);
+      propKey = 'underline';
+      // Toggles boolean: true -> false, false -> true
+      nextValue = !currentProps.underline;
+    } else if (style === 'italic') {
+      propKey = 'fontStyle';
+      // If the current value is NOT strictly 'italic', set it to 'italic'. Otherwise, set to 'normal'.
+      const isItalicActive = currentProps.fontStyle === 'italic';
+      nextValue = isItalicActive ? 'normal' : 'italic';
+    } else if (style === 'bold') {
+      propKey = 'fontWeight';
+      // If the current value is NOT strictly 'bold', set it to 'bold'. Otherwise, set to 'normal'.
+      const isBoldActive = currentProps.fontWeight === 'bold';
+      nextValue = isBoldActive ? 'normal' : 'bold';
+    } else {
       return;
     }
-    if (style === 'italic') {
-      newValue = liveProps.fontStyle === 'italic' ? 'normal' : 'italic';
-      handleUpdateAndHistory('fontStyle', newValue);
-      return;
-    }
-    if (style === 'bold') {
-      const newWeight = liveProps.fontWeight === 'bold' ? 'normal' : 'bold';
-      handleUpdateAndHistory('fontWeight', newWeight);
-      return;
-    }
+
+    // Update local state and history
+    handleUpdateAndHistory(propKey, nextValue);
   };
 
 

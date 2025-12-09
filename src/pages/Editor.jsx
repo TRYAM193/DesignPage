@@ -103,7 +103,7 @@ export default function EditorPanel() {
                             <button
                                 title="Redo"
                                 className="top-bar-button"
-                                    onClick={() =>  dispatch(redo());}
+                                    onClick={() => dispatch(redo())}
                                 disabled={future.length === 0}
                             >
                                 <FiRotateCw size={20} />

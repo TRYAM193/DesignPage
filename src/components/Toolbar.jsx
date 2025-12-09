@@ -234,6 +234,15 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             {/* Google Fonts Link Helper Button */}
             <div className="font-link-helper">
               <button
+            className="style-button primary-button small-button apply-button"
+            title="Apply Custom Font Name"
+            // Final history update on click
+            onClick={() => handleUpdateAndHistory('fontFamily', liveProps.fontFamily)}
+            disabled={!liveProps.fontFamily}
+        >
+            Apply
+        </button>
+              <button
                 className="style-button"
                 title="Use Google Fonts Link"
                 onClick={() => setShowFontUrlInput(prev => !prev)}

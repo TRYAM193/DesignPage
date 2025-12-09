@@ -238,6 +238,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               className={`style-button ${liveProps.underline ? 'active' : ''}`}
               onClick={() => toggleTextStyle('underline')}
               title="Underline"
+              style={{backgroundColor: object.props.underline ? '#4949e5' : '', color: 'black'}}
             >
               <FiUnderline size={16} />
             </button>

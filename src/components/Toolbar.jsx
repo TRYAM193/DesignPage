@@ -69,6 +69,10 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps) {
 
 
 export default function Toolbar({ id, type, object, updateObject, removeObject, addText, fabricCanvas }) {
+  const props = object.props || {};
+  const [liveProps, setLiveProps] = useState(props);
+  const [googleFontUrl, setGoogleFontUrl] = useState('');
+  const [showFontUrlInput, setShowFontUrlInput] = useState(false);
   if (!object) {
     return (
       <div className="property-panel-message">
@@ -77,10 +81,6 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
     );
   }
 
-  const props = object.props || {};
-  const [liveProps, setLiveProps] = useState(props);
-  const [googleFontUrl, setGoogleFontUrl] = useState('');
-  const [showFontUrlInput, setShowFontUrlInput] = useState(false);
 
   // Handler to parse the URL and update the font family
   const handleUrlPaste = () => {

@@ -548,3 +548,44 @@ input[type="range"],
 .layers-placeholder {
     padding: 20px 0;
 }
+
+/* --- Add this to src/styles/Editor.css --- */
+
+/* Font Controls Group */
+.font-control-group {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+.font-input {
+    flex-grow: 1; /* Allows the text input to take up most of the space */
+}
+.font-link-helper {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0; /* Prevents helper buttons from being squeezed */
+}
+.external-link-button {
+    /* Inherits style-button */
+    background-color: #f0f0f0;
+    color: #4949e5;
+}
+.font-helper-text {
+    width: 100%;
+    font-size: 11px;
+    color: #666;
+    margin: 5px 0;
+}
+.font-url-input-group {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #eee;
+    margin-bottom: 15px;
+}
+.small-button {
+    padding: 6px 10px;
+    font-size: 12px;
+}

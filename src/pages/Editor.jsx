@@ -95,8 +95,7 @@ export default function EditorPanel() {
                             <button
                                 title="Undo"
                                 className="top-bar-button"
-                                onClick={() => dispatch(undo())
-                                }
+                                onClick={() => dispatch(undo())}
                                 disabled={past.length === 0}
                             >
                                 <FiRotateCcw size={20} />

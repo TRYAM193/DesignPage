@@ -17,6 +17,18 @@ const createFabricShadow = (color, blur, offsetX, offsetY) => {
   };
 };
 
+function extractFontNameFromUrl(url) {
+    if (!url) return null;
+    
+    // Pattern 1: Finds family=Font+Name in link tag or @import URL
+    const matchFamily = url.match(/family=([^&:]+)/);
+    if (matchFamily && matchFamily[1]) {
+        // Decode and clean up (+ signs replaced by spaces)
+        return decodeURIComponent(matchFamily[1].replace(/\+/g, ' '));
+    }
+    return null;
+}
+
 // Function to directly update the Fabric object without touching Redux history
 function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps) {
   if (!fabricCanvas) return;

@@ -103,10 +103,8 @@ export default function EditorPanel() {
                             <button
                                 title="Redo"
                                 className="top-bar-button"
-                                onClick={() => {
-                                    // fabricCanvas.discardActiveObject()
-                                    // fabricCanvas.renderAll();
-                                    dispatch(redo());
+                                        onClick={() => {
+                                            dispatch(redo());
                                 }}
                                 disabled={future.length === 0}
                             >

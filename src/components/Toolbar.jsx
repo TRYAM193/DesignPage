@@ -1,6 +1,6 @@
 // src/components/Toolbar.jsx
 import React, { useState, useEffect } from 'react';
-import { FiBold, FiItalic, FiUnderline, FiSe } from 'react-icons/fi';
+import { FiBold, FiItalic, FiUnderline, FiSearch } from 'react-icons/fi';
 
 const FONT_OPTIONS = ['Arial', 'Verdana', 'Tahoma', 'Georgia', 'Times New Roman', 'Courier New'];
 

@@ -394,44 +394,85 @@ export default function CanvasEditor({
   const canvasObjectsMap = useMemo(() => {
     const map = new Map();
     canvasObjects.forEach(obj => {
-        map.set(obj.id, obj);
+      map.set(obj.id, obj);
     });
     return map;
-}, [canvasObjects]);
+  }, [canvasObjects]);
 
   useEffect(() => {
     if (!initialized) return;
     const fabricCanvas = fabricCanvasRef.current;
     if (!fabricCanvas) return;
 
+    // This flag prevents the loop when Fabric itself triggers a Redux update
     isSyncingRef.current = true;
 
     const fabricObjects = fabricCanvas.getObjects();
+    const currentFabricIds = new Set(fabricObjects.map(obj => obj.customId));
 
-    // Update or add
-    canvasObjects.forEach((objData) => {
-      let existing = fabricObjects.find((o) => o.customId === objData.id);
+    // 1. UPDATE or ADD objects
+    canvasObjectsMap.forEach((objData, id) => {
+      let existing = fabricObjects.find((o) => o.customId === id);
+
+      // --- OPTIMIZATION START ---
 
       if (existing) {
-        const active = fabricCanvas.getActiveObject();
-        
-        existing.set({ ...objData.props });
-        existing.setCoords();
-        fabricCanvas.requestRenderAll();
+        // Find the previous version of the object from Fabric's data model 
+        // to accurately detect if a value has changed.
 
-        if (active) {
-          if (active.type === 'activeselection') {
-            const activeIds = active.getObjects().map((o) => o.customId);
-            if (activeIds.includes(objData.id)) {
-              return;
+        // NOTE: Since the Fabric object already has the properties from the LAST update, 
+        // we compare against the NEW incoming props (objData.props).
+
+        let shouldRecalculateDimensions = false;
+        let updatesNeeded = {};
+
+        // Iterate over all properties in the incoming object data
+        for (const key in objData.props) {
+          // Check if the Fabric object's property value is different from the Redux value
+          if (existing[key] !== objData.props[key]) {
+            updatesNeeded[key] = objData.props[key];
+
+            // Critical check for dimension-affecting properties
+            if (objData.type === 'text' && ['text', 'fontFamily', 'fontSize', 'strokeWidth'].includes(key)) {
+              shouldRecalculateDimensions = true;
             }
-          } 
+          }
         }
 
-        fabricCanvas.setActiveObject(existing);
-        fabricCanvas.renderAll();
-      } else {
+        // Only proceed if there are actual differences
+        if (Object.keys(updatesNeeded).length > 0) {
 
+          // Fabric Shadow Fix: Assemble the full shadow object if any shadow property changed
+          if (updatesNeeded.shadowColor || updatesNeeded.shadowBlur || updatesNeeded.shadowOffsetX || updatesNeeded.shadowOffsetY) {
+
+            // Create the complete shadow object using existing and new values
+            const shadowObject = {
+              color: updatesNeeded.shadowColor || existing.shadow?.color || '#000000',
+              blur: updatesNeeded.shadowBlur || existing.shadow?.blur || 0,
+              offsetX: updatesNeeded.shadowOffsetX || existing.shadow?.offsetX || 0,
+              offsetY: updatesNeeded.shadowOffsetY || existing.shadow?.offsetY || 0,
+            };
+
+            // Fabric only accepts the 'shadow' object, not individual keys
+            updatesNeeded.shadow = shadowObject;
+
+            // Clean up individual properties from the updates needed to prevent errors
+            ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'].forEach(key => delete updatesNeeded[key]);
+          }
+
+          // Apply ONLY the needed updates
+          existing.set(updatesNeeded);
+
+          if (shouldRecalculateDimensions && existing.initDimensions) {
+            existing.initDimensions();
+          }
+
+          existing.setCoords();
+          fabricCanvas.requestRenderAll();
+        }
+
+      } else {
+        // Logic to add new objects remains the same (as it only runs for new IDs)
         let newObj;
         if (objData.type === 'text')
           newObj = StraightText(objData);
@@ -454,8 +495,8 @@ export default function CanvasEditor({
       }
     });
 
-    // Remove deleted
-    const ids = canvasObjects.map((o) => o.id);
+    // 2. REMOVE objects (Deletion logic remains efficient)
+    const ids = Array.from(canvasObjectsMap.keys());
     fabricObjects.forEach((obj) => {
       if (!ids.includes(obj.customId)) fabricCanvas.remove(obj);
     });
@@ -466,7 +507,7 @@ export default function CanvasEditor({
     setTimeout(() => {
       isSyncingRef.current = false;
     }, 100);
-  }, [canvasObjects, initialized]);
+  }, [canvasObjects, initialized, canvasObjectsMap]);
 
   return (
     <div ref={wrapperRef} id="canvas-wrapper">

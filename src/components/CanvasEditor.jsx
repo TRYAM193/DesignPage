@@ -417,11 +417,6 @@ export default function CanvasEditor({
       // --- OPTIMIZATION START ---
 
       if (existing) {
-        // Find the previous version of the object from Fabric's data model 
-        // to accurately detect if a value has changed.
-
-        // NOTE: Since the Fabric object already has the properties from the LAST update, 
-        // we compare against the NEW incoming props (objData.props).
 
         let shouldRecalculateDimensions = false;
         let updatesNeeded = {};

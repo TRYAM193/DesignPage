@@ -601,5 +601,6 @@ input[type="range"],
 }
 
 .apply{
-  margin: 
+  margin: 2px;
+  width: 65px;
 }

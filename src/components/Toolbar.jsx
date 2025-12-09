@@ -1,5 +1,5 @@
 // src/components/Toolbar.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiBold, FiItalic, FiUnderline, FiSearch, FiExternalLink, FiLoader } from 'react-icons/fi'; // ADDED FiLoader
 import WebFont from 'webfontloader'; // <-- NEW IMPORT
 
@@ -21,10 +21,8 @@ const createFabricShadow = (color, blur, offsetX, offsetY) => {
 function extractFontNameFromUrl(url) {
   if (!url) return null;
 
-  // Pattern 1: Finds family=Font+Name in link tag or @import URL
   const matchFamily = url.match(/family=([^&:]+)/);
   if (matchFamily && matchFamily[1]) {
-    // Decode and clean up (+ signs replaced by spaces)
     return decodeURIComponent(matchFamily[1].replace(/\+/g, ' '));
   }
   return null;
@@ -72,37 +70,66 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const [liveProps, setLiveProps] = useState(props);
   const [googleFontUrl, setGoogleFontUrl] = useState('');
   const [showFontUrlInput, setShowFontUrlInput] = useState(false);
-  const [isFontLoading, setIsFontLoading] = useState(false); // NEW STATE for loading font status
+  const [isFontLoading, setIsFontLoading] = useState(false);
+  // NEW STATE: Track the font name *before* loading, in case of failure
+  const [originalFontFamily, setOriginalFontFamily] = useState(props.fontFamily || 'Arial'); 
+
+  // Sync local state when the selected object changes or Redux pushes a final update
+  useEffect(() => {
+    // 1. Check if the object ID changed (initialization/reset)
+    if (id !== liveProps.id) {
+        setLiveProps(props);
+        return;
+    }
+
+    // 2. Check if the content of the props has changed deeply (Final Redux Push)
+    if (JSON.stringify(props) !== JSON.stringify(liveProps)) {
+        setLiveProps(props);
+        // Also update the stable font reference
+        setOriginalFontFamily(props.fontFamily || 'Arial');
+    }
+    
+  }, [props, id]);
+
 
   // --- FONT APPLICATION HANDLER (Consolidated Logic) ---
   const handleApplyFont = (fontName) => {
     if (!fontName || isFontLoading) return;
 
-    // 1. If it's a known system font, no need to load, just apply
-    if (FONT_OPTIONS.includes(fontName) || fontName === liveProps.fontFamily) {
+    // 1. If it's a system font or the font hasn't changed, apply immediately and return
+    if (FONT_OPTIONS.includes(fontName) || fontName === originalFontFamily) {
         liveUpdateFabric(fabricCanvas, id, { fontFamily: fontName }, liveProps);
         handleUpdateAndHistory('fontFamily', fontName);
         return;
     }
     
-    // 2. Load Google Font
+    // 2. Prepare for loading (for non-system/custom Google Fonts)
     setIsFontLoading(true);
-
+    // Temporarily apply the new font name live, which often shows a fallback font (like serif)
+    liveUpdateFabric(fabricCanvas, id, { fontFamily: fontName }, liveProps);
+    
     WebFont.load({
       google: {
         families: [fontName],
       },
       fontactive: (familyName) => {
         setIsFontLoading(false);
-        setLiveProps(prev => ({ ...prev, fontFamily: familyName }));
-        liveUpdateFabric(fabricCanvas, id, { fontFamily: familyName }, liveProps); // Live update before history
+        // Font loaded successfully, apply the final version to history
         handleUpdateAndHistory('fontFamily', familyName);
       },
       fontinactive: (familyName) => {
         setIsFontLoading(false);
-        alert(`Failed to load font: ${familyName}. Check the spelling or network.`);
+        alert(`Failed to load font: ${familyName}. Please check the spelling or ensure it is a valid Google Font.`);
+        
+        // CRITICAL FIX: Revert live display and local state to the last known good font
+        setLiveProps(prev => ({ ...prev, fontFamily: originalFontFamily }));
+        liveUpdateFabric(fabricCanvas, id, { fontFamily: originalFontFamily }, liveProps);
+        
+        // Also ensure the history is reset to the original font
+        handleUpdateAndHistory('fontFamily', originalFontFamily);
+
       },
-      timeout: 2000
+      timeout: 3000 // Increased timeout for better resilience
     });
   };
 
@@ -304,7 +331,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             <select
               className="font-select"
               value={liveProps.fontFamily || 'Arial'}
-              // Clicking on a preset also updates the font input (liveProps.fontFamily)
+              // Only update local state on selection
               onChange={(e) => handleLiveUpdate('fontFamily', e.target.value)}
               title="Select System Font Preset"
               disabled={isFontLoading}

@@ -20,10 +20,8 @@ const createFabricShadow = (color, blur, offsetX, offsetY) => {
 function extractFontNameFromUrl(url) {
   if (!url) return null;
 
-  // Pattern 1: Finds family=Font+Name in link tag or @import URL
   const matchFamily = url.match(/family=([^&:]+)/);
   if (matchFamily && matchFamily[1]) {
-    // Decode and clean up (+ signs replaced by spaces)
     return decodeURIComponent(matchFamily[1].replace(/\+/g, ' '));
   }
   return null;
@@ -41,10 +39,8 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps) {
   const shadowUpdateKeys = Object.keys(updates).filter(key => shadowKeys.includes(key));
 
   if (shadowUpdateKeys.length > 0) {
-    // Assemble the full shadow state from current live props + the single new update
     const mergedProps = { ...currentLiveProps, ...updates };
 
-    // Create the new fabric.Shadow object
     finalUpdates.shadow = createFabricShadow(
       mergedProps.shadowColor,
       mergedProps.shadowBlur,
@@ -52,7 +48,6 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps) {
       mergedProps.shadowOffsetY
     );
 
-    // Remove individual shadow keys from finalUpdates to prevent Fabric from failing
     shadowKeys.forEach(key => delete finalUpdates[key]);
   }
 
@@ -69,26 +64,23 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps) {
 
 
 export default function Toolbar({ id, type, object, updateObject, removeObject, addText, fabricCanvas }) {
-  const props = object.props || {};
+  // 💥 FIX: ALL HOOKS MUST BE AT THE TOP LEVEL 💥
+  const props = object?.props || {};
   const [liveProps, setLiveProps] = useState(props);
   const [googleFontUrl, setGoogleFontUrl] = useState('');
   const [showFontUrlInput, setShowFontUrlInput] = useState(false);
 
+  // Sync local state when the selected object changes or Redux pushes a final update
+  useEffect(() => {
+    setLiveProps(props);
+  }, [props, id]);
   
-  if (!object) {
-    return (
-      <div className="property-panel-message">
-        <p>Select an object on the canvas to edit its properties.</p>
-      </div>
-    );
-  }
-
+  // --- HANDLERS (Defined below hooks) ---
 
   // Handler to parse the URL and update the font family
   const handleUrlPaste = () => {
     const fontName = extractFontNameFromUrl(googleFontUrl);
     if (fontName) {
-      // Update local state and push to history immediately (This is the single final update for the paste action)
       setLiveProps(prev => ({ ...prev, fontFamily: fontName }));
       handleUpdateAndHistory('fontFamily', fontName);
       setGoogleFontUrl(''); // Clear input
@@ -98,29 +90,21 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
       alert('Could not extract a valid font name from the link. Please ensure you pasted the correct Google Fonts link (look for "family=").');
     }
   };
-
+  
   const handleApplyPreset = () => {
-    // FIX: Ensure the change is visually applied to Fabric before history is pushed
     liveUpdateFabric(fabricCanvas, id, { fontFamily: liveProps.fontFamily }, liveProps);
     handleUpdateAndHistory('fontFamily', liveProps.fontFamily);
   };
 
-  useEffect(() => {
-    setLiveProps(props);
-  }, [props, id]);
 
-
-  // --- HISTORY-PUSHING HANDLER (Called on mouse up/final change) ---
+  // --- HISTORY-PUSHING HANDLER ---
   const handleUpdateAndHistory = (key, value) => {
     const updates = { [key]: value };
 
     const shadowKeys = ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'];
 
     if (shadowKeys.includes(key)) {
-      // 1. Update the Redux store with the individual property change
       updateObject(id, updates);
-
-      // 2. Assemble the full shadow state from liveProps, incorporating the final change
       const mergedProps = { ...liveProps, [key]: value };
 
       const shadowObject = createFabricShadow(
@@ -130,21 +114,16 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
         mergedProps.shadowOffsetY
       );
 
-      // 3. IMPORTANT: Push the assembled 'shadow' object to history
       updateObject(id, { shadow: shadowObject });
       return;
     }
 
-    // For non-shadow properties, proceed as before
     updateObject(id, updates);
   };
 
-  // --- LIVE VISUAL HANDLER (Called on drag/input) ---
+  // --- LIVE VISUAL HANDLER ---
   const handleLiveUpdate = (key, value) => {
-    // 1. Update local state
     setLiveProps(prev => ({ ...prev, [key]: value }));
-
-    // 2. Directly update Fabric object
     liveUpdateFabric(fabricCanvas, id, { [key]: value }, liveProps);
   };
 
@@ -170,6 +149,16 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   };
 
 
+  // 💥 SAFE CONDITIONAL RETURN (After hooks) 💥
+  if (!object) {
+    return (
+      <div className="property-panel-message">
+        <p>Select an object on the canvas to edit its properties.</p>
+      </div>
+    );
+  }
+
+  // --- RENDER CODE (Uses liveProps for all values) ---
   return (
     <div className="property-panel-content">
       <h2 className="property-panel-title">
@@ -187,9 +176,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               className="text-input"
               rows="3"
               value={liveProps.text || ''}
-              // Final update on blur
               onBlur={(e) => handleUpdateAndHistory('text', e.target.value)}
-              // Live update on every change
               onChange={(e) => handleLiveUpdate('text', e.target.value)}
               placeholder="Enter your text here"
             />
@@ -228,7 +215,6 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               type="text"
               className="text-input font-input"
               value={liveProps.fontFamily || ''}
-              // Live update on change (visual update)
               onChange={(e) => handleLiveUpdate('fontFamily', e.target.value)}
               placeholder="Enter font name (e.g., Roboto)"
               title="Enter a custom font name (must be loaded in your app)"
@@ -291,7 +277,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             <select
               className="font-select"
               value={liveProps.fontFamily || 'Arial'}
-              // FIX: Only update local state on selection
+              // Only update local state on selection
               onChange={(e) => setLiveProps(prev => ({ ...prev, fontFamily: e.target.value }))}
               title="Select System Font Preset"
             >

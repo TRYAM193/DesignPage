@@ -71,7 +71,6 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const [googleFontUrl, setGoogleFontUrl] = useState('');
   const [showFontUrlInput, setShowFontUrlInput] = useState(false);
   const [isFontLoading, setIsFontLoading] = useState(false);
-  // NEW STATE: Track the font name *before* loading, in case of failure
   const [originalFontFamily, setOriginalFontFamily] = useState(props.fontFamily || 'Arial'); 
 
 

@@ -78,9 +78,6 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
         return;
     }
 
-    // 2. Check if the content of the props has changed deeply (Final Redux Push)
-    // We use JSON.stringify to compare object contents, preventing the loop
-    // that occurs when only the reference changes.
     if (JSON.stringify(props) !== JSON.stringify(liveProps)) {
         setLiveProps(props);
     }

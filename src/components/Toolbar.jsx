@@ -213,7 +213,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               <FiUnderline size={16} />
             </button>
           </div>
-          
+
           {/* Font Family Dropdown - HISTORY update on change */}
           <div className="control-row full-width font-control-group">
             <label className="control-label">Font Family</label>
@@ -222,7 +222,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             <input
               type="text"
               className="text-input font-input"
-              value={liveProps.fontFamily || 'Arial'}
+              value={liveProps.fontFamily}
               // Live update on input
               onChange={(e) => handleLiveUpdate('fontFamily', e.target.value)}
               // Final update on blur

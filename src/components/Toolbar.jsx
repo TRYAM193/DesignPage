@@ -1,6 +1,7 @@
 // src/components/Toolbar.jsx
 import React, { useState, useEffect } from 'react';
-import { FiBold, FiItalic, FiUnderline, FiSearch, FiExternalLink } from 'react-icons/fi';
+import { FiBold, FiItalic, FiUnderline, FiSearch, FiExternalLink, FiLoader } from 'react-icons/fi'; // ADDED FiLoader
+import WebFont from 'webfontloader'; // <-- NEW IMPORT
 
 const FONT_OPTIONS = ['Arial', 'Verdana', 'Tahoma', 'Georgia', 'Times New Roman', 'Courier New'];
 
@@ -20,8 +21,10 @@ const createFabricShadow = (color, blur, offsetX, offsetY) => {
 function extractFontNameFromUrl(url) {
   if (!url) return null;
 
+  // Pattern 1: Finds family=Font+Name in link tag or @import URL
   const matchFamily = url.match(/family=([^&:]+)/);
   if (matchFamily && matchFamily[1]) {
+    // Decode and clean up (+ signs replaced by spaces)
     return decodeURIComponent(matchFamily[1].replace(/\+/g, ' '));
   }
   return null;
@@ -64,52 +67,91 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps) {
 
 
 export default function Toolbar({ id, type, object, updateObject, removeObject, addText, fabricCanvas }) {
-  // 💥 FIX: ALL HOOKS MUST BE AT THE TOP LEVEL 💥
+  // FIX: ALL HOOKS AT THE TOP LEVEL
   const props = object?.props || {};
   const [liveProps, setLiveProps] = useState(props);
   const [googleFontUrl, setGoogleFontUrl] = useState('');
   const [showFontUrlInput, setShowFontUrlInput] = useState(false);
+  const [isFontLoading, setIsFontLoading] = useState(false); // NEW STATE for loading font status
 
-  
-  // --- HANDLERS (Defined below hooks) ---
+  // Sync local state when the selected object changes or Redux pushes a final update
+  useEffect(() => {
+    // 1. Check if the object ID changed (initialization/reset)
+    if (id !== liveProps.id) {
+        setLiveProps(props);
+        return;
+    }
 
-  // Handler to parse the URL and update the font family
+    // 2. Check if the content of the props has changed deeply (Final Redux Push)
+    if (JSON.stringify(props) !== JSON.stringify(liveProps)) {
+        setLiveProps(props);
+    }
+    
+  }, [props, id]);
+
+
+  // --- FONT APPLICATION HANDLER (Consolidated Logic) ---
+  const handleApplyFont = (fontName) => {
+    if (!fontName || isFontLoading) return;
+
+    // 1. If it's a known system font, no need to load, just apply
+    if (FONT_OPTIONS.includes(fontName) || fontName === liveProps.fontFamily) {
+        liveUpdateFabric(fabricCanvas, id, { fontFamily: fontName }, liveProps);
+        handleUpdateAndHistory('fontFamily', fontName);
+        return;
+    }
+    
+    // 2. Load Google Font
+    setIsFontLoading(true);
+
+    WebFont.load({
+      google: {
+        families: [fontName],
+      },
+      fontactive: (familyName) => {
+        setIsFontLoading(false);
+        setLiveProps(prev => ({ ...prev, fontFamily: familyName }));
+        liveUpdateFabric(fabricCanvas, id, { fontFamily: familyName }, liveProps); // Live update before history
+        handleUpdateAndHistory('fontFamily', familyName);
+      },
+      fontinactive: (familyName) => {
+        setIsFontLoading(false);
+        alert(`Failed to load font: ${familyName}. Check the spelling or network.`);
+      },
+      timeout: 2000
+    });
+  };
+
+  // Handler to parse the URL (Called on click in URL Input)
   const handleUrlPaste = () => {
     const fontName = extractFontNameFromUrl(googleFontUrl);
     if (fontName) {
       setLiveProps(prev => ({ ...prev, fontFamily: fontName }));
-      handleUpdateAndHistory('fontFamily', fontName);
-      setGoogleFontUrl(''); // Clear input
+      setGoogleFontUrl('');
       setShowFontUrlInput(false);
-      alert(`Font name '${fontName}' applied! Ensure the font is loaded in your app.`);
+      
+      // Trigger the main font application process
+      handleApplyFont(fontName);
     } else {
       alert('Could not extract a valid font name from the link. Please ensure you pasted the correct Google Fonts link (look for "family=").');
     }
   };
-  
-  const handleApplyPreset = () => {
-    liveUpdateFabric(fabricCanvas, id, { fontFamily: liveProps.fontFamily }, liveProps);
-    handleUpdateAndHistory('fontFamily', liveProps.fontFamily);
-  };
 
 
-  // --- HISTORY-PUSHING HANDLER ---
+  // --- HISTORY-PUSHING HANDLER (General Properties) ---
   const handleUpdateAndHistory = (key, value) => {
     const updates = { [key]: value };
-
     const shadowKeys = ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'];
 
     if (shadowKeys.includes(key)) {
       updateObject(id, updates);
       const mergedProps = { ...liveProps, [key]: value };
-
       const shadowObject = createFabricShadow(
         mergedProps.shadowColor,
         mergedProps.shadowBlur,
         mergedProps.shadowOffsetX,
         mergedProps.shadowOffsetY
       );
-
       updateObject(id, { shadow: shadowObject });
       return;
     }
@@ -145,7 +187,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   };
 
 
-  // 💥 SAFE CONDITIONAL RETURN (After hooks) 💥
+  // SAFE CONDITIONAL RETURN
   if (!object) {
     return (
       <div className="property-panel-message">
@@ -154,7 +196,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
     );
   }
 
-  // --- RENDER CODE (Uses liveProps for all values) ---
+  // --- RENDER CODE ---
   return (
     <div className="property-panel-content">
       <h2 className="property-panel-title">
@@ -204,33 +246,38 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             </button>
           </div>
 
-          {/* 💥 Custom Font Input and Helper */}
-          <h3 className="property-group-subtitle">Custom Font Name</h3>
+          {/* 💥 Custom Font Input and Helper (CONSOLIDATED) */}
+          <h3 className="property-group-subtitle">Font Family</h3>
+
+          {/* Font Input + Apply Button */}
           <div className="control-row full-width font-control-group">
             <input
               type="text"
               className="text-input font-input"
               value={liveProps.fontFamily || ''}
+              // Live update on change (visual update)
               onChange={(e) => handleLiveUpdate('fontFamily', e.target.value)}
               placeholder="Enter font name (e.g., Roboto)"
               title="Enter a custom font name (must be loaded in your app)"
+              disabled={isFontLoading}
             />
 
             <div className="font-link-helper">
-              {/* Apply Button */}
+              {/* Single Apply Button */}
               <button
                 className="style-button primary-button small-button apply-button"
-                title="Apply Custom Font Name"
-                onClick={() => handleUpdateAndHistory('fontFamily', liveProps.fontFamily)}
-                disabled={!liveProps.fontFamily}
+                title="Apply & Load Font"
+                onClick={() => handleApplyFont(liveProps.fontFamily)}
+                disabled={!liveProps.fontFamily || isFontLoading}
               >
-                Apply
+                {isFontLoading ? <FiLoader size={16} className="icon-spin" /> : 'Apply'}
               </button>
 
               <button
                 className="style-button"
                 title="Use Google Fonts Link"
                 onClick={() => setShowFontUrlInput(prev => !prev)}
+                disabled={isFontLoading}
               >
                 <FiSearch size={16} />
               </button>
@@ -267,27 +314,21 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             </div>
           )}
 
-          {/* 💥 System Presets Dropdown - REQUIRES APPLY BUTTON */}
+          {/* 💥 System Presets Dropdown (Simplified - now updates the input for the APPLY button) */}
           <h3 className="property-group-subtitle" style={{ marginTop: '15px' }}>System Presets</h3>
-          <div className="control-row full-width font-control-group">
+          <div className="control-row full-width">
             <select
               className="font-select"
               value={liveProps.fontFamily || 'Arial'}
-              // Only update local state on selection
-              onChange={(e) => setLiveProps(prev => ({ ...prev, fontFamily: e.target.value }))}
+              // Clicking on a preset also updates the font input (liveProps.fontFamily)
+              onChange={(e) => handleLiveUpdate('fontFamily', e.target.value)}
               title="Select System Font Preset"
+              disabled={isFontLoading}
             >
               {FONT_OPTIONS.map(font => (
                 <option key={font} value={font}>{font}</option>
               ))}
             </select>
-            <button
-              className="style-button primary-button small-button apply-button"
-              title="Apply Selected Preset"
-              onClick={handleApplyPreset}
-            >
-              Apply
-            </button>
           </div>
 
 

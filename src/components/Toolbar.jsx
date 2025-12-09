@@ -212,7 +212,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             >
               <FiUnderline size={16} />
             </button>
-
+</div>
             {/* Font Family Dropdown - HISTORY update on change */}
             <div className="control-row full-width font-control-group">
               <label className="control-label">Font Family</label>
@@ -286,7 +286,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
                 ))}
               </select>
             </div>
-          </div>
+          
 
 
           {/* Font Size Slider */}

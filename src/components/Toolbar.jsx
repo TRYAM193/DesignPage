@@ -159,6 +159,9 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   };
 
   // Helper for Text Style (Bold/Italic/Underline)
+  // src/components/Toolbar.jsx (Replace the existing toggleTextStyle function)
+
+  // Helper for Text Style (Bold/Italic/Underline)
   const toggleTextStyle = (style) => {
     let propKey;
     let nextValue;
@@ -166,18 +169,17 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
 
     if (style === 'underline') {
       propKey = 'underline';
-      // Toggles boolean: true -> false, false -> true
-      nextValue = !currentProps.underline;
+      // CRITICAL FIX: Explicitly check for active state (true). Toggle off to false.
+      // This is safer than relying on !currentProps.underline.
+      nextValue = currentProps.underline === true ? false : true; 
     } else if (style === 'italic') {
       propKey = 'fontStyle';
-      // If the current value is NOT strictly 'italic', set it to 'italic'. Otherwise, set to 'normal'.
-      const isItalicActive = currentProps.fontStyle === 'italic';
-      nextValue = isItalicActive ? 'normal' : 'italic';
+      // If current value is 'italic', set to 'normal'. Otherwise, set to 'italic'.
+      nextValue = currentProps.fontStyle === 'italic' ? 'normal' : 'italic';
     } else if (style === 'bold') {
       propKey = 'fontWeight';
-      // If the current value is NOT strictly 'bold', set it to 'bold'. Otherwise, set to 'normal'.
-      const isBoldActive = currentProps.fontWeight === 'bold';
-      nextValue = isBoldActive ? 'normal' : 'bold';
+      // If current value is 'bold', set to 'normal'. Otherwise, set to 'bold'.
+      nextValue = currentProps.fontWeight === 'bold' ? 'normal' : 'bold';
     } else {
       return;
     }

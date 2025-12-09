@@ -416,7 +416,7 @@ export default function CanvasEditor({
 
       if (existing) {
 
-        let shouldRecalculateDimensions = false;
+        // let shouldRecalculateDimensions = false;
         let updatesNeeded = {};
 
         // Iterate over all properties in the incoming object data
@@ -426,9 +426,9 @@ export default function CanvasEditor({
             updatesNeeded[key] = objData.props[key];
 
             // Critical check for dimension-affecting properties
-            if (objData.type === 'text' && ['text', 'fontFamily', 'fontSize', 'strokeWidth'].includes(key)) {
-              shouldRecalculateDimensions = true;
-            }
+            // if (objData.type === 'text' && ['text', 'fontFamily', 'fontSize', 'strokeWidth'].includes(key)) {
+            //   shouldRecalculateDimensions = true;
+            // }
           }
         }
 

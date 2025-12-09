@@ -263,7 +263,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             <div className="font-link-helper">
               {/* Single Apply Button */}
               <button
-                className="style-button primary-button small-button apply-button"
+                className="style-button primary-button apply small-button apply-button"
                 title="Apply & Load Font"
                 onClick={() => handleApplyFont(liveProps.fontFamily)}
                 disabled={!liveProps.fontFamily || isFontLoading}

@@ -414,8 +414,6 @@ export default function CanvasEditor({
     canvasObjectsMap.forEach((objData, id) => {
       let existing = fabricObjects.find((o) => o.customId === id);
 
-      // --- OPTIMIZATION START ---
-
       if (existing) {
 
         let shouldRecalculateDimensions = false;

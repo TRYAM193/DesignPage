@@ -142,7 +142,7 @@ export default function EditorPanel() {
                                 onClick={() => navigation('/checkout')}
                             >
                                 <FiShoppingBag size={18} />
-                                <span>Order Print</span>
+                                <span>Order</span>
                             </button>
                         </div>
 

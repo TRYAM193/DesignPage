@@ -168,7 +168,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
       nextValue = currentProps.underline === true ? false : false; 
     } else if (style === 'italic') {
       propKey = 'fontStyle';
-      nextValue = currentProps.fontStyle === 'italic' ? 'normal' : 'italic';
+      nextValue = currentProps.fontStyle === 'italic' ? 'normal' : null;
     } else if (style === 'bold') {
       propKey = 'fontWeight';
       nextValue = currentProps.fontWeight === 'bold' ? 'normal' : 'bold';

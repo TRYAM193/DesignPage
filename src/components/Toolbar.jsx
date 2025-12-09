@@ -72,7 +72,19 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
 
   // Sync local state when the selected object changes or Redux pushes a final update
   useEffect(() => {
-    setLiveProps(props);
+    // 1. Check if the object ID changed (initialization/reset)
+    if (id !== liveProps.id) {
+        setLiveProps(props);
+        return;
+    }
+
+    // 2. Check if the content of the props has changed deeply (Final Redux Push)
+    // We use JSON.stringify to compare object contents, preventing the loop
+    // that occurs when only the reference changes.
+    if (JSON.stringify(props) !== JSON.stringify(liveProps)) {
+        setLiveProps(props);
+    }
+    
   }, [props, id]);
   
   // --- HANDLERS (Defined below hooks) ---

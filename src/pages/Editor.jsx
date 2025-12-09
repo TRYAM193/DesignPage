@@ -96,8 +96,8 @@ export default function EditorPanel() {
                         title="Undo"
                         className="top-bar-button"
                         onClick={() => {
-                            fabricCanvas.discardActiveObject()
-                            fabricCanvas.renderAll();
+                            // fabricCanvas.discardActiveObject()
+                            // fabricCanvas.renderAll();
                             dispatch(undo())
                         }}
                         disabled={past.length === 0}
@@ -108,8 +108,8 @@ export default function EditorPanel() {
                         title="Redo"
                         className="top-bar-button"
                         onClick={() => {
-                            fabricCanvas.discardActiveObject()
-                            fabricCanvas.renderAll();
+                            // fabricCanvas.discardActiveObject()
+                            // fabricCanvas.renderAll();
                             dispatch(redo());
                         }}
                         disabled={future.length === 0}

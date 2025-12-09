@@ -74,22 +74,6 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const [showFontUrlInput, setShowFontUrlInput] = useState(false);
   const [isFontLoading, setIsFontLoading] = useState(false); // NEW STATE for loading font status
 
-  // Sync local state when the selected object changes or Redux pushes a final update
-  useEffect(() => {
-    // 1. Check if the object ID changed (initialization/reset)
-    if (id !== liveProps.id) {
-        setLiveProps(props);
-        return;
-    }
-
-    // 2. Check if the content of the props has changed deeply (Final Redux Push)
-    if (JSON.stringify(props) !== JSON.stringify(liveProps)) {
-        setLiveProps(props);
-    }
-    
-  }, [props, id]);
-
-
   // --- FONT APPLICATION HANDLER (Consolidated Logic) ---
   const handleApplyFont = (fontName) => {
     if (!fontName || isFontLoading) return;

@@ -162,7 +162,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
     let propKey;
     let nextValue;
     const currentProps = liveProps; 
-    console.log(currentProps)
+    console.log(liveProps)
 
     if (style === 'underline') {
       propKey = 'underline';

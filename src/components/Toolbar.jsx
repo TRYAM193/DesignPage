@@ -86,7 +86,8 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const handleUrlPaste = () => {
     const fontName = extractFontNameFromUrl(googleFontUrl);
     if (fontName) {
-      // Apply the extracted font name directly (pushes to history)
+      // Update local state and push to history immediately (This is the single final update for the paste action)
+      setLiveProps(prev => ({ ...prev, fontFamily: fontName }));
       handleUpdateAndHistory('fontFamily', fontName);
       setGoogleFontUrl(''); // Clear input
       setShowFontUrlInput(false);
@@ -94,6 +95,12 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
     } else {
       alert('Could not extract a valid font name from the link. Please ensure you pasted the correct Google Fonts link (look for "family=").');
     }
+  };
+
+  const handleApplyPreset = () => {
+    // FIX: Ensure the change is visually applied to Fabric before history is pushed
+    liveUpdateFabric(fabricCanvas, id, { fontFamily: liveProps.fontFamily }, liveProps);
+    handleUpdateAndHistory('fontFamily', liveProps.fontFamily);
   };
 
   useEffect(() => {
@@ -122,7 +129,6 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
       );
 
       // 3. IMPORTANT: Push the assembled 'shadow' object to history
-      // This ensures the object is saved/loaded correctly and the Fabric sync logic works
       updateObject(id, { shadow: shadowObject });
       return;
     }
@@ -142,7 +148,6 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
 
   // Helper for Text Style (Bold/Italic/Underline)
   const toggleTextStyle = (style) => {
-    // ... (existing implementation for bold, italic, underline, which immediately pushes to history)
     let newValue;
 
     if (style === 'underline') {
@@ -188,9 +193,9 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             />
           </div>
 
-          {/* Text Style Buttons & Font Family */}
-          <div className="control-row-buttons">
-            {/* ... (Bold, Italic, Underline buttons use history handler) ... */}
+          {/* Text Style Buttons */}
+          <h3 className="property-group-subtitle">Text Formatting</h3>
+          <div className="control-row-buttons" style={{ marginBottom: '15px' }}>
             <button
               className={`style-button ${liveProps.fontWeight === 'bold' ? 'active' : ''}`}
               onClick={() => toggleTextStyle('bold')}
@@ -214,21 +219,21 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             </button>
           </div>
 
-          {/* Font Family Dropdown - HISTORY update on change */}
+          {/* 💥 Custom Font Input and Helper */}
           <h3 className="property-group-subtitle">Custom Font Name</h3>
           <div className="control-row full-width font-control-group">
             <input
               type="text"
               className="text-input font-input"
               value={liveProps.fontFamily || ''}
-              // FIX: Only update local state on change (no direct Fabric update)
-              onChange={(e) => setLiveProps(prev => ({ ...prev, fontFamily: e.target.value }))}
+              // Live update on change (visual update)
+              onChange={(e) => handleLiveUpdate('fontFamily', e.target.value)}
               placeholder="Enter font name (e.g., Roboto)"
               title="Enter a custom font name (must be loaded in your app)"
             />
 
             <div className="font-link-helper">
-              {/* NEW: Apply Button for Custom Input */}
+              {/* Apply Button */}
               <button
                 className="style-button primary-button small-button apply-button"
                 title="Apply Custom Font Name"
@@ -278,7 +283,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             </div>
           )}
 
-          {/* System Font Dropdown */}
+          {/* 💥 System Presets Dropdown - REQUIRES APPLY BUTTON */}
           <h3 className="property-group-subtitle" style={{ marginTop: '15px' }}>System Presets</h3>
           <div className="control-row full-width font-control-group">
             <select
@@ -300,6 +305,8 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               Apply
             </button>
           </div>
+
+
           {/* Font Size Slider */}
           <div className="control-row">
             <label className="control-label">Font Size</label>
@@ -318,9 +325,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             max="200"
             step="1"
             value={liveProps.fontSize || 30}
-            // Live update on input (drag)
             onInput={(e) => handleLiveUpdate('fontSize', Number(e.target.value))}
-            // Final update on mouse up
             onMouseUp={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))}
           />
 
@@ -331,9 +336,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               type="color"
               className="color-input"
               value={liveProps.fill || '#000000'}
-              // Live update on input (drag)
               onInput={(e) => handleLiveUpdate('fill', e.target.value)}
-              // Final update on change (when color selection modal closes)
               onChange={(e) => handleUpdateAndHistory('fill', e.target.value)}
             />
           </div>
@@ -499,137 +502,3 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
     </div>
   );
 }
-// {/* --- 1. TYPE-SPECIFIC PROPERTIES --- */}
-// {type === 'text' && (
-//   <div className="property-group">
-//     <h3 className="property-group-title">Text Content & Style</h3>
-
-//     {/* Text Content Input */}
-//     <div className="control-row full-width">
-//       <textarea
-//         className="text-input"
-//         rows="3"
-//         value={liveProps.text || ''}
-//         // Final update on blur
-//         onBlur={(e) => handleUpdateAndHistory('text', e.target.value)}
-//         // Live update on every change
-//         onChange={(e) => handleLiveUpdate('text', e.target.value)}
-//         placeholder="Enter your text here"
-//       />
-//     </div>
-
-//     {/* Text Style Buttons & Font Family */}
-//     <div className="control-row-buttons">
-//       {/* ... (Bold, Italic, Underline buttons use history handler) ... */}
-//       <button
-//         className={`style-button ${liveProps.fontWeight === 'bold' ? 'active' : ''}`}
-//         onClick={() => toggleTextStyle('bold')}
-//         title="Bold"
-//       >
-//         <FiBold size={16} />
-//       </button>
-//       <button
-//         className={`style-button ${liveProps.fontStyle === 'italic' ? 'active' : ''}`}
-//         onClick={() => toggleTextStyle('italic')}
-//         title="Italic"
-//       >
-//         <FiItalic size={16} />
-//       </button>
-//       <button
-//         className={`style-button ${liveProps.underline ? 'active' : ''}`}
-//         onClick={() => toggleTextStyle('underline')}
-//         title="Underline"
-//       >
-//         <FiUnderline size={16} />
-//       </button>
-
-//       {/* Font Family Dropdown - HISTORY update on change */}
-//       <select
-//         className="font-select"
-//         value={liveProps.fontFamily || 'Arial'}
-//         onChange={(e) => handleUpdateAndHistory('fontFamily', e.target.value)}
-//         title="Font Family"
-//       >
-//         {FONT_OPTIONS.map(font => (
-//           <option key={font} value={font}>{font}</option>
-//         ))}
-//       </select>
-//     </div>
-
-
-//     {/* Font Size Slider */}
-//     <div className="control-row">
-//       <label className="control-label">Font Size</label>
-//       <input
-//         type="number"
-//         className="number-input small"
-//         value={Math.round(liveProps.fontSize || 30)}
-//         // Live update on every keystroke
-//         onChange={(e) => handleLiveUpdate('fontSize', Number(e.target.value))}
-//         // Final update on blur
-//         onBlur={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))}
-//       />
-//     </div>
-//     <input
-//       type="range"
-//       className="slider-input"
-//       min="10"
-//       max="200"
-//       step="1"
-//       value={liveProps.fontSize || 30}
-//       // Live update on input (drag)
-//       onInput={(e) => handleLiveUpdate('fontSize', Number(e.target.value))}
-//       // Final update on mouse up
-//       onMouseUp={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))}
-//     />
-
-//     {/* Text Color Control */}
-//     <div className="control-row">
-//       <label className="control-label">Text Color</label>
-//       <input
-//         type="color"
-//         className="color-input"
-//         value={liveProps.fill || '#000000'}
-//         // Live update on input (drag)
-//         onInput={(e) => handleLiveUpdate('fill', e.target.value)}
-//         // Final update on change (when color selection modal closes)
-//         onChange={(e) => handleUpdateAndHistory('fill', e.target.value)}
-//       />
-//     </div>
-
-//     {/* Stroke Color and Width */}
-//     <h3 className="property-group-subtitle">Outline</h3>
-
-//     <div className="control-row">
-//       <label className="control-label">Color</label>
-//       <input
-//         type="color"
-//         className="color-input"
-//         value={liveProps.stroke || '#000000'}
-//         onInput={(e) => handleLiveUpdate('stroke', e.target.value)}
-//         onChange={(e) => handleUpdateAndHistory('stroke', e.target.value)}
-//       />
-//     </div>
-//     <div className="control-row">
-//       <label className="control-label">Width</label>
-//       <input
-//         type="number"
-//         className="number-input small"
-//         value={Math.round(liveProps.strokeWidth || 0)}
-//         onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value))}
-//         onBlur={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
-//       />
-//     </div>
-//     <input
-//       type="range"
-//       className="slider-input"
-//       min="0"
-//       max="10"
-//       step="0.5"
-//       value={liveProps.strokeWidth || 0}
-//       onInput={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value))}
-//       onMouseUp={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
-//     />
-
-//   </div>
-// )}

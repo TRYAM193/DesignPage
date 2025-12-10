@@ -509,7 +509,7 @@ const currentFabricObjects = fabricCanvas.getObjects();
 
             // Only move if the object is not already at the correct index
             if (currentIndex !== index) {
-                fabricObj.moveTo(index);
+                fabricObjectsArray.splice(currentIndex, 1);fabricObj.moveTo(index);
             }
         }
     });

@@ -376,8 +376,9 @@ export default function CanvasEditor({
           left: obj.left,
           top: obj.top,
           angle: obj.angle,
-          scaleX: obj.scaleX, // Explicitly save scaleX
-          scaleY: obj.scaleY, // Explicitly save scaleY
+          scaleX: obj.scaleX, 
+          scaleY: obj.scaleY,
+          
         });
         return;
       }
@@ -461,7 +462,7 @@ export default function CanvasEditor({
           existing.setCoords();
           fabricCanvas.requestRenderAll();
         }
-        
+
       } else {
         // Logic to add new objects remains the same (as it only runs for new IDs)
         let newObj;

@@ -12,8 +12,8 @@ export default function addImage(setSelectedId, setActiveTool, src) {
     props: {
       left: 200,
       top: 200,
-      // width: 200,
-      // height: 50,
+      width: 300,
+      height: 400,
       opacity: 1,
       scaleX: 1,
       scaleY: 1,

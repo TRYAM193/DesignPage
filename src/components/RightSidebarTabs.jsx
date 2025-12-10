@@ -47,14 +47,13 @@ export default function RightSidebarTabs(props) {
         {/* Placeholder for Layers tab */}
         {activeTab === 'layers' && (
             <h3 style={{ marginTop: '20px', textAlign: 'center', color: '#666' }}>Layers Panel</h3>
-            {/* Layers Panel */}
-            {activeTab === 'layers' && (
+          
               <LayersPanel
                 selectedId={props.id}
                 setSelectedId={props.setSelectedId} // Pass setSelectedId function
                 fabricCanvas={props.fabricCanvas}
               />
-            )}
+            
         )}
       </div>
     </div>

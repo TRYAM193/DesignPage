@@ -705,6 +705,7 @@ input[type="range"],
   flex-direction: column;
   gap: 5px;
   overflow: visible !important;
+  max-height: none !important;
 }
 
 .layer-item {

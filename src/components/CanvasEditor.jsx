@@ -495,35 +495,35 @@ export default function CanvasEditor({
     });
 
     fabricCanvas.renderAll();
-const currentFabricObjects = fabricCanvas.getObjects();
+    const currentFabricObjects = fabricCanvas.getObjects();
 
     // Fabric's internal object array (which controls stacking)
-    let fabricObjectsArray = fabricCanvas._objects; 
+    let fabricObjectsArray = fabricCanvas._objects;
 
     // Iterate through the source of truth (Redux state)
     canvasObjects.forEach((reduxObj, index) => {
-        const fabricObj = currentFabricObjects.find(
-            (obj) => obj.customId === reduxObj.id
-        );
+      const fabricObj = currentFabricObjects.find(
+        (obj) => obj.customId === reduxObj.id
+      );
 
-        if (fabricObj) {
-            const currentIndex = fabricObjectsArray.indexOf(fabricObj);
+      if (fabricObj) {
+        const currentIndex = fabricObjectsArray.indexOf(fabricObj);
 
-            // Only move if the object is not already at the correct index
-            if (currentIndex !== index) {
-                
-                // --- GUARANTEED Z-INDEX FIX ---
-                
-                // 1. Remove object from its current position in the internal array
-                fabricObjectsArray.splice(currentIndex, 1);
-                
-                // 2. Insert object into the desired position
-                fabricObjectsArray.splice(index, 0, fabricObj);
+        // Only move if the object is not already at the correct index
+        if (currentIndex !== index) {
 
-                // Re-assign the modified array back to the canvas's internal state
-                fabricCanvas._objects = fabricObjectsArray;
-            }
+          // --- GUARANTEED Z-INDEX FIX ---
+
+          // 1. Remove object from its current position in the internal array
+          fabricObjectsArray.splice(currentIndex, 1);
+
+          // 2. Insert object into the desired position
+          fabricObjectsArray.splice(index, 0, fabricObj);
+
+          // Re-assign the modified array back to the canvas's internal state
+          fabricCanvas._objects = fabricObjectsArray;
         }
+      }
     });
 
 

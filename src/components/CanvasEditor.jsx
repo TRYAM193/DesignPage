@@ -378,7 +378,8 @@ export default function CanvasEditor({
           angle: obj.angle,
           scaleX: obj.scaleX, 
           scaleY: obj.scaleY,
-          
+          width: obj.width,
+          height: obj.height,
         });
         return;
       }

@@ -371,18 +371,18 @@ export default function CanvasEditor({
         });
         return;
       }
-
-      updateObject(obj.customId, {
-        left: obj.left,
-        top: obj.top,
-        angle: obj.angle,
-        ...(obj.type === 'image' && {
-          width: obj.width,
-          height: obj.height,
-          scaleX: obj.scaleX, // Save scaleX
-          scaleY: obj.scaleY, // Save scaleY
-        }),
-      });
+      if (obj.type === 'image') {
+          updateObject(obj.customId, {
+            left: obj.left,
+            top: obj.top,
+            angle: obj.angle,
+            width: obj.width,
+            height: obj.height,
+            scaleX: obj.scaleX, // Explicitly save scaleX
+            scaleY: obj.scaleY, // Explicitly save scaleY
+          });
+          return;
+      }
     };
     fabricCanvas.on('object:modified', handleObjectModified);
     return () => {

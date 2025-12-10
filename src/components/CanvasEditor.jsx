@@ -495,8 +495,7 @@ export default function CanvasEditor({
     });
 
     fabricCanvas.renderAll();
-
-    const currentFabricObjects = fabricCanvas.getObjects();
+const currentFabricObjects = fabricCanvas.getObjects();
 
     // Iterate through the source of truth (Redux state)
     canvasObjects.forEach((reduxObj, index) => {
@@ -505,10 +504,17 @@ export default function CanvasEditor({
         );
 
         if (fabricObj) {
-            fabricObj.setStackingIndex(index); 
+            // Check the current index of the object in Fabric's array
+            const currentIndex = fabricCanvas._objects.indexOf(fabricObj);
+
+            // Only move if the object is not already at the correct index
+            if (currentIndex !== index) {
+                // Use the standard Fabric method to move the object to the absolute index.
+                // This is the most reliable way to set Z-index based on array index.
+                fabricObj.moveTo(index);
+            }
         }
     });
-
 
     fabricCanvas.renderAll();
 

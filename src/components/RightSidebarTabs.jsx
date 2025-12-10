@@ -4,7 +4,7 @@ import Toolbar from './Toolbar'; // Imports your existing property editor compon
 import { FiLayers, FiSliders } from 'react-icons/fi'; // Icons for tabs
 import LayersPanel from './LayersPanel'
 
-export default function RightSidebarTabs(props) {
+export default function RightSidebarTabs(props, setSelectedId) {
   // State to manage the active tab: 'properties' or 'layers'
   const [activeTab, setActiveTab] = useState('properties');
 
@@ -52,8 +52,8 @@ export default function RightSidebarTabs(props) {
             {activeTab === 'layers' && (
               <LayersPanel
                 selectedId={props.id}
-                setSelectedId={props.setSelectedId} // Pass setSelectedId function
-                fabricCanvas={props.fabricCanvas}
+                setSelectedId={setSelectedId} // Pass setSelectedId function
+                fabricCanvas={fabricCanvas}
               />
             )}
           </div>

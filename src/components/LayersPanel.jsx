@@ -101,7 +101,6 @@ export default function LayersPanel({ selectedId, setSelectedId, fabricCanvas })
 
             <DragDropContext onDragEnd={onDragEnd}>
                 <div>
-                </div>
                     
                 <Droppable droppableId="layer-list-droppable">
                     {(provided) => (
@@ -126,6 +125,7 @@ export default function LayersPanel({ selectedId, setSelectedId, fabricCanvas })
                         </div>
                     )}
                 </Droppable>
+                </div>
             </DragDropContext>
         </div>
     );

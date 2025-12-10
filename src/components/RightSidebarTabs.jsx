@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Toolbar from './Toolbar'; // Imports your existing property editor component
 import { FiLayers, FiSliders } from 'react-icons/fi'; // Icons for tabs
+import LayersPanel from './LayersPanel'
 
 export default function RightSidebarTabs(props) {
   // State to manage the active tab: 'properties' or 'layers'

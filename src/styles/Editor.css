@@ -780,3 +780,8 @@ input[type="range"],
 .layer-controls .delete-button:hover {
   background-color: #ffe6e6;
 }
+
+.layer-list-wrapper {
+    overflow-y: auto;
+    max-height: 100%;
+}

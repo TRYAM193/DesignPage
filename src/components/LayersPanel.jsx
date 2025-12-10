@@ -100,6 +100,9 @@ export default function LayersPanel({ selectedId, setSelectedId, fabricCanvas })
             <h3 style={{ marginTop: '20px', textAlign: 'center', color: '#666' }}>Layers Panel</h3>
 
             <DragDropContext onDragEnd={onDragEnd}>
+                <div>
+                </div>
+                    
                 <Droppable droppableId="layer-list-droppable">
                     {(provided) => (
                         <div ref={provided.innerRef} {...provided.droppableProps} className="layer-list">

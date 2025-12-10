@@ -358,6 +358,8 @@ html,
     flex-grow: 1;
     overflow-y: auto;
     padding: 15px; /* Apply padding to the content area */
+    overflow-y: auto; 
+  overflow-x: hidden;
 }
 
 /* IMPORTANT: Update the main right-panel container to remove original padding */

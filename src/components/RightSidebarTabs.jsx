@@ -52,8 +52,8 @@ export default function RightSidebarTabs(props) {
             {activeTab === 'layers' && (
               <LayersPanel
                 selectedId={props.id}
-                setSelectedId={setSelectedId} // Pass setSelectedId function
-                fabricCanvas={fabricCanvas}
+                setSelectedId={props.setSelectedId} // Pass setSelectedId function
+                fabricCanvas={props.fabricCanvas}
               />
             )}
           </div>

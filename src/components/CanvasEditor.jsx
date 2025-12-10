@@ -496,6 +496,22 @@ export default function CanvasEditor({
 
     fabricCanvas.renderAll();
 
+    const currentFabricObjects = fabricCanvas.getObjects();
+
+    // Iterate through the source of truth (Redux state)
+    canvasObjects.forEach((reduxObj, index) => {
+        const fabricObj = currentFabricObjects.find(
+            (obj) => obj.customId === reduxObj.id
+        );
+
+        if (fabricObj) {
+            fabricObj.setStackingIndex(index); 
+        }
+    });
+
+
+    fabricCanvas.renderAll();
+
     // ✅ allow updates again after short delay
     setTimeout(() => {
       isSyncingRef.current = false;

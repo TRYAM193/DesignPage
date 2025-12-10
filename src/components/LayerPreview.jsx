@@ -50,7 +50,7 @@ export default function LayerPreview({ object }) {
     // IMAGE PREVIEW (fixed: src check)
     // -------------------------------
     if (type === 'image') {
-        if (!props.src) {
+        if (!object.src) {
             return (
                 <div style={{ ...previewStyle, backgroundColor: '#eee' }}>
                     Image

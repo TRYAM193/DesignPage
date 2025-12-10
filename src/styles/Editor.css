@@ -362,7 +362,7 @@ html,
 
 /* IMPORTANT: Update the main right-panel container to remove original padding */
 .right-panel {
-    /* ... existing styles ... */
+    overflow-y: hidden;
     padding: 0; /* REMOVED padding from this element, as it's now in .tab-content-area */
 }
 

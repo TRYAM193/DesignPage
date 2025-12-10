@@ -443,7 +443,6 @@ export default function CanvasEditor({
             // Fabric only accepts the 'shadow' object, not individual keys
             updatesNeeded.shadow = shadowObject;
 
-            // Clean up individual properties from the updates needed to prevent errors
             ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'].forEach(key => delete updatesNeeded[key]);
           }
           // First apply scale

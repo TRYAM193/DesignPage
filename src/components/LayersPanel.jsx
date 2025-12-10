@@ -119,7 +119,7 @@ export default function LayersPanel({ selectedId, setSelectedId, fabricCanvas })
               )}
               {layers.map((obj, index) => (
                 <DraggableLayerItem
-                  key={String(obj.id)}
+                  key={obj.id}
                   object={obj}
                   index={index}
                   isSelected={obj.id === selectedId}

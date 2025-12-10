@@ -379,8 +379,8 @@ export default function CanvasEditor({
         ...(obj.type === 'image' && {
           width: obj.width,
           height: obj.height,
-          scaleX: obj.scaleX,
-          scaleY: obj.scaleY,
+          scaleX: obj.scaleX, // Save scaleX
+          scaleY: obj.scaleY, // Save scaleY
         }),
       });
     };

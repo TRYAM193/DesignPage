@@ -1,70 +1,55 @@
 // src/components/LayersPanel.jsx
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy, } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { DndContext, closestCenter } from '@dnd-kit/core';
-
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { FiTrash2 } from 'react-icons/fi';
-import { reorderLayers } from '../functions/layer'; // <-- NEW IMPORT
+
+import { reorderLayers } from '../functions/layer'; // Reordering function from Step 1
 import removeObject from '../functions/remove'; // Assumed to be available
-import LayerPreview from './LayerPreview'; // <-- NEW IMPORT
+import LayerPreview from './LayerPreview'; // The visual preview component
 
-// --- Sortable Item Component ---
-const SortableItem = ({ id, object, isSelected, onSelect, onDelete, fabricCanvas }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    zIndex: isSelected ? 20 : 'auto', // Keep selected item elevated
-  };
-  
-  // Logic to handle name display based on type
-  const displayName = object.type === 'text' 
-    ? (object.props.text ? object.props.text.substring(0, 20) : 'Text') 
-    : object.type.charAt(0).toUpperCase() + object.type.slice(1);
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`layer-item ${isSelected ? 'active' : ''}`}
-      onClick={() => onSelect(id)}
-    >
-      {/* Draggable Handle */}
-      <div className="layer-handle" {...listeners} {...attributes} title="Drag to reorder">
-        <span style={{ fontSize: '16px', cursor: 'grab', marginRight: '8px' }}>&#x2261;</span>
+// --- Draggable Item Component ---
+const DraggableLayerItem = ({ object, index, isSelected, onSelect, onDelete }) => (
+  <Draggable draggableId={object.id} index={index}>
+    {(provided, snapshot) => (
+      <div
+        ref={provided.innerRef}
+        {...provided.draggableProps}
+        {...provided.dragHandleProps} // Use the entire box as the handle
+        
+        className={`layer-item 
+          ${isSelected ? 'active' : ''} 
+          ${snapshot.isDragging ? 'is-dragging' : ''}
+        `}
+        onClick={() => onSelect(object.id)}
+      >
+        {/* Layer Content and Preview */}
+        <div className="layer-content-wrapper">
+            <div className="layer-thumbnail-box">
+                <LayerPreview object={object} />
+            </div>
+            
+            <span className="layer-name">
+                {object.type === 'text' 
+                    ? (object.props.text ? object.props.text.substring(0, 20) : 'Text') 
+                    : object.type.charAt(0).toUpperCase() + object.type.slice(1)}
+            </span>
+        </div>
+        
+        {/* Controls */}
+        <div className="layer-controls">
+            <button 
+                title="Delete" 
+                onClick={(e) => { e.stopPropagation(); onDelete(object.id); }}
+                className="delete-button"
+            >
+                <FiTrash2 size={14} />
+            </button>
+        </div>
       </div>
-
-      {/* Layer Content and Preview */}
-      <div className="layer-content-wrapper">
-          <div className="layer-thumbnail-box">
-              <LayerPreview object={object} />
-          </div>
-          
-          <span className="layer-name">{displayName}</span>
-      </div>
-      
-      {/* Controls */}
-      <div className="layer-controls">
-          <button 
-              title="Delete" 
-              onClick={(e) => { e.stopPropagation(); onDelete(id); }}
-              className="delete-button"
-          >
-              <FiTrash2 size={14} />
-          </button>
-      </div>
-    </div>
-  );
-};
+    )}
+  </Draggable>
+);
 
 
 export default function LayersPanel({ selectedId, setSelectedId, fabricCanvas }) {
@@ -72,9 +57,9 @@ export default function LayersPanel({ selectedId, setSelectedId, fabricCanvas })
   const canvasObjects = useSelector(state => state.canvas.present);
   
   // Local state for D&D operations (display order is front-to-back, matching user expectation)
-  const [layers, setLayers] = useState([...canvasObjects].reverse());
+  const [layers, setLayers] = useState([]);
 
-  // Sync local state with Redux state (important after undo/redo/normal updates)
+  // Sync local state with Redux state
   useEffect(() => {
       // Re-reverse the redux state (which is back-to-front) to match the display order
       const reduxLayers = [...canvasObjects].reverse();
@@ -82,26 +67,26 @@ export default function LayersPanel({ selectedId, setSelectedId, fabricCanvas })
   }, [canvasObjects]);
 
 
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
+  const onDragEnd = (result) => {
+    const { source, destination } = result;
 
-    const oldIndex = layers.findIndex(obj => obj.id === active.id);
-    const newIndex = layers.findIndex(obj => obj.id === over.id);
+    if (!destination) return; // Dropped outside the list
+    if (source.index === destination.index) return; // No change in position
 
     // Update local state (display order: front-to-back)
-    const newDisplayOrder = arrayMove(layers, oldIndex, newIndex);
-    setLayers(newDisplayOrder);
+    const newDisplayOrder = Array.from(layers);
+    const [removed] = newDisplayOrder.splice(source.index, 1);
+    newDisplayOrder.splice(destination.index, 0, removed);
+    
+    setLayers(newDisplayOrder); // Update visual display
 
     // CRITICAL: Reverse array back to Redux order (back-to-front) before saving
     const newReduxOrder = [...newDisplayOrder].reverse();
     
-    // Update Redux history with the new layer order
+    // Update Redux history with the new layer order (calls setCanvasObjects)
     reorderLayers(newReduxOrder);
-    
-    // Select the dragged object again to refresh controls
-    setSelectedId(active.id);
   };
+
 
   const handleSelectLayer = (id) => {
     setSelectedId(id);
@@ -121,34 +106,32 @@ export default function LayersPanel({ selectedId, setSelectedId, fabricCanvas })
 
   return (
     <div className="layers-panel-content">
-      <DndContext 
-        sensors={[]} 
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="layer-list">
-          {layers.length === 0 && (
-            <p className="property-panel-message">No objects on the canvas.</p>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="layer-list-droppable">
+          {(provided, snapshot) => (
+            <div
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              className="layer-list"
+            >
+              {layers.length === 0 && (
+                <p className="property-panel-message">No objects on the canvas.</p>
+              )}
+              {layers.map((obj, index) => (
+                <DraggableLayerItem
+                  key={obj.id}
+                  object={obj}
+                  index={index}
+                  isSelected={obj.id === selectedId}
+                  onSelect={handleSelectLayer}
+                  onDelete={handleDeleteLayer}
+                />
+              ))}
+              {provided.placeholder}
+            </div>
           )}
-          
-          <SortableContext
-            items={layers.map(obj => obj.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            {layers.map((obj) => (
-              <SortableItem
-                key={obj.id}
-                id={obj.id}
-                object={obj}
-                isSelected={obj.id === selectedId}
-                onSelect={handleSelectLayer}
-                onDelete={handleDeleteLayer}
-                fabricCanvas={fabricCanvas}
-              />
-            ))}
-          </SortableContext>
-        </div>
-      </DndContext>
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 }

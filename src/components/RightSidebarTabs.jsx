@@ -9,17 +9,17 @@ export default function RightSidebarTabs(props) {
 
   return (
     <div className="right-sidebar-tabs">
-      
+
       {/* Tab Selector Bar */}
       <div className="tab-selector-bar">
-        <button 
+        <button
           className={`tab-button ${activeTab === 'properties' ? 'active' : ''}`}
           onClick={() => setActiveTab('properties')}
         >
           <FiSliders size={18} />
           <span>Properties</span>
         </button>
-        <button 
+        <button
           className={`tab-button ${activeTab === 'layers' ? 'active' : ''}`}
           onClick={() => setActiveTab('layers')}
         >
@@ -32,7 +32,7 @@ export default function RightSidebarTabs(props) {
       <div className="tab-content-area">
         {/* Render the existing Toolbar when on the Properties tab */}
         {activeTab === 'properties' && (
-          <Toolbar 
+          <Toolbar
             id={props.id}
             type={props.type}
             object={props.object}
@@ -46,8 +46,15 @@ export default function RightSidebarTabs(props) {
         {/* Placeholder for Layers tab */}
         {activeTab === 'layers' && (
           <div className="layers-placeholder">
-            <h3 style={{marginTop: '20px', textAlign: 'center', color: '#666'}}>Layers Panel</h3>
-            <p style={{fontSize: '14px', textAlign: 'center', color: '#888'}}>Layer management UI will go here.</p>
+            <h3 style={{ marginTop: '20px', textAlign: 'center', color: '#666' }}>Layers Panel</h3>
+            {/* Layers Panel */}
+            {activeTab === 'layers' && (
+              <LayersPanel
+                selectedId={props.id}
+                setSelectedId={props.setSelectedId} // Pass setSelectedId function
+                fabricCanvas={props.fabricCanvas}
+              />
+            )}
           </div>
         )}
       </div>

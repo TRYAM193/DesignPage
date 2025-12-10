@@ -46,7 +46,7 @@ export default function CanvasEditor({
   // 🟩 Initialize Fabric.js once
   useEffect(() => {
     const ORIGINAL_WIDTH = 800; // set your design size
-    const ORIGINAL_HEIGHT = 500;
+    const ORIGINAL_HEIGHT = 800;
 
     const canvas = new fabric.Canvas(canvasRef.current, {
       backgroundColor: 'transparent',

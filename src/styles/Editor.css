@@ -704,6 +704,7 @@ input[type="range"],
   display: flex;
   flex-direction: column;
   gap: 5px;
+  overflow: ;
 }
 
 .layer-item {

@@ -477,22 +477,22 @@ export default function CanvasEditor({
               fabricCanvas.renderAll();
 
               // 🔥 UPDATE REDUX WITH REAL DIMENSIONS AFTER IMAGE LOAD
-              store.dispatch(setCanvasObjects(
-                store.getState().canvas.present.map(o =>
-                  o.id === objData.id
-                    ? {
-                      ...o,
-                      props: {
-                        ...o.props,
-                        width: newObj.width,
-                        height: newObj.height,
-                        scaleX: newObj.scaleX,
-                        scaleY: newObj.scaleY
-                      }
-                    }
-                    : o
-                )
-              ));
+              // store.dispatch(setCanvasObjects(
+              //   store.getState().canvas.present.map(o =>
+              //     o.id === objData.id
+              //       ? {
+              //         ...o,
+              //         props: {
+              //           ...o.props,
+              //           width: newObj.width,
+              //           height: newObj.height,
+              //           scaleX: newObj.scaleX,
+              //           scaleY: newObj.scaleY
+              //         }
+              //       }
+              //       : o
+              //   )
+              // ));
             }
           });
 

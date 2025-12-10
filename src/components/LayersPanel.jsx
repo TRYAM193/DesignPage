@@ -10,7 +10,7 @@ import LayerPreview from './LayerPreview'; // The visual preview component
 
 // --- Draggable Item Component ---
 const DraggableLayerItem = ({ object, index, isSelected, onSelect, onDelete }) => (
-  <Draggable draggableId={object.id} index={index}>
+  <Draggable draggableId={String(object.id)} index={index}>
     {(provided, snapshot) => (
       <div
         ref={provided.innerRef}

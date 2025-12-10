@@ -376,7 +376,7 @@ export default function CanvasEditor({
           left: obj.left,
           top: obj.top,
           angle: obj.angle,
-          scaleX: obj.scaleX, 
+          scaleX: obj.scaleX,
           scaleY: obj.scaleY,
           width: obj.width,
           height: obj.height,
@@ -475,8 +475,27 @@ export default function CanvasEditor({
               fabricCanvas.add(newObj);
               fabricCanvas.setActiveObject(newObj);
               fabricCanvas.renderAll();
+
+              // 🔥 UPDATE REDUX WITH REAL DIMENSIONS AFTER IMAGE LOAD
+              store.dispatch(setCanvasObjects(
+                store.getState().canvas.present.map(o =>
+                  o.id === objData.id
+                    ? {
+                      ...o,
+                      props: {
+                        ...o.props,
+                        width: newObj.width,
+                        height: newObj.height,
+                        scaleX: newObj.scaleX,
+                        scaleY: newObj.scaleY
+                      }
+                    }
+                    : o
+                )
+              ));
             }
           });
+
         }
         if (newObj) {
           newObj.customId = objData.id;

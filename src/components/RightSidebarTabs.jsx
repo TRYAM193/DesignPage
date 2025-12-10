@@ -45,8 +45,8 @@ export default function RightSidebarTabs(props) {
         )}
 
         {/* Placeholder for Layers tab */}
-        <h3 style={{ marginTop: '20px', textAlign: 'center', color: '#666' }}>Layers Panel</h3>
         {activeTab === 'layers' && (
+        <h3 style={{ marginTop: '20px', textAlign: 'center', color: '#666' }}>Layers Panel</h3>
           <LayersPanel
             selectedId={props.id}
             setSelectedId={props.setSelectedId} // Pass setSelectedId function

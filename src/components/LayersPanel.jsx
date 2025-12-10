@@ -100,31 +100,30 @@ export default function LayersPanel({ selectedId, setSelectedId, fabricCanvas })
             <h3 style={{ marginTop: '20px', textAlign: 'center', color: '#666' }}>Layers Panel</h3>
 
             <DragDropContext onDragEnd={onDragEnd}>
-                <div>
-                    
-                <Droppable droppableId="layer-list-droppable">
-                    {(provided) => (
-                        <div ref={provided.innerRef} {...provided.droppableProps} className="layer-list">
+                <div className='la'>
+                    <Droppable droppableId="layer-list-droppable">
+                        {(provided) => (
+                            <div ref={provided.innerRef} {...provided.droppableProps} className="layer-list">
 
-                            {layers.length === 0 && (
-                                <p className="property-panel-message">No objects on the canvas.</p>
-                            )}
+                                {layers.length === 0 && (
+                                    <p className="property-panel-message">No objects on the canvas.</p>
+                                )}
 
-                            {layers.map((obj, index) => (
-                                <DraggableLayerItem
-                                    key={String(obj.id)}
-                                    object={obj}
-                                    index={index}
-                                    isSelected={obj.id === selectedId}
-                                    onSelect={handleSelectLayer}
-                                    onDelete={handleDeleteLayer}
-                                />
-                            ))}
+                                {layers.map((obj, index) => (
+                                    <DraggableLayerItem
+                                        key={String(obj.id)}
+                                        object={obj}
+                                        index={index}
+                                        isSelected={obj.id === selectedId}
+                                        onSelect={handleSelectLayer}
+                                        onDelete={handleDeleteLayer}
+                                    />
+                                ))}
 
-                            {provided.placeholder}
-                        </div>
-                    )}
-                </Droppable>
+                                {provided.placeholder}
+                            </div>
+                        )}
+                    </Droppable>
                 </div>
             </DragDropContext>
         </div>

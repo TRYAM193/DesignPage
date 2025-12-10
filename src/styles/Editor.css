@@ -739,7 +739,6 @@ input[type="range"],
 }
 
 .layer-name {
-  overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   flex-grow: 1;

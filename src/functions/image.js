@@ -15,6 +15,8 @@ export default function addImage(setSelectedId, setActiveTool, src) {
       width: 200,
       height: 50,
       opacity: 1,
+      scaleX: 1,
+      screen
     }
   } 
 

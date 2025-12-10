@@ -372,14 +372,14 @@ export default function CanvasEditor({
         return;
       }
       if (obj.type === 'image') {
-          updateObject(obj.customId, {
-            left: obj.left,
-            top: obj.top,
-            angle: obj.angle,
-            scaleX: obj.scaleX, // Explicitly save scaleX
-            scaleY: obj.scaleY, // Explicitly save scaleY
-          });
-          return;
+        updateObject(obj.customId, {
+          left: obj.left,
+          top: obj.top,
+          angle: obj.angle,
+          scaleX: obj.scaleX, // Explicitly save scaleX
+          scaleY: obj.scaleY, // Explicitly save scaleY
+        });
+        return;
       }
     };
     fabricCanvas.on('object:modified', handleObjectModified);
@@ -444,11 +444,23 @@ export default function CanvasEditor({
             // Clean up individual properties from the updates needed to prevent errors
             ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'].forEach(key => delete updatesNeeded[key]);
           }
+          // First apply scale
+          if (updatesNeeded.scaleX !== undefined || updatesNeeded.scaleY !== undefined) {
+            existing.set({
+              scaleX: updatesNeeded.scaleX ?? existing.scaleX,
+              scaleY: updatesNeeded.scaleY ?? existing.scaleY,
+            });
+            delete updatesNeeded.scaleX;
+            delete updatesNeeded.scaleY;
+          }
 
-          // Apply ONLY the needed updates
+          // Then apply the rest
           existing.set(updatesNeeded);
+
+          // Always recalc coords after transforms
           existing.setCoords();
           fabricCanvas.requestRenderAll();
+
         }
 
       } else {

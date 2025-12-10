@@ -376,8 +376,6 @@ export default function CanvasEditor({
             left: obj.left,
             top: obj.top,
             angle: obj.angle,
-            width: obj.width,
-            height: obj.height,
             scaleX: obj.scaleX, // Explicitly save scaleX
             scaleY: obj.scaleY, // Explicitly save scaleY
           });

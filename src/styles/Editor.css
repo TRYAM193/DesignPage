@@ -604,3 +604,49 @@ input[type="range"],
   margin: 2px;
   width: 65px;
 }
+
+/* --- Add this to src/styles/Editor.css --- */
+
+/* ===================================
+   LAYERS PANEL DRAGGABLE STYLES
+   =================================== */
+
+.layer-handle {
+    cursor: grab;
+    flex-shrink: 0;
+    padding-right: 8px;
+    color: #999;
+}
+.layer-item.sortable-dragging {
+    opacity: 0.5;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.layer-content-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.layer-thumbnail-box {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.layer-item.active .layer-thumbnail-box {
+    border-color: #4949e5; /* Highlight box when active */
+}
+
+.layer-thumbnail-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

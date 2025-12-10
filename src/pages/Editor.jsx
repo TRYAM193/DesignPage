@@ -169,6 +169,7 @@ export default function EditorPanel() {
                         removeObject={removeObject}
                         addText={addText}
                         fabricCanvas={fabricCanvas}
+                        setSelectedId={setSelectedId}
                     />
                 </aside>
             </div>

@@ -421,7 +421,6 @@ export default function CanvasEditor({
 
         // Iterate over all properties in the incoming object data
         for (const key in objData.props) {
-          // Check if the Fabric object's property value is different from the Redux value
           if (existing[key] !== objData.props[key]) {
             updatesNeeded[key] = objData.props[key];
           }
@@ -450,10 +449,6 @@ export default function CanvasEditor({
 
           // Apply ONLY the needed updates
           existing.set(updatesNeeded);
-
-          // if (shouldRecalculateDimensions && existing.initDimensions) {
-          //   existing.initDimensions();
-          // }
 
           existing.setCoords();
           fabricCanvas.requestRenderAll();

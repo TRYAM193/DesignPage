@@ -617,6 +617,9 @@ input[type="range"],
     padding-right: 8px;
     color: #999;
 }
+.layer-handle:active {
+    cursor: grabbing; /* Visual feedback when being dragged */
+}
 .layer-item.sortable-dragging {
     opacity: 0.5;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);

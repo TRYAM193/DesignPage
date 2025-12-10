@@ -447,10 +447,68 @@ export default function CanvasEditor({
             ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'].forEach(key => delete updatesNeeded[key]);
           }
 
-          // Apply ONLY the needed updates
-          existing.set(updatesNeeded);
-          existing.setCoords();
-          fabricCanvas.requestRenderAll();
+          if (existing.type === 'image') {
+                
+                const setPropsAndRender = () => {
+                    // Apply all saved scale and dimensions (width, height, scaleX, scaleY)
+                    existing.set(updatesNeeded);
+                    
+                    // --- THE GUARANTEED FIX ---
+                    // Force Fabric to apply the new dimensions based on the saved scale
+                    // This is achieved by resetting the object from its element, then restoring position/scale.
+                    
+                    if (existing._element) {
+                        // 1. Store the position/scale from Redux props
+                        const tempScaleX = existing.scaleX;
+                        const tempScaleY = existing.scaleY;
+                        const tempLeft = existing.left;
+                        const tempTop = existing.top;
+
+                        // 2. Re-initialize the image from its element. This resets scaleX/Y to 1.
+                        // This forces Fabric to re-read the raw width/height of the source image.
+                        existing.setSrc(existing._element.src, () => {
+                            // 3. Restore the saved position/scale after re-initialization
+                            existing.set({
+                                scaleX: tempScaleX, 
+                                scaleY: tempScaleY,
+                                left: tempLeft,
+                                top: tempTop,
+                                // Re-apply the rest of the updates (angle, opacity, etc.)
+                                ...updatesNeeded
+                            });
+                            existing.setCoords();
+                            fabricCanvas.requestRenderAll();
+                        });
+                        
+                    } else {
+                        // Fallback if _element is missing (should not happen)
+                        existing.set(updatesNeeded);
+                        existing.setCoords(); 
+                        fabricCanvas.requestRenderAll();
+                    }
+                    
+                };
+                
+                // If the image element is ready, run immediately. Otherwise, wait for 'loaded'.
+                if (existing._element && existing._element.complete) {
+                    setPropsAndRender();
+                } else {
+                    existing.on('loaded', setPropsAndRender);
+                }
+                
+            } else {
+                // Standard object update (text/shape)
+                existing.set(updatesNeeded);
+                
+                // For text, we may need to force a recalculation if text/font changed
+                if (existing.type === 'text' && (updatesNeeded.text || updatesNeeded.fontFamily)) {
+                     existing.initDimensions();
+                }
+                
+                existing.setCoords(); 
+                fabricCanvas.requestRenderAll();
+            }
+        }
         }
 
       } else {

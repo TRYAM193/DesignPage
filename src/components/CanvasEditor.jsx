@@ -449,7 +449,6 @@ export default function CanvasEditor({
 
           // Apply ONLY the needed updates
           existing.set(updatesNeeded);
-
           existing.setCoords();
           fabricCanvas.requestRenderAll();
         }

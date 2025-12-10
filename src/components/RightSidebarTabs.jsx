@@ -46,7 +46,6 @@ export default function RightSidebarTabs(props) {
 
         {/* Placeholder for Layers tab */}
         {activeTab === 'layers' && (
-          <div className="layers-placeholder">
             <h3 style={{ marginTop: '20px', textAlign: 'center', color: '#666' }}>Layers Panel</h3>
             {/* Layers Panel */}
             {activeTab === 'layers' && (

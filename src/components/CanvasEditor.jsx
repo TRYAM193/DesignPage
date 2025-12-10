@@ -424,11 +424,6 @@ export default function CanvasEditor({
           // Check if the Fabric object's property value is different from the Redux value
           if (existing[key] !== objData.props[key]) {
             updatesNeeded[key] = objData.props[key];
-
-            // Critical check for dimension-affecting properties
-            // if (objData.type === 'text' && ['text', 'fontFamily', 'fontSize', 'strokeWidth'].includes(key)) {
-            //   shouldRecalculateDimensions = true;
-            // }
           }
         }
 

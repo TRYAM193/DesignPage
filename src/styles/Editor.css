@@ -669,6 +669,10 @@ input[type="range"],
     transition: all 0.15s;
     font-size: 13px;
     color: #333;
+    user-select: none;          /* Standard property */
+    -webkit-user-select: none;  /* Safari/Chrome */
+    -moz-user-select: none;     /* Firefox */
+    -ms-user-select: none;
 }
 .layer-item:hover {
     background-color: #f0f0f0;

@@ -460,9 +460,7 @@ export default function CanvasEditor({
           // Always recalc coords after transforms
           existing.setCoords();
           fabricCanvas.requestRenderAll();
-
         }
-
       } else {
         // Logic to add new objects remains the same (as it only runs for new IDs)
         let newObj;

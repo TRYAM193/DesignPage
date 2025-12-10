@@ -674,7 +674,6 @@ input[type="range"],
   align-items: center;
   gap: 10px;
   flex-grow: 1;
-  overflow: hidden;
   user-select: none;
   pointer-events: none;
 }
@@ -685,7 +684,6 @@ input[type="range"],
   height: 30px;
   border: 1px solid #ddd;
   border-radius: 3px;
-  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -89,4 +89,8 @@ export default function LayerPreview({ object }) {
     // FALLBACK
     // -------------------------------
     return (
-        <div style={{ ...previewStyle, backgroundColor: '#f0f
+        <div style={{ ...previewStyle, backgroundColor: '#f0f0f0' }}>
+            {type || 'Object'}
+        </div>
+    );
+}

@@ -651,15 +651,6 @@ input[type="range"],
     object-fit: cover;
 }
 
-/* --- Add this to src/styles/Editor.css --- */
-
-/* ===================================
-   RIGHT PANEL: LAYERS PANEL STYLES
-   =================================== */
-.layers-panel-content {
-    /* Padding is already applied via .tab-content-area */
-}
-
 .layer-list {
     display: flex;
     flex-direction: column;

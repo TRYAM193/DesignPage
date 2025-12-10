@@ -650,3 +650,82 @@ input[type="range"],
     height: 100%;
     object-fit: cover;
 }
+
+/* --- Add this to src/styles/Editor.css --- */
+
+/* ===================================
+   RIGHT PANEL: LAYERS PANEL STYLES
+   =================================== */
+.layers-panel-content {
+    /* Padding is already applied via .tab-content-area */
+}
+
+.layer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.layer-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 13px;
+    color: #333;
+}
+.layer-item:hover {
+    background-color: #f0f0f0;
+}
+
+.layer-item.active {
+    background-color: #e6e6ff; /* Light indigo background */
+    border-color: #4949e5;
+    font-weight: 600;
+}
+
+.layer-name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+}
+
+.layer-controls {
+    display: flex;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.layer-controls button {
+    background: none;
+    border: none;
+    padding: 5px;
+    border-radius: 3px;
+    color: #666;
+    cursor: pointer;
+    transition: background-color 0.1s;
+    line-height: 1;
+}
+
+.layer-controls button:hover {
+    background-color: #ddd;
+    color: #4949e5;
+}
+
+.layer-controls button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.layer-controls .delete-button {
+    color: #cc3333;
+}
+.layer-controls .delete-button:hover {
+    background-color: #ffe6e6;
+}

@@ -125,6 +125,8 @@ export default function LayersPanel({ selectedId, setSelectedId, fabricCanvas })
                   isSelected={obj.id === selectedId}
                   onSelect={handleSelectLayer}
                   onDelete={handleDeleteLayer}
+                  // CRITICAL FIX: Ensure object.id is cast to a string for Draggable
+                  id={String(obj.id)} 
                 />
               ))}
               {provided.placeholder}

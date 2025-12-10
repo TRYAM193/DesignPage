@@ -61,7 +61,7 @@ export default function LayerPreview({ object }) {
         return (
             <div style={{ ...previewStyle, backgroundColor: '#fff' }}>
                 <img
-                    src={props.src}
+                    src={object.src}
                     alt="Thumbnail"
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />

@@ -797,90 +797,146 @@ input[type="range"],
 
 /* Applies only to screens narrower than 769px (Mobile Phones) */
 /* Tablet users (>= 768px) will retain the Desktop layout */
+/* src/styles/Editor.css */
+/* Add/Replace the Media Query block at the end of the file */
+
+/* ===================================
+   MOBILE INTERFACE (Max Width 768px)
+   =================================== */
 @media (max-width: 768px) {
 
-  /* 1. Contextual Sidebar (Left Tool Settings) 
-       - Overlays the canvas instead of pushing it 
-    */
-  .contextual-sidebar {
-    position: absolute;
-    height: 100%;
-    left: 70px;
-    /* Aligns right after the Main Toolbar */
-    top: 0;
-    z-index: 200;
-    transition: transform 0.3s ease-in-out;
-    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+  /* 1. Main Toolbar: Moves to Bottom */
+  .main-toolbar {
+    width: 100% !important;
+    height: 65px; /* Fixed height for bottom bar */
+    min-width: unset;
+    flex-direction: row; /* Horizontal icons */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 300;
+    border-right: none;
+    border-top: 1px solid #e0e0e0;
+    padding: 0 10px;
+    justify-content: space-around; /* Distribute icons evenly */
+    overflow-y: hidden;
+    overflow-x: auto; /* Allow scrolling if many tools */
+    background: white;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
   }
 
-  /* 2. Right Properties Panel (Bottom Drawer Animation)
-       - Slides up from the bottom when an object is selected 
-    */
+  /* Hide the divider in horizontal mode */
+  .toolbar-divider {
+    display: none;
+  }
+
+  /* Adjust tool buttons for horizontal layout */
+  .tool-button-wrapper {
+    height: 100%;
+    width: auto;
+    flex: 1; /* Distribute space */
+    padding: 0;
+    justify-content: center;
+  }
+  
+  .tool-button-wrapper.active {
+    border-left: none;
+    border-bottom: 3px solid #4949e5; /* Active indicator at bottom */
+    background-color: transparent;
+  }
+
+  /* 2. Brand Display: Top Left, Logo Only */
+  /* We use !important to override the inline styles or default positioning if needed */
+  .header-brand.toolbar-brand {
+    position: fixed;
+    top: 10px;
+    left: 15px;
+    z-index: 400; 
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    width: auto;
+    height: auto;
+    pointer-events: none; /* Let clicks pass through area */
+    align-items: flex-start;
+  }
+
+  .header-brand.toolbar-brand h1 {
+    display: none; /* Hide 'TRYAM' text */
+  }
+
+  .header-brand.toolbar-brand .logo-circle {
+    width: 42px; 
+    height: 42px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    pointer-events: auto; /* Logo is clickable */
+    background-color: #000;
+  }
+
+  /* 3. Contextual Sidebar: Slides up from ABOVE the bottom toolbar */
+  .contextual-sidebar {
+    position: absolute;
+    width: 100%;
+    height: auto;
+    max-height: 50vh;
+    left: 0;
+    top: auto;
+    bottom: 65px; /* Sits exactly on top of the bottom toolbar */
+    border-right: none;
+    border-top: 1px solid #e0e0e0;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+    z-index: 250; /* Below the Right Panel but above canvas */
+    
+    /* Animation for appearing */
+    animation: slideUpTools 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* 4. Right Panel (Properties): Slides up OVER everything */
   .right-panel {
     position: absolute;
-    width: calc(100% - 70px);
-    /* Full width minus Main Toolbar */
-    left: 70px;
-    bottom: 0;
-    height: 50vh;
-    /* Takes up 50% of the screen height */
+    width: 100%;
+    height: 60vh; /* Taller area for editing */
+    left: 0;
+    bottom: 0; /* Covers the toolbar when open */
+    top: auto;
     min-width: unset;
-
-    /* Hidden state: Pushed down by 100% of its height */
-    transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-    z-index: 200;
+    
+    transform: translateY(110%); /* Hidden state */
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    
+    z-index: 500; /* Highest priority */
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     border-left: none;
-    /* Remove desktop border */
-    border-top: 1px solid #eee;
+    box-shadow: 0 -4px 25px rgba(0,0,0,0.2);
     padding: 0;
   }
 
-  /* Active state: Triggered by {selectedId ? 'active' : ''} in JSX */
   .right-panel.active {
     transform: translateY(0);
   }
 
-  /* 3. Center Preview Area
-       - Reduces padding to maximize canvas space on small screens 
-    */
+  /* 5. Canvas Adjustments */
   .preview-area {
     padding: 10px;
+    padding-bottom: 80px; /* Ensure content isn't hidden behind bottom bar */
   }
 
-  /* 4. Floating Top Bar 
-       - Adjusts position and size for touch targets 
-    */
+  /* 6. Top Bar (Floating Actions) */
   .top-bar.consolidated-bar {
-    top: 10px;
-    width: auto;
-    padding: 5px 10px;
-    max-width: calc(100% - 90px);
-    /* Prevents overlapping Main Toolbar */
-    overflow-x: auto;
-    /* Allows scrolling if too many buttons */
-  }
-
-  .control-group {
-    gap: 2px;
-  }
-
-  .top-bar-button {
-    padding: 8px;
-  }
-
-  /* Hide text labels on mobile actions to save space if needed */
-  .top-bar-button.text-button span {
-    display: none;
-  }
-
-  .top-bar-button.text-button svg {
-    margin-right: 0;
+    top: 15px;
+    right: 15px; /* Align to right since Logo is on left */
+    left: auto;
+    transform: none;
+    max-width: calc(100% - 70px); /* Leave space for logo */
+    padding: 6px 10px;
   }
 }
 
-/* lets make left panel down and its contextual sidebar coming up through the left panel on selecting the respected icon with brand display in top left corner with only logo no name after selecting object we show a button like edit properties and then right panel comes up */
+@keyframes slideUpTools {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

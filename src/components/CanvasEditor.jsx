@@ -466,6 +466,8 @@ export default function CanvasEditor({
         let newObj;
         if (objData.type === 'text')
           newObj = StraightText(objData);
+        if (objData.type === 'image')
+
         if (newObj) {
           newObj.customId = objData.id;
           fabricCanvas.add(newObj);

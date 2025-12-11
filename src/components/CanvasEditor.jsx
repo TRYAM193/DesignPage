@@ -292,56 +292,55 @@ export default function CanvasEditor({
       const type = obj.type.toLowerCase();
       
       if (type === 'activeselection') {
-        // 🔥 FIX: Break recursion by creating a copy of the children 
-        // AND wrapping the discard action in setTimeout.
-        const children = [...obj.getObjects()]; 
+        const children = obj.getObjects(); 
         
-        setTimeout(() => {
-            // 1. Force Fabric to apply group transforms to children & update absolute coords
-            fabricCanvas.discardActiveObject();
-            fabricCanvas.requestRenderAll(); 
-            
-            // 2. Now iterate the children (which now have absolute coords) and update Redux
-            const present = store.getState().canvas.present;
-            let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
+        // 🛑 FIX: Do NOT discard here (prevents RangeError).
+        // Instead, calculate absolute coordinates using Matrix math.
+        
+        const present = store.getState().canvas.present;
+        let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
 
-            children.forEach((child) => {
-               const index = updatedPresent.findIndex((o) => o.id === child.customId);
-               if (index === -1) return;
+        children.forEach((child) => {
+           const index = updatedPresent.findIndex((o) => o.id === child.customId);
+           if (index === -1) return;
 
-               if (child.type === 'text' || child.type === 'textbox') {
-                  const newFontSize = child.fontSize * child.scaleX;
-                  child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
-                  child.setCoords(); 
+           // 🧮 Calculate Absolute Coordinates via Matrix Decomposition
+           const matrix = child.calcTransformMatrix();
+           const options = fabric.util.qrDecompose(matrix);
+           // options contains: { angle, scaleX, scaleY, skewX, skewY, translateX, translateY }
 
-                  updatedPresent[index].props = {
-                     ...updatedPresent[index].props,
-                     fontSize: newFontSize,
-                     left: child.left,
-                     top: child.top,
-                     angle: child.angle,
-                  };
-               } else {
-                  updatedPresent[index].props = {
-                     ...updatedPresent[index].props,
-                     left: child.left,
-                     top: child.top,
-                     angle: child.angle,
-                     scaleX: child.scaleX,
-                     scaleY: child.scaleY,
-                     width: child.width,
-                     height: child.height,
-                  };
-               }
-            });
+           if (child.type === 'text' || child.type === 'textbox') {
+              // For text, we bake scale into fontSize to keep it sharp
+              const newFontSize = child.fontSize * options.scaleX;
+              
+              updatedPresent[index].props = {
+                 ...updatedPresent[index].props,
+                 fontSize: newFontSize,
+                 left: options.translateX,
+                 top: options.translateY,
+                 angle: options.angle,
+                 scaleX: 1, // Reset scale since we applied it to fontSize
+                 scaleY: 1
+              };
+           } else {
+              updatedPresent[index].props = {
+                 ...updatedPresent[index].props,
+                 left: options.translateX,
+                 top: options.translateY,
+                 angle: options.angle,
+                 scaleX: options.scaleX,
+                 scaleY: options.scaleY,
+                 width: child.width,
+                 height: child.height,
+              };
+           }
+        });
 
-            store.dispatch(setCanvasObjects(updatedPresent));
-        }, 0); // End setTimeout
-
+        store.dispatch(setCanvasObjects(updatedPresent));
         return;
       }
 
-      // Single object handling (unchanged)
+      // Single object handling (Standard)
       if (obj.type === 'text' || obj.type === 'textbox') {
         const newFontSize = obj.fontSize * obj.scaleX;
         obj.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
@@ -389,16 +388,21 @@ export default function CanvasEditor({
     const fabricCanvas = fabricCanvasRef.current;
     if (!fabricCanvas) return;
 
+    // 🕵️ 1. Capture Current Selection IDs before update
+    let selectedIds = [];
     const activeObject = fabricCanvas.getActiveObject();
     if (activeObject && activeObject.type.toLowerCase() === 'activeselection') {
-        fabricCanvas.discardActiveObject();
-        fabricCanvas.requestRenderAll();
+        selectedIds = activeObject.getObjects().map(o => o.customId);
+        
+        // Discarding is necessary here to allow individual object updates 
+        // without Fabric fighting us with group-relative coords.
+        fabricCanvas.discardActiveObject(); 
     }
 
     isSyncingRef.current = true;
     const fabricObjects = fabricCanvas.getObjects();
 
-    // 1. UPDATE or ADD objects
+    // 2. UPDATE or ADD objects
     canvasObjectsMap.forEach(async (objData, id) => {
       let existing = fabricObjects.find((o) => o.customId === id);
 
@@ -463,15 +467,13 @@ export default function CanvasEditor({
       return
     });
 
-    // 2. REMOVE objects
+    // 3. REMOVE objects
     const ids = Array.from(canvasObjectsMap.keys());
     fabricObjects.forEach((obj) => {
       if (!ids.includes(obj.customId)) fabricCanvas.remove(obj);
     });
-
-    fabricCanvas.renderAll();
     
-    // 3. Z-Index Sorting
+    // 4. Z-Index Sorting
     const currentFabricObjects = fabricCanvas.getObjects();
     let fabricObjectsArray = fabricCanvas._objects;
 
@@ -489,6 +491,18 @@ export default function CanvasEditor({
         }
       }
     });
+
+    // 🕵️ 5. EXPLICITLY RE-ACTIVATE SELECTION
+    // If we had a group selection, recreate it now that updates are done.
+    if (selectedIds.length > 0) {
+        const objectsToSelect = fabricCanvas.getObjects().filter(obj => selectedIds.includes(obj.customId));
+        if (objectsToSelect.length > 0) {
+            const selection = new fabric.ActiveSelection(objectsToSelect, {
+                canvas: fabricCanvas,
+            });
+            fabricCanvas.setActiveObject(selection);
+        }
+    }
 
     fabricCanvas.renderAll();
 

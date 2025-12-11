@@ -411,7 +411,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           <input
             type="number"
             className="number-input small"
-            value={Math.round((liveProps.opacity || 0) * 100)}
+            value={Math.round((liveProps.opacity || object.props.opacity || 0) * 100)}
             onChange={(e) => handleLiveUpdate('opacity', Number(e.target.value) / 100)}
             onBlur={(e) => handleUpdateAndHistory('opacity', Number(e.target.value) / 100)}
           />

@@ -73,7 +73,7 @@ export default function EditorPanel() {
                     setActiveTool={setActiveTool}
                     navigation={navigation}
                     brandDisplay={BrandDisplay}
-                    fabricCanvas={}
+                    fabricCanvas={fabricCanvas}
                 />
 
                 {/* 2. Contextual Sidebar */}

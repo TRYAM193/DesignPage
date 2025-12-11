@@ -208,7 +208,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             <textarea
               className="text-input"
               rows="3"
-              value={props.text}
+              value={props.text || ''}
               onBlur={(e) => handleUpdateAndHistory('text', e.target.value)}
               onChange={(e) => handleLiveUpdate('text', e.target.value)}
               placeholder="Enter your text here"
@@ -336,7 +336,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             <input
               type="number"
               className="number-input small"
-              value={Math.round(liveProps.fontSize)}
+              value={Math.round(liveProps.fontSize )}
               onChange={(e) => handleLiveUpdate('fontSize', Number(e.target.value))}
               onBlur={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))}
             />

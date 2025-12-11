@@ -117,7 +117,7 @@ export default function EditorPanel() {
 
                         {/* 2. Object Delete Control */}
                         <div className="control-group divider">
-                            <button title="Delete" className="top-bar-button danger" onClick={() => removeObject(selectedId)} >
+                            <button title="Delete" className="top-bar-button danger" onClick={() => removeObject(selectedId)} style={{opacity: !selectedId ? 0.25 : 1}}>
                                 <FiTrash2 size={20} />
                             </button>
                         </div>

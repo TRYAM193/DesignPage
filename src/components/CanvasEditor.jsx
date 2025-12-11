@@ -468,7 +468,7 @@ export default function CanvasEditor({
           newObj = StraightText(objData);
         if (objData.type === 'image') {
           if (!existing || !existing.map(obj => obj.customId).includes(objData.id)) {
-            newObj = await FabricImage.fromURL(obj.src, {
+            newObj = await FabricImage.fromURL(objData.src, {
               customId: objData.id,
               left: objData.props.left,
               top: objData.props.top,

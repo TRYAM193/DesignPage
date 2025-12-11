@@ -6,7 +6,7 @@ export default function addImage(obj) {
   const canvasObjects = state.canvas.present;
 
   const newImage = {
-    id: Date.now(),
+    id: obj
     type: 'image',
     src,
     props: {

@@ -411,7 +411,7 @@ export default function CanvasEditor({
     const fabricObjects = fabricCanvas.getObjects();
 
     // 1. UPDATE or ADD objects
-    canvasObjectsMap.forEach(async(objData, id) => {
+    canvasObjectsMap.forEach(async (objData, id) => {
       let existing = fabricObjects.find((o) => o.customId === id);
 
       if (existing) {
@@ -466,7 +466,7 @@ export default function CanvasEditor({
         let newObj;
         if (objData.type === 'text')
           newObj = StraightText(objData);
-        if (objData.type === 'image')
+        if (objData.type === 'image'){}
           if (existing.map(obj => obj.customId).includes(objData.id)) return;
         newObj = await FabricImage.fromURL(obj.src, {
           customId: id

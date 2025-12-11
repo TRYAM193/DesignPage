@@ -310,53 +310,61 @@ export default function CanvasEditor({
       if (!fabricCanvas) return;
 
       if (obj.type === 'activeselection') {
-        const present = store.getState().canvas.present;
+  const present = store.getState().canvas.present;
+  const updated = present.map(o => ({ ...o, props: { ...o.props } }));
 
-        // deep clone
-        let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
+  obj.getObjects().forEach(child => {
+    const idx = updated.findIndex(o => o.id === child.customId);
+    if (idx === -1) return;
 
-        obj.getObjects().forEach((child) => {
-          const index = updatedPresent.findIndex(
-            (o) => o.id === child.customId
-          );
-          if (index === -1) return;
+    child.setCoords();  // ensures matrix is correct
 
-          // 🔥 calculate REAL absolute left/top using matrix
-          child.setCoords();
-          const abs = child.calcTransformMatrix();
-          const pt = fabric.util.transformPoint({ x: 0, y: 0 }, abs);
+    // Absolute coordinates (always correct for ANY origin)
+    const matrix = child.calcTransformMatrix();
+    const absolute = fabric.util.transformPoint(
+      new fabric.Point(0, 0),
+      matrix
+    );
 
-          const absLeft = pt.x;
-          const absTop = pt.y;
+    const absLeft = absolute.x;
+    const absTop = absolute.y;
 
-          if (child.type === 'text' || child.type === 'textbox') {
-            const newFontSize = child.fontSize * child.scaleX;
+    // Handle text separately (normalize scale -> font size)
+    if (child.type === 'text' || child.type === 'textbox') {
+      const newFontSize = child.fontSize * child.scaleX;
 
-            child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
-            child.setCoords();
+      // Reset scale to 1 so future transforms remain correct
+      child.set({
+        fontSize: newFontSize,
+        scaleX: 1,
+        scaleY: 1
+      });
 
-            updatedPresent[index].props = {
-              ...updatedPresent[index].props,
-              fontSize: newFontSize,
-              left: absLeft,
-              top: absTop,
-              angle: child.angle,
-            };
-          } else {
-            updatedPresent[index].props = {
-              ...updatedPresent[index].props,
-              left: absLeft,
-              top: absTop,
-              angle: child.angle,
-              width: child.width,
-              height: child.height,
-            };
-          }
-        });
+      updated[idx].props = {
+        ...updated[idx].props,
+        left: absLeft,
+        top: absTop,
+        angle: child.angle,
+        fontSize: newFontSize
+      };
+    } 
+    else {
+      // For images/shapes keep scale
+      updated[idx].props = {
+        ...updated[idx].props,
+        left: absLeft,
+        top: absTop,
+        angle: child.angle,
+        scaleX: child.scaleX,
+        scaleY: child.scaleY,
+      };
+    }
+  });
 
-        store.dispatch(setCanvasObjects(updatedPresent));
-        return;
-      }
+  store.dispatch(setCanvasObjects(updated));
+  return;
+}
+
 
       if (obj.type === 'text' || obj.type === 'textbox') {
         const newFontSize = obj.fontSize * obj.scaleX;

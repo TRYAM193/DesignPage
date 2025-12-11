@@ -11,13 +11,13 @@ export default function addImage(obj) {
     src: obj.getSrc(),
     props: {
       left: obj.left,
-      top: 200,
-      width: 300,
-      height: 400,
-      opacity: 1,
-      scaleX: 1,
-      scaleY: 1,
-      angle: 0,
+      top: obj.top,
+      width: obj.width,
+      height: obj.height,
+      opacity: obj.opacity,
+      scaleX: obj.scaleX,
+      scaleY: obj.scaleY,
+      angle: obj.angle,
     }
   } 
 

@@ -3,7 +3,7 @@ import addImage from "../functions/image";
 
 
 export default async function Image(src, setSelectedId, setActiveTool, fabricCanvas) {
-  
+  let addedImage = false;
   if (!src) return;
 
   const id = Date.now()
@@ -16,7 +16,7 @@ export default async function Image(src, setSelectedId, setActiveTool, fabricCan
 
     setSelectedId(id)
     setActiveTool('image')
-    setAddedImage(true);
+    addedImage = true;
   }
 
   if (fabricCanvas && addedImage && fabricImage) {

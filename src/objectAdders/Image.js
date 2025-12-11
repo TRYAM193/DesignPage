@@ -12,6 +12,7 @@ export default async function Image(src, setSelectedId, setActiveTool) {
 
   setSelectedId(id)
   setActiveTool('image')
+  setAddedImage(true);
   
   return fabricImage;
 }

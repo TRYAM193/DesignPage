@@ -467,18 +467,18 @@ export default function CanvasEditor({
         if (objData.type === 'text')
           newObj = StraightText(objData);
         if (objData.type === 'image') {
-          if (!existing.map(obj => obj.customId).includes(objData.id)){;
-          newObj = await FabricImage.fromURL(obj.src, {
-            customId: objData.id,
-            left: objData.props.left,
-            top: objData.props.top,
-            scaleX: objData.props.scaleX,
-            scaleY: objData.props.scaleY,
-            angle: objData.props.angle,
-            width: objData.props.width,
-            height: objData.props.height,
-          });
-        }
+          if (!existing.map(obj => obj.customId).includes(objData.id) ) {
+            newObj = await FabricImage.fromURL(obj.src, {
+              customId: objData.id,
+              left: objData.props.left,
+              top: objData.props.top,
+              scaleX: objData.props.scaleX,
+              scaleY: objData.props.scaleY,
+              angle: objData.props.angle,
+              width: objData.props.width,
+              height: objData.props.height,
+            });
+          }
         }
         if (newObj) {
           newObj.customId = objData.id;

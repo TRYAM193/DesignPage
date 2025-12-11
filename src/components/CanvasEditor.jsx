@@ -467,7 +467,7 @@ export default function CanvasEditor({
         if (objData.type === 'text')
           newObj = StraightText(objData);
         if (objData.type === 'image')
-          ne
+          newObj = Image(objData.src);
 
         if (newObj) {
           newObj.customId = objData.id;

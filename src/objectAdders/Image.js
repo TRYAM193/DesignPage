@@ -1,10 +1,9 @@
 import { FabricImage } from "fabric";
-import React, { useState } from "react";
 import addImage from "../functions/image";
 
 
 export default async function Image(src, setSelectedId, setActiveTool, fabricCanvas) {
-  const [addedImage, setAddedImage] = useState(false);
+  
   if (!src) return;
 
   const id = Date.now()

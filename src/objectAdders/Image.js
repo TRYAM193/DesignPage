@@ -1,6 +1,6 @@
 import { FabricImage } from "fabric";
 
-export default async function Image(src, setS) {
+export default async function Image({src, setSelectedId, setActiveTool}) {
   if (!src) return;
   
   const fabricImage = await FabricImage.fromURL(src, {

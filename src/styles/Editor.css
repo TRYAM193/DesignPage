@@ -791,7 +791,9 @@ input[type="range"],
   max-height: 100%;
 }
 
-
+.phone-only {
+  display: none;
+}
 /* src/styles/Editor.css */
 
 /* Hide the mobile close header by default (Desktop) */

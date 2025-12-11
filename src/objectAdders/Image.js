@@ -1,6 +1,6 @@
 import { FabricImage } from "fabric";
 import { useState } from "react";
-export default async function Image(src, setSelectedId, setActiveTool) {
+export default async function Image(src, setSelectedId, setActiveTool, fabricCanvas) {
   const [addedImage, setAddedImage] = useState(false);
   if (!src) return;
   

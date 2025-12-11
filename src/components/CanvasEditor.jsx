@@ -7,9 +7,8 @@ import updateObject from '../functions/update';
 import { store } from '../redux/store';
 import { setCanvasObjects } from '../redux/canvasSlice';
 import { useLocation } from 'react-router-dom';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { , doc, getDoc } from 'firebase/firestore';
 import { firestore } from '../firebase.js';
-import Image from '../objectAdders/Image';
 
 fabric.Object.prototype.toObject = (function (toObject) {
   return function (propertiesToInclude) {
@@ -471,7 +470,7 @@ export default function CanvasEditor({
         newObj = await FabricImage.fromURL(obj.src, {
           customId: id
         });
-        
+
         if (newObj) {
           newObj.customId = objData.id;
           fabricCanvas.add(newObj);

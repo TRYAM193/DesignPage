@@ -478,7 +478,7 @@ export default function CanvasEditor({
 
     //Adding image 
     if (activeTool === 'image') {
-      const 
+      const newImag, a
     }
 
     // 2. REMOVE objects (Deletion logic remains efficient)

@@ -791,7 +791,7 @@ input[type="range"],
   max-height: 100%;
 }
 
-//* src/styles/Editor.css */
+/* src/styles/Editor.css */
 
 /* Hide the mobile close header by default (Desktop) */
 .mobile-panel-header {

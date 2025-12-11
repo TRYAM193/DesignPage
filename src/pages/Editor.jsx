@@ -181,6 +181,11 @@ export default function EditorPanel() {
 
                 {/* 4. Right Properties Panel */}
                 <aside className={`right-panel ${selectedId ? 'active' : ''}`}>
+                    <div className="md:hidden flex justify-end p-2 border-b bg-gray-50">
+                        <button onClick={() => setShowProperties(false)} className="p-2 text-gray-500">
+                            <FiX size={24} />
+                        </button>
+                    </div>
                     <RightSidebarTabs
                         id={selectedId}
                         type={activeTool}

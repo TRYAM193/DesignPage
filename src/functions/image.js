@@ -1,7 +1,7 @@
 import { store } from '../redux/store';
 import { setCanvasObjects } from '../redux/canvasSlice';
 
-export default function addImage(setSelectedId, setActiveTool, src) {
+export default function addImage(obj) {
   const state = store.getState();
   const canvasObjects = state.canvas.present;
 

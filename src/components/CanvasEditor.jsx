@@ -409,7 +409,6 @@ export default function CanvasEditor({
     isSyncingRef.current = true;
 
     const fabricObjects = fabricCanvas.getObjects();
-    const currentFabricIds = new Set(fabricObjects.map(obj => obj.customId));
 
     // 1. UPDATE or ADD objects
     canvasObjectsMap.forEach((objData, id) => {

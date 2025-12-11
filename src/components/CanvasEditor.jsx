@@ -467,7 +467,7 @@ export default function CanvasEditor({
         if (objData.type === 'text')
           newObj = StraightText(objData);
         if (objData.type === 'image') {
-          if (!existing.map(obj => obj.customId).includes(objData.id)) return;
+          if (!existing.map(obj => obj.customId).includes(objData.id)){;
           newObj = await FabricImage.fromURL(obj.src, {
             customId: objData.id,
             left: objData.props.left,
@@ -478,6 +478,7 @@ export default function CanvasEditor({
             width: objData.props.width,
             height: objData.props.height,
           });
+        }
         }
         if (newObj) {
           newObj.customId = objData.id;

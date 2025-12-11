@@ -10,6 +10,7 @@ export default async function Image(src, setSelectedId, setActiveTool, fabricCan
 
   let fabricImage;
   if (!addedImage) {
+    console.log("Adding image to canvas:", src);
     fabricImage = await FabricImage.fromURL(src, {
       customId: id
     });

@@ -408,7 +408,7 @@ export default function CanvasEditor({
 
     // This flag prevents the loop when Fabric itself triggers a Redux update
     isSyncingRef.current = true;
-
+setTimeout(() => {
     const fabricObjects = fabricCanvas.getObjects();
 
     // 1. UPDATE or ADD objects

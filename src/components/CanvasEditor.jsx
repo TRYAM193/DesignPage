@@ -468,9 +468,9 @@ export default function CanvasEditor({
           newObj = StraightText(objData);
         if (objData.type === 'image')
           if (existing.map(obj => obj.customId).includes(objData.id)) return;
-          newObj = await FabricImage.fromURL(src, {
-                customId: id
-              });
+        newObj = await FabricImage.fromURL(src, {
+          customId: id
+        });
 
         if (newObj) {
           newObj.customId = objData.id;
@@ -483,7 +483,7 @@ export default function CanvasEditor({
     });
 
     //Adding image 
-  
+
 
     // 2. REMOVE objects (Deletion logic remains efficient)
     const ids = Array.from(canvasObjectsMap.keys());

@@ -2,7 +2,7 @@
 import React from 'react';
 import '../styles/Editor.css';
 import CanvasEditor from '../components/CanvasEditor';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Text from '../functions/text';
 import updateObject from '../functions/update';
 import removeObject from '../functions/remove';
@@ -40,7 +40,7 @@ export default function EditorPanel() {
     const handleToolClick = (tool) => {
         setActivePanel(prev => prev === tool ? null : tool);
     };
-    use
+    
     console.log(selectedId)
 
     // NEW: Define the Brand Display content to be rendered in the MainToolbar

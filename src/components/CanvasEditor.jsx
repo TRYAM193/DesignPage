@@ -474,8 +474,9 @@ export default function CanvasEditor({
             top: objData.props.top,
             scaleX: objData.props.scaleX,
             scaleY: objData.props.scaleY,
-            angle: objData.props.angle || 0,
-            w
+            angle: objData.props.angle,
+            width: objData.props.width,
+            height: objData.props.height,
           });
         }
         if (newObj) {

@@ -422,7 +422,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           min="0"
           max="100"
           step="1"
-          value={Math.round((liveProps.opacity || 0) * 100)}
+          value={Math.round((liveProps.opacity || object.props.opacity || 0) * 100)}
           onInput={(e) => handleLiveUpdate('opacity', Number(e.target.value) / 100)}
           onMouseUp={(e) => handleUpdateAndHistory('opacity', Number(e.target.value) / 100)}
         />

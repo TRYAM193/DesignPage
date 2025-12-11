@@ -468,35 +468,6 @@ export default function CanvasEditor({
         let newObj;
         if (objData.type === 'text')
           newObj = StraightText(objData);
-        if (objData.type === 'image') {
-          Image(objData).then(newObj => {
-            if (newObj) {
-              newObj.customId = objData.id;
-              fabricCanvas.add(newObj);
-              fabricCanvas.setActiveObject(newObj);
-              fabricCanvas.renderAll();
-
-              // 🔥 UPDATE REDUX WITH REAL DIMENSIONS AFTER IMAGE LOAD
-              store.dispatch(setCanvasObjects(
-                store.getState().canvas.present.map(o =>
-                  o.id === objData.id
-                    ? {
-                      ...o,
-                      props: {
-                        ...o.props,
-                        width: newObj.width,
-                        height: newObj.height,
-                        scaleX: newObj.scaleX,
-                        scaleY: newObj.scaleY
-                      }
-                    }
-                    : o
-                )
-              ));
-            }
-          });
-
-        }
         if (newObj) {
           newObj.customId = objData.id;
           fabricCanvas.add(newObj);

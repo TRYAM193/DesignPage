@@ -1,13 +1,10 @@
 import { FabricImage } from "fabric";
 
-export default async function Image(obj) {
-  if (!obj || obj.type !== "image") return;
-
-  const props = obj.props;
+export default async function Image(src) {
+  if (!src) return;
   
-  const fabricImage = await FabricImage.fromURL(obj.src, {
-    ...props,
-    customId: obj.id
+  const fabricImage = await FabricImage.fromURL(src, {
+    customId: Date.now()
   });
   
   return fabricImage;

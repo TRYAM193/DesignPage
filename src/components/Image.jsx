@@ -1,7 +1,7 @@
 // src/components/Image.jsx
 import React from 'react';
 import { useRef } from 'react';
-import addImage from '../functions/image';
+import Image from '../objectAdders/Image'
 
 // CHANGED: Added 'className' and 'onClick' to props
 export default function ImageHandler({setSelectedId, setActiveTool, children, className}) { 
@@ -27,7 +27,7 @@ export default function ImageHandler({setSelectedId, setActiveTool, children, cl
         const src = e.target.result;
 
         if (src) {
-          addImage(setSelectedId, setActiveTool, src);
+          Image(src)
         }
       };
 

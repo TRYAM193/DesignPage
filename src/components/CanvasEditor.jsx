@@ -414,51 +414,84 @@ export default function CanvasEditor({
     // 1. UPDATE or ADD objects
     canvasObjectsMap.forEach(async (objData, id) => {
       let existing = fabricObjects.find((o) => o.customId === id);
-
       if (existing) {
         const props = objData.props;
 
-        // 1. TEXT NORMALIZATION (ALWAYS RESET SCALE)
+        // --- Calculate absolute center from stored left/top ---
+        const absCenterX = props.left + (existing.width * (props.scaleX ?? existing.scaleX)) / 2;
+        const absCenterY = props.top + (existing.height * (props.scaleY ?? existing.scaleY)) / 2;
+
+        // ============================================================
+        // TEXT OBJECTS
+        // ============================================================
         if (existing.type === "text" || existing.type === "textbox") {
-          const needsFontSizeFix =
-            existing.fontSize !== props.fontSize;
 
-          // If font size changed, scale must be reset
-          if (needsFontSizeFix) {
-            existing.set({
-              fontSize: props.fontSize,
-              scaleX: 1,
-              scaleY: 1,
-            });
-          }
+          // 1. Position text *by absolute center* (fixes undo jumping)
+          existing.setPositionByOrigin(
+            new fabric.Point(absCenterX, absCenterY),
+            "center",
+            "center"
+          );
 
+          // 2. Restore final text properties
           existing.set({
-            left: props.left,
-            top: props.top,
             angle: props.angle,
+            fontSize: props.fontSize,
             fill: props.fill,
+            opacity: props.opacity,
+            stroke: props.stroke,
+            strokeWidth: props.strokeWidth,
+
+            // Text ALWAYS has normalized scale:
+            scaleX: 1,
+            scaleY: 1,
           });
 
           existing.setCoords();
           return;
         }
 
-        // 2. IMAGES / SHAPES — Restore scale safely
-        if (existing.type === "image" || existing.type === "rect" || existing.type === "circle") {
+        // ============================================================
+        // IMAGE OBJECTS
+        // ============================================================
+        if (existing.type === "image") {
 
+          // 1. Position image *by center* to avoid jump
+          existing.setPositionByOrigin(
+            new fabric.Point(absCenterX, absCenterY),
+            "center",
+            "center"
+          );
+
+          // 2. Apply image props
           existing.set({
-            left: props.left,
-            top: props.top,
             angle: props.angle,
-            scaleX: props.scaleX ?? existing.scaleX,
-            scaleY: props.scaleY ?? existing.scaleY,
-            width: props.width ?? existing.width,
-            height: props.height ?? existing.height,
+            scaleX: props.scaleX,
+            scaleY: props.scaleY,
+            opacity: props.opacity,
           });
 
           existing.setCoords();
           return;
         }
+
+        // ============================================================
+        // OTHER OBJECT TYPES (shapes)
+        // ============================================================
+        existing.setPositionByOrigin(
+          new fabric.Point(absCenterX, absCenterY),
+          "center",
+          "center"
+        );
+
+        existing.set({
+          angle: props.angle,
+          scaleX: props.scaleX,
+          scaleY: props.scaleY,
+        });
+
+        existing.setCoords();
+        return;
       } else {
         // Logic to add new objects remains the same (as it only runs for new IDs)
         let newObj;

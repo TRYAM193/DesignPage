@@ -310,60 +310,55 @@ export default function CanvasEditor({
       if (!fabricCanvas) return;
 
       if (obj.type === 'activeselection') {
-        const present = store.getState().canvas.present;
-        const updated = present.map(o => ({ ...o, props: { ...o.props } }));
+  const present = store.getState().canvas.present;
+  const updated = present.map(o => ({ ...o, props: { ...o.props } }));
 
-        obj.getObjects().forEach(child => {
-          const idx = updated.findIndex(o => o.id === child.customId);
-          if (idx === -1) return;
+  obj.getObjects().forEach(child => {
 
-          child.setCoords();  // ensures matrix is correct
+    const idx = updated.findIndex(o => o.id === child.customId);
+    if (idx === -1) return;
 
-          // Absolute coordinates (always correct for ANY origin)
-          const matrix = child.calcTransformMatrix();
-          const absolute = fabric.util.transformPoint(
-            new fabric.Point(0, 0),
-            matrix
-          );
+    child.setCoords();
 
-          const absLeft = absolute.x;
-          const absTop = absolute.y;
+    // ----- 💯 THE CORRECT ABSOLUTE POSITION FIX -----
+    const center = child.getRelativeCenterPoint();
+    const absCenter = fabric.util.transformPoint(
+      center,
+      fabricCanvas.viewportTransform
+    );
+    const absLeft = absCenter.x - (child.width * child.scaleX) / 2;
+    const absTop = absCenter.y - (child.height * child.scaleY) / 2;
 
-          // Handle text separately (normalize scale -> font size)
-          if (child.type === 'text' || child.type === 'textbox') {
-            const newFontSize = child.fontSize * child.scaleX;
+    // -----------------------------------------------
 
-            // Reset scale to 1 so future transforms remain correct
-            child.set({
-              fontSize: newFontSize,
-              scaleX: 1,
-              scaleY: 1
-            });
+    if (child.type === 'text' || child.type === 'textbox') {
+      const newFontSize = child.fontSize * child.scaleX;
+      child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
+      child.setCoords();
 
-            updated[idx].props = {
-              ...updated[idx].props,
-              left: absLeft,
-              top: absTop,
-              angle: child.angle,
-              fontSize: newFontSize
-            };
-          }
-          else {
-            // For images/shapes keep scale
-            updated[idx].props = {
-              ...updated[idx].props,
-              left: absLeft,
-              top: absTop,
-              angle: child.angle,
-              scaleX: child.scaleX,
-              scaleY: child.scaleY,
-            };
-          }
-        });
+      updated[idx].props = {
+        ...updated[idx].props,
+        left: absLeft,
+        top: absTop,
+        angle: child.angle,
+        fontSize: newFontSize,
+      };
+    } else {
+      updated[idx].props = {
+        ...updated[idx].props,
+        left: absLeft,
+        top: absTop,
+        angle: child.angle,
+        scaleX: child.scaleX,
+        scaleY: child.scaleY,
+      };
+    }
+  });
 
-        store.dispatch(setCanvasObjects(updated));
-        return;
-      }
+  store.dispatch(setCanvasObjects(updated));
+  return;
+}
+
 
 
       if (obj.type === 'text' || obj.type === 'textbox') {

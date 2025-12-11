@@ -15,7 +15,7 @@ export default async function Image(src, setSelectedId, setActiveTool, fabricCan
     fabricImage.set({
       left: 100,
       top: 100, 
-      id: id,
+      customId: id,
       selectable: true,
     });
     setSelectedId(id)

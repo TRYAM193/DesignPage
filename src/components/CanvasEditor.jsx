@@ -39,7 +39,7 @@ export default function CanvasEditor({
 }) {
   const canvasRef = useRef(null);
   const fabricCanvasRef = useRef(null);
-  const isSyncingRef = useRef(false); // 🧩 prevents infinite loops
+  const isSyncingRef = useRef(false); 
   const [initialized, setInitialized] = useState(false);
   const wrapperRef = useRef(null);
   const canvasObjects = useSelector((state) => state.canvas.present);
@@ -47,7 +47,7 @@ export default function CanvasEditor({
 
   // 🟩 Initialize Fabric.js once
   useEffect(() => {
-    const ORIGINAL_WIDTH = 800; // set your design size
+    const ORIGINAL_WIDTH = 800; 
     const ORIGINAL_HEIGHT = 800;
 
     const canvas = new fabric.Canvas(canvasRef.current, {
@@ -60,7 +60,7 @@ export default function CanvasEditor({
 
     const resize = () => {
       const wrapper = wrapperRef.current;
-      if (!wrapper) return;
+      if(!wrapper) return;
 
       const newWidth = wrapper.clientWidth;
       const newHeight = wrapper.clientHeight;
@@ -139,7 +139,6 @@ export default function CanvasEditor({
         const sessionData = sessionStorage.getItem('editingDesign');
         if (sessionData) {
           designToLoad = JSON.parse(sessionData);
-          console.log('✅ Loaded from sessionStorage');
           sessionStorage.removeItem('editingDesign'); 
         }
       } catch (e) {
@@ -151,7 +150,6 @@ export default function CanvasEditor({
           const localData = localStorage.getItem('editingDesign');
           if (localData) {
             designToLoad = JSON.parse(localData);
-            console.log('✅ Loaded from localStorage');
             localStorage.removeItem('editingDesign'); 
           }
         } catch (e) {
@@ -183,12 +181,10 @@ export default function CanvasEditor({
             };
           } else {
             console.error('❌ Design not found in Firestore');
-            // alert('Design not found!'); 
             return;
           }
         } catch (error) {
           console.error('❌ Firestore fetch error:', error);
-          // alert('Failed to load design');
           return;
         }
       }
@@ -201,12 +197,12 @@ export default function CanvasEditor({
           fabricCanvas.loadFromJSON(designToLoad.canvasJSON, () => {
             setTimeout(() => {
               fabricCanvas.requestRenderAll();
-
+              // Sync logic...
               fabricCanvas.getObjects().forEach(obj => {
                 const state = store.getState();
                 const canvasObjects = state.canvas.present;
-
-                const newObj = {
+                // ... (Logic same as above) ...
+                 const newObj = {
                   id: obj.customId,
                   type: obj.type,
                   props: {
@@ -227,7 +223,6 @@ export default function CanvasEditor({
                     textStyle: obj.textStyle,
                   }
                 };
-
                 const existingIndex = canvasObjects.findIndex(o => o.id === obj.customId);
                 if (existingIndex === -1) {
                   store.dispatch(setCanvasObjects([...canvasObjects, newObj]));
@@ -236,8 +231,6 @@ export default function CanvasEditor({
             }, 90);
           });
         }
-      } else {
-        console.log('ℹ️ No design to load - starting with blank canvas');
       }
     };
 
@@ -295,60 +288,73 @@ export default function CanvasEditor({
     const handleObjectModified = (e) => {
       if (isSyncingRef.current) return;
 
-      const obj = e.target;
+      let obj = e.target;
       if (!obj) return;
 
-      const fabricCanvas = fabricCanvasRef.current;
-      if (!fabricCanvas) return;
-
-      if (obj.type === 'activeselection') {
+      // 🛑 CRITICAL FIX: If checking active selection, check robustly
+      // We check for 'activeSelection' (standard) or 'activeselection'
+      const type = obj.type.toLowerCase();
+      
+      if (type === 'activeselection') {
+        // 🔥 FIX 1: BREAK THE GROUP IMMEDIATELY
+        // This forces Fabric to apply the group's transforms (moving/rotating) 
+        // to the individual children and update their ABSOLUTE coordinates.
+        fabricCanvas.discardActiveObject();
+        fabricCanvas.requestRenderAll(); // Ensure canvas state is fresh
+        
+        // Now 'obj' (the group) is gone, but we can iterate the actual objects on canvas
+        // or getting them from the group's _objects if we had reference, 
+        // but 'discardActiveObject' puts them back on canvas.
+        
+        // We need to update Redux for ALL selected objects.
+        // We can find them by checking the selection state which we just cleared, 
+        // OR we can just update all objects that matched the IDs in the group.
+        // A safer way: iterate the children we KNEW were in the group.
+        
+        const children = obj.getObjects(); 
         const present = store.getState().canvas.present;
-
         let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
 
-        obj.getObjects().forEach((child) => {
-          const index = updatedPresent.findIndex(
-            (o) => o.id === child.customId
-          );
-          if (index === -1) return;
+        children.forEach((child) => {
+           // Because we discarded the group, child.left / child.top / child.angle
+           // are now corrected to ABSOLUTE values by Fabric.js automatically.
+           
+           const index = updatedPresent.findIndex((o) => o.id === child.customId);
+           if (index === -1) return;
 
-          // 🔥 calculate REAL absolute left/top using matrix
-          child.setCoords();
-          const abs = child.calcTransformMatrix();
-          const pt = fabric.util.transformPoint({ x: 0, y: 0 }, abs);
+           // Simple update using the now-absolute properties
+           if (child.type === 'text' || child.type === 'textbox') {
+              // Handle font scaling if needed, otherwise standard
+              const newFontSize = child.fontSize * child.scaleX;
+              child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
+              child.setCoords(); // Refresh coords after scale reset
 
-          const absLeft = pt.x;
-          const absTop = pt.y;
-
-          if (child.type === 'text' || child.type === 'textbox') {
-            const newFontSize = child.fontSize * child.scaleX;
-
-            child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
-            child.setCoords();
-
-            updatedPresent[index].props = {
-              ...updatedPresent[index].props,
-              fontSize: newFontSize,
-              left: absLeft,
-              top: absTop,
-              angle: child.angle,
-            };
-          } else {
-            updatedPresent[index].props = {
-              ...updatedPresent[index].props,
-              left: absLeft,
-              top: absTop,
-              angle: child.angle,
-              width: child.width,
-              height: child.height,
-            };
-          }
+              updatedPresent[index].props = {
+                 ...updatedPresent[index].props,
+                 fontSize: newFontSize,
+                 left: child.left,
+                 top: child.top,
+                 angle: child.angle,
+              };
+           } else {
+              updatedPresent[index].props = {
+                 ...updatedPresent[index].props,
+                 left: child.left,
+                 top: child.top,
+                 angle: child.angle,
+                 scaleX: child.scaleX,
+                 scaleY: child.scaleY,
+                 width: child.width,
+                 height: child.height,
+              };
+           }
         });
 
         store.dispatch(setCanvasObjects(updatedPresent));
         return;
       }
 
+      // Single object handling (unchanged)
       if (obj.type === 'text' || obj.type === 'textbox') {
         const newFontSize = obj.fontSize * obj.scaleX;
         obj.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
@@ -396,15 +402,14 @@ export default function CanvasEditor({
     const fabricCanvas = fabricCanvasRef.current;
     if (!fabricCanvas) return;
 
-    // 🔥 FIX: Discard active selection before applying updates.
-    // This forces objects back to absolute positioning so they don't jump.
-    if (fabricCanvas.getActiveObject()?.type === 'activeselection') {
+    // 🔥 FIX 2: Check for active selection on Sync and Discard
+    const activeObject = fabricCanvas.getActiveObject();
+    if (activeObject && activeObject.type.toLowerCase() === 'activeselection') {
         fabricCanvas.discardActiveObject();
+        fabricCanvas.requestRenderAll();
     }
 
-    // This flag prevents the loop when Fabric itself triggers a Redux update
     isSyncingRef.current = true;
-
     const fabricObjects = fabricCanvas.getObjects();
 
     // 1. UPDATE or ADD objects
@@ -413,17 +418,14 @@ export default function CanvasEditor({
 
       if (existing) {
         let updatesNeeded = {};
-
-        // Iterate over all properties in the incoming object data
         for (const key in objData.props) {
           if (existing[key] !== objData.props[key]) {
             updatesNeeded[key] = objData.props[key];
           }
         }
 
-        // Only proceed if there are actual differences
         if (Object.keys(updatesNeeded).length > 0) {
-          // Fabric Shadow Fix
+          // Shadow Fix
           if (updatesNeeded.shadowColor || updatesNeeded.shadowBlur || updatesNeeded.shadowOffsetX || updatesNeeded.shadowOffsetY) {
             const shadowObject = {
               color: updatesNeeded.shadowColor || existing.shadow?.color || '#000000',
@@ -450,6 +452,7 @@ export default function CanvasEditor({
         }
 
       } else {
+        // Add new object
         let newObj;
         if (objData.type === 'text')
           newObj = StraightText(objData);
@@ -470,13 +473,12 @@ export default function CanvasEditor({
         if (newObj) {
           newObj.customId = objData.id;
           fabricCanvas.add(newObj);
-          fabricCanvas.setActiveObject(newObj);
+          // Do NOT automatically select new objects to avoid loop issues
           fabricCanvas.renderAll();
         }
       }
       return
     });
-
 
     // 2. REMOVE objects
     const ids = Array.from(canvasObjectsMap.keys());
@@ -485,10 +487,11 @@ export default function CanvasEditor({
     });
 
     fabricCanvas.renderAll();
+    
+    // 3. Z-Index Sorting
     const currentFabricObjects = fabricCanvas.getObjects();
     let fabricObjectsArray = fabricCanvas._objects;
 
-    // Iterate through the source of truth (Redux state)
     canvasObjects.forEach((reduxObj, index) => {
       const fabricObj = currentFabricObjects.find(
         (obj) => obj.customId === reduxObj.id
@@ -504,10 +507,8 @@ export default function CanvasEditor({
       }
     });
 
-
     fabricCanvas.renderAll();
 
-    // ✅ allow updates again after short delay
     setTimeout(() => {
       isSyncingRef.current = false;
     }, 100);

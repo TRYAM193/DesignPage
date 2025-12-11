@@ -210,7 +210,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               rows="3"
               value={liveProps.text || object.props.text || ''}
               onBlur={(e) => handleUpdateAndHistory('text', e.target.value)}
-              onChange={(e) => handleLiveUpdate('text', e.target.value)}
+              onChange={(e) => ha('text', e.target.value)}
               placeholder="Enter your text here"
             />
           </div>

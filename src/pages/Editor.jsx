@@ -109,6 +109,7 @@ export default function EditorPanel() {
                                 className="top-bar-button"
                                     onClick={() => dispatch(redo())}
                                 disabled={future.length === 0}
+                                style={{opacity: past.length === 0 ? 0.25 : 1}}
                             >
                                 <FiRotateCw size={20} />
                             </button>

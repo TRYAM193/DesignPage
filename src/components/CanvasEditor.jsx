@@ -473,6 +473,7 @@ export default function CanvasEditor({
           fabricCanvas.renderAll();
         }
       }
+      return
     });
 
     // 2. REMOVE objects (Deletion logic remains efficient)

@@ -1,4 +1,5 @@
 // src/pages/Editor.jsx
+
 import React from 'react';
 import '../styles/Editor.css';
 import CanvasEditor from '../components/CanvasEditor';
@@ -14,7 +15,8 @@ import { useNavigate } from 'react-router-dom';
 import MainToolbar from '../components/MainToolbar';
 import ContextualSidebar from '../components/ContextualSidebar';
 import {
-    FiTrash2, FiRotateCcw, FiRotateCw, FiDownload, FiSettings, FiX, FiShoppingBag
+    FiTrash2, FiRotateCcw, FiRotateCw, FiDownload, FiSave, FiShoppingBag,
+    FiSettings, FiX // <-- Imported FiSettings and FiX
 } from 'react-icons/fi';
 
 
@@ -24,6 +26,15 @@ export default function EditorPanel() {
     const [selectedId, setSelectedId] = useState(null);
     const [currentDesign, setCurrentDesign] = useState(null);
     const [editingDesignId, setEditingDesignId] = useState(null);
+    
+    // NEW: Manual control for properties panel
+    const [showProperties, setShowProperties] = useState(false); 
+
+    // NEW: Close properties panel automatically when selection changes
+    useEffect(() => {
+        setShowProperties(false);
+    }, [selectedId]);
+
     const userId = 'test-user-123';
     const navigation = useNavigate()
     const dispatch = useDispatch();
@@ -31,7 +42,7 @@ export default function EditorPanel() {
     const past = useSelector((state) => state.canvas.past);
     const future = useSelector((state) => state.canvas.future);
     const present = useSelector((state) => state.canvas.present);
-    const [showProperties, setShowProperties] = useState(false);
+    console.log('Current Canvas Objects:', present);
 
     const { addText, addHeading, addSubheading } = Text(setSelectedId, setActiveTool);
 
@@ -40,13 +51,7 @@ export default function EditorPanel() {
     const handleToolClick = (tool) => {
         setActivePanel(prev => prev === tool ? null : tool);
     };
-    
-    // useEffect(() => {
-    //     console.log(selectedId);
-    //     console.log(fabricCanvas?.getActiveObject());
-    // }, [selectedId]);
 
-    // NEW: Define the Brand Display content to be rendered in the MainToolbar
     const BrandDisplay = (
         <div className="header-brand toolbar-brand">
             <div className="logo-circle">
@@ -62,15 +67,10 @@ export default function EditorPanel() {
 
 
     return (
-        // Updated container class for full height
         <div className="main-app-container">
-
-            {/* 💥 REMOVED: The <header> component is gone */}
-
-            {/* 💥 MAIN EDITOR BODY: Three Columns (Takes full remaining height) */}
             <div className="main full-height-main">
 
-                {/* 1. Main Toolbar (Now includes brand display) */}
+                {/* 1. Main Toolbar (Bottom on Mobile via CSS) */}
                 <MainToolbar
                     activePanel={activePanel}
                     onSelectTool={handleToolClick}
@@ -81,7 +81,7 @@ export default function EditorPanel() {
                     fabricCanvas={fabricCanvas}
                 />
 
-                {/* 2. Contextual Sidebar */}
+                {/* 2. Contextual Sidebar (Slides up via CSS) */}
                 {activePanel && (
                     <ContextualSidebar
                         activePanel={activePanel}
@@ -92,13 +92,12 @@ export default function EditorPanel() {
                     />
                 )}
 
-                {/* 3. Center Preview Area (Canvas) */}
+                {/* 3. Center Preview Area */}
                 <main className="preview-area">
 
-                    {/* CONSOLIDATED TOP BAR (Floating above canvas) */}
+                    {/* Top Floating Bar */}
                     <div className="top-bar consolidated-bar">
 
-                        {/* 1. Undo/Redo Controls */}
                         <div className="control-group">
                             <button
                                 title="Undo"
@@ -120,26 +119,27 @@ export default function EditorPanel() {
                             </button>
                         </div>
 
-                        {/* 2. Object Delete Control */}
                         <div className="control-group divider">
                             <button title="Delete" className="top-bar-button danger" onClick={() => removeObject(selectedId)} style={{opacity: !selectedId ? 0.25 : 1}}>
                                 <FiTrash2 size={20} />
                             </button>
                         </div>
 
+                        {/* NEW: Edit Properties Button */}
+                        {/* Only visible when object selected AND panel is closed */}
                         {selectedId && !showProperties && (
-                             <div className="control-group">
+                            <div className="control-group">
                                 <button 
                                     className="top-bar-button accent"
                                     onClick={() => setShowProperties(true)}
+                                    title="Edit Properties"
                                 >
                                     <FiSettings size={18} style={{marginRight: '5px'}}/>
                                     <span>Edit</span>
                                 </button>
-                             </div>
+                            </div>
                         )}
 
-                        {/* 3. Action Buttons (Save, Export, Order Print) */}
                         <div className="control-group">
                             {fabricCanvas && (
                                 <SaveDesignButton
@@ -180,12 +180,16 @@ export default function EditorPanel() {
                 </main>
 
                 {/* 4. Right Properties Panel */}
-                <aside className={`right-panel ${selectedId ? 'active' : ''}`}>
-                    <div className="md:hidden flex justify-end p-2 border-b bg-gray-50">
-                        <button onClick={() => setShowProperties(false)} className="p-2 text-gray-500">
+                <aside className={`right-panel ${showProperties ? 'active' : ''}`}>
+                    
+                    {/* Mobile Close Button (NO Tailwind) */}
+                    <div className="mobile-panel-header">
+                        <span className="mobile-panel-title">Edit Properties</span>
+                        <button onClick={() => setShowProperties(false)} className="mobile-close-btn">
                             <FiX size={24} />
                         </button>
                     </div>
+
                     <RightSidebarTabs
                         id={selectedId}
                         type={activeTool}
@@ -201,7 +205,6 @@ export default function EditorPanel() {
         </div>
     );
 }
-
 
 // https://github.com/TRYAM193/DesignPage.git
 // powershell -ExecutionPolicy Bypass -File autosync.ps1

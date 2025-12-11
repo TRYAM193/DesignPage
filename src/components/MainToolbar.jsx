@@ -18,7 +18,7 @@ const ToolButton = ({ icon: Icon, label, isActive, onClick }) => (
 );
 
 // CHANGED: Added brandDisplay prop
-export default function MainToolbar({ activePanel, onSelectTool, setSelectedId, setActiveTool, navigation, brandDisplay }) {
+export default function MainToolbar({ activePanel, onSelectTool, setSelectedId, setActiveTool, navigation, brandDisplay, fabricCanvas }) {
   return (
     <div className="main-toolbar">
         
@@ -47,6 +47,7 @@ export default function MainToolbar({ activePanel, onSelectTool, setSelectedId, 
             setSelectedId={setSelectedId} 
             setActiveTool={onSelectTool} 
             className={`tool-button-wrapper ${activePanel === 'image' ? 'active' : ''}`}
+            fabricCanvas={fa}
         >
             <FiImage size={24} />
             <span>Image</span>

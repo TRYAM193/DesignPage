@@ -408,168 +408,168 @@ export default function CanvasEditor({
 
     // This flag prevents the loop when Fabric itself triggers a Redux update
     isSyncingRef.current = true;
-setTimeout(() => {
-    const fabricObjects = fabricCanvas.getObjects();
+    setTimeout(() => {
+      const fabricObjects = fabricCanvas.getObjects();
 
-    // 1. UPDATE or ADD objects
-    canvasObjectsMap.forEach(async (objData, id) => {
-      let existing = fabricObjects.find((o) => o.customId === id);
-      if (existing) {
-        const props = objData.props;
+      // 1. UPDATE or ADD objects
+      canvasObjectsMap.forEach(async (objData, id) => {
+        let existing = fabricObjects.find((o) => o.customId === id);
+        if (existing) {
+          const props = objData.props;
 
-        // --- Calculate absolute center from stored left/top ---
-        const absCenterX = props.left + (existing.width * (props.scaleX ?? existing.scaleX)) / 2;
-        const absCenterY = props.top + (existing.height * (props.scaleY ?? existing.scaleY)) / 2;
+          // --- Calculate absolute center from stored left/top ---
+          const absCenterX = props.left + (existing.width * (props.scaleX ?? existing.scaleX)) / 2;
+          const absCenterY = props.top + (existing.height * (props.scaleY ?? existing.scaleY)) / 2;
 
-        // ============================================================
-        // TEXT OBJECTS
-        // ============================================================
-        if (existing.type === "text" || existing.type === "textbox") {
+          // ============================================================
+          // TEXT OBJECTS
+          // ============================================================
+          if (existing.type === "text" || existing.type === "textbox") {
 
-          // 1. Position text *by absolute center* (fixes undo jumping)
+            // 1. Position text *by absolute center* (fixes undo jumping)
+            existing.setPositionByOrigin(
+              new fabric.Point(absCenterX, absCenterY),
+              "center",
+              "center"
+            );
+
+            // 2. Restore final text properties
+            existing.set({
+              angle: props.angle,
+              fontSize: props.fontSize,
+              fill: props.fill,
+              opacity: props.opacity,
+              stroke: props.stroke,
+              strokeWidth: props.strokeWidth,
+
+              // Text ALWAYS has normalized scale:
+              scaleX: 1,
+              scaleY: 1,
+            });
+
+            existing.setCoords();
+            return;
+          }
+
+          // ============================================================
+          // IMAGE OBJECTS
+          // ============================================================
+          if (existing.type === "image") {
+
+            // 1. Position image *by center* to avoid jump
+            existing.setPositionByOrigin(
+              new fabric.Point(absCenterX, absCenterY),
+              "center",
+              "center"
+            );
+
+            // 2. Apply image props
+            existing.set({
+              angle: props.angle,
+              scaleX: props.scaleX,
+              scaleY: props.scaleY,
+              opacity: props.opacity,
+            });
+
+            existing.setCoords();
+            return;
+          }
+
+          // ============================================================
+          // OTHER OBJECT TYPES (shapes)
+          // ============================================================
           existing.setPositionByOrigin(
             new fabric.Point(absCenterX, absCenterY),
             "center",
             "center"
           );
 
-          // 2. Restore final text properties
-          existing.set({
-            angle: props.angle,
-            fontSize: props.fontSize,
-            fill: props.fill,
-            opacity: props.opacity,
-            stroke: props.stroke,
-            strokeWidth: props.strokeWidth,
-
-            // Text ALWAYS has normalized scale:
-            scaleX: 1,
-            scaleY: 1,
-          });
-
-          existing.setCoords();
-          return;
-        }
-
-        // ============================================================
-        // IMAGE OBJECTS
-        // ============================================================
-        if (existing.type === "image") {
-
-          // 1. Position image *by center* to avoid jump
-          existing.setPositionByOrigin(
-            new fabric.Point(absCenterX, absCenterY),
-            "center",
-            "center"
-          );
-
-          // 2. Apply image props
           existing.set({
             angle: props.angle,
             scaleX: props.scaleX,
             scaleY: props.scaleY,
-            opacity: props.opacity,
           });
 
           existing.setCoords();
           return;
-        }
-
-        // ============================================================
-        // OTHER OBJECT TYPES (shapes)
-        // ============================================================
-        existing.setPositionByOrigin(
-          new fabric.Point(absCenterX, absCenterY),
-          "center",
-          "center"
-        );
-
-        existing.set({
-          angle: props.angle,
-          scaleX: props.scaleX,
-          scaleY: props.scaleY,
-        });
-
-        existing.setCoords();
-        return;
-      } else {
-        // Logic to add new objects remains the same (as it only runs for new IDs)
-        let newObj;
-        if (objData.type === 'text')
-          newObj = StraightText(objData);
-        if (objData.type === 'image') {
-          if (!existing || !existing.map(obj => obj.customId).includes(objData.id)) {
-            newObj = await FabricImage.fromURL(objData.src, {
-              customId: objData.id,
-              left: objData.props.left,
-              top: objData.props.top,
-              scaleX: objData.props.scaleX,
-              scaleY: objData.props.scaleY,
-              angle: objData.props.angle,
-              width: objData.props.width,
-              height: objData.props.height,
-            });
+        } else {
+          // Logic to add new objects remains the same (as it only runs for new IDs)
+          let newObj;
+          if (objData.type === 'text')
+            newObj = StraightText(objData);
+          if (objData.type === 'image') {
+            if (!existing || !existing.map(obj => obj.customId).includes(objData.id)) {
+              newObj = await FabricImage.fromURL(objData.src, {
+                customId: objData.id,
+                left: objData.props.left,
+                top: objData.props.top,
+                scaleX: objData.props.scaleX,
+                scaleY: objData.props.scaleY,
+                angle: objData.props.angle,
+                width: objData.props.width,
+                height: objData.props.height,
+              });
+            }
+          }
+          if (newObj) {
+            newObj.customId = objData.id;
+            fabricCanvas.add(newObj);
+            fabricCanvas.setActiveObject(newObj);
+            fabricCanvas.renderAll();
           }
         }
-        if (newObj) {
-          newObj.customId = objData.id;
-          fabricCanvas.add(newObj);
-          fabricCanvas.setActiveObject(newObj);
-          fabricCanvas.renderAll();
+        return
+      });
+
+      //Adding image 
+
+
+      // 2. REMOVE objects (Deletion logic remains efficient)
+      const ids = Array.from(canvasObjectsMap.keys());
+      fabricObjects.forEach((obj) => {
+        if (!ids.includes(obj.customId)) fabricCanvas.remove(obj);
+      });
+
+      fabricCanvas.renderAll();
+      const currentFabricObjects = fabricCanvas.getObjects();
+
+      // Fabric's internal object array (which controls stacking)
+      let fabricObjectsArray = fabricCanvas._objects;
+
+      // Iterate through the source of truth (Redux state)
+      canvasObjects.forEach((reduxObj, index) => {
+        const fabricObj = currentFabricObjects.find(
+          (obj) => obj.customId === reduxObj.id
+        );
+
+        if (fabricObj) {
+          const currentIndex = fabricObjectsArray.indexOf(fabricObj);
+
+          // Only move if the object is not already at the correct index
+          if (currentIndex !== index) {
+
+            // --- GUARANTEED Z-INDEX FIX ---
+
+            // 1. Remove object from its current position in the internal array
+            fabricObjectsArray.splice(currentIndex, 1);
+
+            // 2. Insert object into the desired position
+            fabricObjectsArray.splice(index, 0, fabricObj);
+
+            // Re-assign the modified array back to the canvas's internal state
+            fabricCanvas._objects = fabricObjectsArray;
+          }
         }
-      }
-      return
-    });
-
-    //Adding image 
+      });
 
 
-    // 2. REMOVE objects (Deletion logic remains efficient)
-    const ids = Array.from(canvasObjectsMap.keys());
-    fabricObjects.forEach((obj) => {
-      if (!ids.includes(obj.customId)) fabricCanvas.remove(obj);
-    });
+      fabricCanvas.renderAll();
 
-    fabricCanvas.renderAll();
-    const currentFabricObjects = fabricCanvas.getObjects();
-
-    // Fabric's internal object array (which controls stacking)
-    let fabricObjectsArray = fabricCanvas._objects;
-
-    // Iterate through the source of truth (Redux state)
-    canvasObjects.forEach((reduxObj, index) => {
-      const fabricObj = currentFabricObjects.find(
-        (obj) => obj.customId === reduxObj.id
-      );
-
-      if (fabricObj) {
-        const currentIndex = fabricObjectsArray.indexOf(fabricObj);
-
-        // Only move if the object is not already at the correct index
-        if (currentIndex !== index) {
-
-          // --- GUARANTEED Z-INDEX FIX ---
-
-          // 1. Remove object from its current position in the internal array
-          fabricObjectsArray.splice(currentIndex, 1);
-
-          // 2. Insert object into the desired position
-          fabricObjectsArray.splice(index, 0, fabricObj);
-
-          // Re-assign the modified array back to the canvas's internal state
-          fabricCanvas._objects = fabricObjectsArray;
-        }
-      }
-    });
-
-
-    fabricCanvas.renderAll();
-
-    // ✅ allow updates again after short delay
-    setTimeout(() => {
-      isSyncingRef.current = false;
-    }, 100);
-      }, 0);
+      // ✅ allow updates again after short delay
+      setTimeout(() => {
+        isSyncingRef.current = false;
+      }, 100);
+    }, 20);
   }, [canvasObjects, initialized, canvasObjectsMap]);
 
   return (

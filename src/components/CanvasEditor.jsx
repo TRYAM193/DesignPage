@@ -476,7 +476,8 @@ export default function CanvasEditor({
       return
     });
 
-    //Adding image
+    //Adding image 
+    if 
 
     // 2. REMOVE objects (Deletion logic remains efficient)
     const ids = Array.from(canvasObjectsMap.keys());

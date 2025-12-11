@@ -791,6 +791,7 @@ input[type="range"],
   max-height: 100%;
 }
 
+
 /* src/styles/Editor.css */
 
 /* Hide the mobile close header by default (Desktop) */
@@ -964,7 +965,9 @@ input[type="range"],
     margin-right: 0 !important;
   }
 
-  .p
+  .phone-only {
+    display: inline-flex;
+  }
 }
 
 @keyframes slideUpTools {

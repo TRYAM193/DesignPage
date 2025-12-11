@@ -310,60 +310,60 @@ export default function CanvasEditor({
       if (!fabricCanvas) return;
 
       if (obj.type === 'activeselection') {
-  const present = store.getState().canvas.present;
-  const updated = present.map(o => ({ ...o, props: { ...o.props } }));
+        const present = store.getState().canvas.present;
+        const updated = present.map(o => ({ ...o, props: { ...o.props } }));
 
-  obj.getObjects().forEach(child => {
-    const idx = updated.findIndex(o => o.id === child.customId);
-    if (idx === -1) return;
+        obj.getObjects().forEach(child => {
+          const idx = updated.findIndex(o => o.id === child.customId);
+          if (idx === -1) return;
 
-    child.setCoords();  // ensures matrix is correct
+          child.setCoords();  // ensures matrix is correct
 
-    // Absolute coordinates (always correct for ANY origin)
-    const matrix = child.calcTransformMatrix();
-    const absolute = fabric.util.transformPoint(
-      new fabric.Point(0, 0),
-      matrix
-    );
+          // Absolute coordinates (always correct for ANY origin)
+          const matrix = child.calcTransformMatrix();
+          const absolute = fabric.util.transformPoint(
+            new fabric.Point(0, 0),
+            matrix
+          );
 
-    const absLeft = absolute.x;
-    const absTop = absolute.y;
+          const absLeft = absolute.x;
+          const absTop = absolute.y;
 
-    // Handle text separately (normalize scale -> font size)
-    if (child.type === 'text' || child.type === 'textbox') {
-      const newFontSize = child.fontSize * child.scaleX;
+          // Handle text separately (normalize scale -> font size)
+          if (child.type === 'text' || child.type === 'textbox') {
+            const newFontSize = child.fontSize * child.scaleX;
 
-      // Reset scale to 1 so future transforms remain correct
-      child.set({
-        fontSize: newFontSize,
-        scaleX: 1,
-        scaleY: 1
-      });
+            // Reset scale to 1 so future transforms remain correct
+            child.set({
+              fontSize: newFontSize,
+              scaleX: 1,
+              scaleY: 1
+            });
 
-      updated[idx].props = {
-        ...updated[idx].props,
-        left: absLeft,
-        top: absTop,
-        angle: child.angle,
-        fontSize: newFontSize
-      };
-    } 
-    else {
-      // For images/shapes keep scale
-      updated[idx].props = {
-        ...updated[idx].props,
-        left: absLeft,
-        top: absTop,
-        angle: child.angle,
-        scaleX: child.scaleX,
-        scaleY: child.scaleY,
-      };
-    }
-  });
+            updated[idx].props = {
+              ...updated[idx].props,
+              left: absLeft,
+              top: absTop,
+              angle: child.angle,
+              fontSize: newFontSize
+            };
+          }
+          else {
+            // For images/shapes keep scale
+            updated[idx].props = {
+              ...updated[idx].props,
+              left: absLeft,
+              top: absTop,
+              angle: child.angle,
+              scaleX: child.scaleX,
+              scaleY: child.scaleY,
+            };
+          }
+        });
 
-  store.dispatch(setCanvasObjects(updated));
-  return;
-}
+        store.dispatch(setCanvasObjects(updated));
+        return;
+      }
 
 
       if (obj.type === 'text' || obj.type === 'textbox') {
@@ -423,55 +423,50 @@ export default function CanvasEditor({
       let existing = fabricObjects.find((o) => o.customId === id);
 
       if (existing) {
+        const props = objData.props;
 
-        // let shouldRecalculateDimensions = false;
-        let updatesNeeded = {};
+        // 1. TEXT NORMALIZATION (ALWAYS RESET SCALE)
+        if (existing.type === "text" || existing.type === "textbox") {
+          const needsFontSizeFix =
+            existing.fontSize !== props.fontSize;
 
-        // Iterate over all properties in the incoming object data
-        for (const key in objData.props) {
-          if (existing[key] !== objData.props[key]) {
-            updatesNeeded[key] = objData.props[key];
-          }
-        }
-
-        // Only proceed if there are actual differences
-        if (Object.keys(updatesNeeded).length > 0) {
-
-          // Fabric Shadow Fix: Assemble the full shadow object if any shadow property changed
-          if (updatesNeeded.shadowColor || updatesNeeded.shadowBlur || updatesNeeded.shadowOffsetX || updatesNeeded.shadowOffsetY) {
-
-            // Create the complete shadow object using existing and new values
-            const shadowObject = {
-              color: updatesNeeded.shadowColor || existing.shadow?.color || '#000000',
-              blur: updatesNeeded.shadowBlur || existing.shadow?.blur || 0,
-              offsetX: updatesNeeded.shadowOffsetX || existing.shadow?.offsetX || 0,
-              offsetY: updatesNeeded.shadowOffsetY || existing.shadow?.offsetY || 0,
-            };
-
-            // Fabric only accepts the 'shadow' object, not individual keys
-            updatesNeeded.shadow = shadowObject;
-
-            ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'].forEach(key => delete updatesNeeded[key]);
-          }
-          // First apply scale
-          if (updatesNeeded.scaleX !== undefined || updatesNeeded.scaleY !== undefined) {
+          // If font size changed, scale must be reset
+          if (needsFontSizeFix) {
             existing.set({
-              scaleX: updatesNeeded.scaleX ?? existing.scaleX,
-              scaleY: updatesNeeded.scaleY ?? existing.scaleY,
+              fontSize: props.fontSize,
+              scaleX: 1,
+              scaleY: 1,
             });
-            delete updatesNeeded.scaleX;
-            delete updatesNeeded.scaleY;
           }
 
-          // Then apply the rest
-          existing.set(updatesNeeded);
+          existing.set({
+            left: props.left,
+            top: props.top,
+            angle: props.angle,
+            fill: props.fill,
+          });
+
           existing.setCoords();
-          setTimeout(() => {
-            fabricCanvas.requestRenderAll();
-          }, 50);
+          return;
         }
 
-      } else {
+        // 2. IMAGES / SHAPES — Restore scale safely
+        if (existing.type === "image" || existing.type === "rect" || existing.type === "circle") {
+
+          existing.set({
+            left: props.left,
+            top: props.top,
+            angle: props.angle,
+            scaleX: props.scaleX ?? existing.scaleX,
+            scaleY: props.scaleY ?? existing.scaleY,
+            width: props.width ?? existing.width,
+            height: props.height ?? existing.height,
+          });
+
+          existing.setCoords();
+          return;
+        }
+      }else {
         // Logic to add new objects remains the same (as it only runs for new IDs)
         let newObj;
         if (objData.type === 'text')

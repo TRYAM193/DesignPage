@@ -803,162 +803,165 @@ input[type="range"],
    =================================== */
 @media (max-width: 768px) {
 
-  /* 1. Main Toolbar: Moves to Bottom */
+  /* 1. Main Toolbar (Bottom) */
   .main-toolbar {
     width: 100% !important;
-    height: 65px; /* Fixed height for bottom bar */
+    height: 60px; /* Slightly smaller height */
     min-width: unset;
-    flex-direction: row; /* Horizontal icons */
+    flex-direction: row;
     position: fixed;
     bottom: 0;
     left: 0;
     z-index: 300;
     border-right: none;
     border-top: 1px solid #e0e0e0;
-    padding: 0 10px;
-    justify-content: space-around; /* Distribute icons evenly */
+    padding: 0 5px;
+    justify-content: space-around;
     overflow-y: hidden;
-    overflow-x: auto; /* Allow scrolling if many tools */
+    overflow-x: auto;
     background: white;
     box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
   }
 
-  /* Hide the divider in horizontal mode */
-  .toolbar-divider {
-    display: none;
-  }
+  .toolbar-divider { display: none; }
 
-  /* Adjust tool buttons for horizontal layout */
   .tool-button-wrapper {
     height: 100%;
     width: auto;
-    flex: 1; /* Distribute space */
+    flex: 1;
     padding: 0;
     justify-content: center;
   }
   
   .tool-button-wrapper.active {
     border-left: none;
-    border-bottom: 3px solid #4949e5; /* Active indicator at bottom */
+    border-bottom: 3px solid #4949e5;
     background-color: transparent;
   }
 
   /* 2. Brand Display: Top Left, Logo Only */
   .header-brand.toolbar-brand {
     position: fixed;
-    top: 15px;
-    left: 15px;
+    top: 12px;
+    left: 12px;
     z-index: 400; 
     padding: 0;
     margin: 0;
     border: none;
     background: transparent;
-    width: auto;
-    height: auto;
-    pointer-events: none; /* Let clicks pass through area */
+    width: 40px;
+    height: 40px;
+    pointer-events: none; 
     align-items: flex-start;
   }
 
-  /* Hide the "TRYAM" text */
-  .header-brand.toolbar-brand h1 {
-    display: none; 
-  }
+  .header-brand.toolbar-brand h1 { display: none; }
 
   .header-brand.toolbar-brand .logo-circle {
-    width: 42px; 
-    height: 42px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    pointer-events: auto; /* Logo is clickable */
+    width: 38px; 
+    height: 38px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    pointer-events: auto; 
     background-color: #000;
   }
 
-  /* 3. Contextual Sidebar: Slides up from ABOVE the bottom toolbar */
+  /* 3. Contextual Sidebar (Tools): Slides up from bottom */
   .contextual-sidebar {
-    position: absolute;
+    position: fixed; /* Fixed to viewport to avoid scroll issues */
     width: 100%;
     height: auto;
-    max-height: 50vh;
+    max-height: 45vh;
     left: 0;
+    bottom: 60px; /* Sits on top of bottom toolbar */
     top: auto;
-    bottom: 65px; /* Sits exactly on top of the bottom toolbar */
     border-right: none;
     border-top: 1px solid #e0e0e0;
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
     box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-    z-index: 250; 
-    
-    /* Animation for appearing */
+    z-index: 250;
     animation: slideUpTools 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* 4. Right Panel (Properties): Slides up OVER everything */
+  /* 4. Right Panel (Properties): Fixed Bottom Drawer */
   .right-panel {
-    position: absolute;
+    position: fixed; /* FIXED is crucial to prevent scrolling into view */
     width: 100%;
-    height: 60vh; /* Taller area for editing */
+    height: 55vh; 
     left: 0;
-    bottom: 0; /* Covers the toolbar when open */
+    bottom: 0; 
     top: auto;
     min-width: unset;
     
-    transform: translateY(110%); /* Hidden state */
+    transform: translateY(110%); /* Explicitly hidden off-screen */
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     
-    z-index: 500; /* Highest priority */
+    z-index: 1000; /* Highest z-index to overlay everything */
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     border-left: none;
-    box-shadow: 0 -4px 25px rgba(0,0,0,0.2);
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
     padding: 0;
-    background-color: white; /* Ensure background is opaque */
+    background-color: white;
   }
 
   .right-panel.active {
     transform: translateY(0);
   }
 
-  /* Mobile Close Header (Visible only on mobile) */
   .mobile-panel-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 15px;
+    padding: 8px 15px;
     border-bottom: 1px solid #eee;
     background-color: #f9f9f9;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
   }
 
-  .mobile-panel-title {
-    font-weight: 600;
-    color: #444;
-  }
-
-  .mobile-close-btn {
-    background: none;
-    border: none;
-    color: #666;
-    cursor: pointer;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-  }
+  .mobile-panel-title { font-weight: 600; color: #444; font-size: 14px; }
+  .mobile-close-btn { background: none; border: none; color: #666; padding: 4px; }
 
   /* 5. Canvas Adjustments */
   .preview-area {
     padding: 10px;
-    padding-bottom: 80px; /* Ensure content isn't hidden behind bottom bar */
+    padding-bottom: 70px; 
+    padding-top: 60px; /* Add top padding so canvas doesn't start under the logo/toolbar */
   }
 
-  /* 6. Top Bar (Floating Actions) */
+  /* 6. Top Bar (Floating Actions) - COMPACT & POSITIONED */
   .top-bar.consolidated-bar {
-    top: 15px;
-    right: 15px; /* Align to right since Logo is on left */
+    position: fixed; /* Fixed so it doesn't scroll away */
+    top: 12px;
+    right: 12px; /* Anchor to right */
     left: auto;
     transform: none;
-    max-width: calc(100% - 70px); /* Leave space for logo */
-    padding: 6px 10px;
+    
+    /* Ensure it doesn't hit the logo (Logo is ~50px from left) */
+    max-width: calc(100% - 70px); 
+    width: auto;
+    
+    padding: 4px 6px; /* Reduced padding */
+    gap: 8px;
+    justify-content: flex-end;
+  }
+  
+  .control-group { gap: 2px; }
+  .control-group.divider { padding-right: 6px; margin-right: 2px; }
+
+  .top-bar-button {
+    padding: 6px; /* Smaller button touch target */
+  }
+
+  /* HIDE TEXT LABELS IN TOP BAR ON MOBILE */
+  .top-bar-button span {
+    display: none;
+  }
+  
+  /* Remove margin from icon since text is gone */
+  .top-bar-button svg {
+    margin-right: 0 !important;
   }
 }
 

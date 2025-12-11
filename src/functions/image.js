@@ -17,7 +17,7 @@ export default function addImage(obj) {
       opacity: obj.opacity,
       scaleX: obj.scaleX,
       scaleY: obj.scaleY,
-      angle: obj.angle,
+      angle: obj.angle || 0,
     }
   } 
 

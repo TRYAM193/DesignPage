@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import MainToolbar from '../components/MainToolbar';
 import ContextualSidebar from '../components/ContextualSidebar';
 import {
-    FiTrash2, FiRotateCcw, FiRotateCw, FiDownload, FiSave, FiShoppingBag
+    FiTrash2, FiRotateCcw, FiRotateCw, FiDownload, FiSettings, FiX, FiShoppingBag
 } from 'react-icons/fi';
 
 

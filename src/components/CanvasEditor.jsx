@@ -197,12 +197,10 @@ export default function CanvasEditor({
           fabricCanvas.loadFromJSON(designToLoad.canvasJSON, () => {
             setTimeout(() => {
               fabricCanvas.requestRenderAll();
-              // Sync logic...
               fabricCanvas.getObjects().forEach(obj => {
                 const state = store.getState();
                 const canvasObjects = state.canvas.present;
-                // ... (Logic same as above) ...
-                 const newObj = {
+                const newObj = {
                   id: obj.customId,
                   type: obj.type,
                   props: {
@@ -291,43 +289,29 @@ export default function CanvasEditor({
       let obj = e.target;
       if (!obj) return;
 
-      // 🛑 CRITICAL FIX: If checking active selection, check robustly
-      // We check for 'activeSelection' (standard) or 'activeselection'
       const type = obj.type.toLowerCase();
       
       if (type === 'activeselection') {
-        // 🔥 FIX 1: BREAK THE GROUP IMMEDIATELY
-        // This forces Fabric to apply the group's transforms (moving/rotating) 
-        // to the individual children and update their ABSOLUTE coordinates.
+        // 🔥 FIX: 1. Capture children BEFORE discarding the active object.
+        // If we discard first, obj.getObjects() returns empty, and objects disappear (snap back).
+        const children = [...obj.getObjects()]; 
+        
+        // 2. Discard to force Fabric to update children to absolute coordinates
         fabricCanvas.discardActiveObject();
-        fabricCanvas.requestRenderAll(); // Ensure canvas state is fresh
+        fabricCanvas.requestRenderAll(); 
         
-        // Now 'obj' (the group) is gone, but we can iterate the actual objects on canvas
-        // or getting them from the group's _objects if we had reference, 
-        // but 'discardActiveObject' puts them back on canvas.
-        
-        // We need to update Redux for ALL selected objects.
-        // We can find them by checking the selection state which we just cleared, 
-        // OR we can just update all objects that matched the IDs in the group.
-        // A safer way: iterate the children we KNEW were in the group.
-        
-        const children = obj.getObjects(); 
+        // 3. Now iterate the captured children, which now have absolute props
         const present = store.getState().canvas.present;
         let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
 
         children.forEach((child) => {
-           // Because we discarded the group, child.left / child.top / child.angle
-           // are now corrected to ABSOLUTE values by Fabric.js automatically.
-           
            const index = updatedPresent.findIndex((o) => o.id === child.customId);
            if (index === -1) return;
 
-           // Simple update using the now-absolute properties
            if (child.type === 'text' || child.type === 'textbox') {
-              // Handle font scaling if needed, otherwise standard
               const newFontSize = child.fontSize * child.scaleX;
               child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
-              child.setCoords(); // Refresh coords after scale reset
+              child.setCoords(); 
 
               updatedPresent[index].props = {
                  ...updatedPresent[index].props,
@@ -402,7 +386,7 @@ export default function CanvasEditor({
     const fabricCanvas = fabricCanvasRef.current;
     if (!fabricCanvas) return;
 
-    // 🔥 FIX 2: Check for active selection on Sync and Discard
+    // Discard active selection to allow absolute coordinate updates
     const activeObject = fabricCanvas.getActiveObject();
     if (activeObject && activeObject.type.toLowerCase() === 'activeselection') {
         fabricCanvas.discardActiveObject();
@@ -425,7 +409,6 @@ export default function CanvasEditor({
         }
 
         if (Object.keys(updatesNeeded).length > 0) {
-          // Shadow Fix
           if (updatesNeeded.shadowColor || updatesNeeded.shadowBlur || updatesNeeded.shadowOffsetX || updatesNeeded.shadowOffsetY) {
             const shadowObject = {
               color: updatesNeeded.shadowColor || existing.shadow?.color || '#000000',
@@ -452,7 +435,6 @@ export default function CanvasEditor({
         }
 
       } else {
-        // Add new object
         let newObj;
         if (objData.type === 'text')
           newObj = StraightText(objData);
@@ -473,7 +455,6 @@ export default function CanvasEditor({
         if (newObj) {
           newObj.customId = objData.id;
           fabricCanvas.add(newObj);
-          // Do NOT automatically select new objects to avoid loop issues
           fabricCanvas.renderAll();
         }
       }

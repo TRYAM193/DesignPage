@@ -426,84 +426,72 @@ export default function CanvasEditor({
       canvasObjectsMap.forEach(async (objData, id) => {
         let existing = fabricObjects.find((o) => o.customId === id);
         if (existing) {
-          const props = objData.props;
+  const props = objData.props || {};
 
-          // --- Calculate absolute center from stored left/top ---
-          const absCenterX = props.left + (existing.width * (props.scaleX ?? existing.scaleX)) / 2;
-          const absCenterY = props.top + (existing.height * (props.scaleY ?? existing.scaleY)) / 2;
+  // If we have saved center, prefer that. Fall back to left/top if legacy.
+  const center = props.center || {
+    x: (props.left ?? existing.left) + (existing.width * (props.scaleX ?? existing.scaleX || 1)) / 2,
+    y: (props.top ?? existing.top) + (existing.height * (props.scaleY ?? existing.scaleY || 1)) / 2
+  };
 
-          // ============================================================
-          // TEXT OBJECTS
-          // ============================================================
-          if (existing.type === "text" || existing.type === "textbox") {
+  // Set object's origin to center before positioning
+  // This is critical so setPositionByOrigin uses the same convention we saved with
+  existing.set({
+    originX: 'center',
+    originY: 'center'
+  });
 
-            // 1. Position text *by absolute center* (fixes undo jumping)
-            existing.setPositionByOrigin(
-              new fabric.Point(absCenterX, absCenterY),
-              "center",
-              "center"
-            );
+  // TEXT
+  if (existing.type === 'text' || existing.type === 'textbox') {
+    // Position by absolute center
+    existing.setPositionByOrigin(new fabric.Point(center.x, center.y), 'center', 'center');
 
-            // 2. Restore final text properties
-            existing.set({
-              angle: props.angle,
-              fontSize: props.fontSize,
-              fill: props.fill,
-              opacity: props.opacity,
-              stroke: props.stroke,
-              strokeWidth: props.strokeWidth,
+    // Restore styling / normalized scale (text uses fontSize not scale)
+    existing.set({
+      angle: props.angle ?? existing.angle,
+      fontSize: props.fontSize ?? existing.fontSize,
+      fill: props.fill ?? existing.fill,
+      opacity: props.opacity ?? existing.opacity,
+      stroke: props.stroke ?? existing.stroke,
+      strokeWidth: props.strokeWidth ?? existing.strokeWidth,
+      scaleX: 1,
+      scaleY: 1,
+    });
 
-              // Text ALWAYS has normalized scale:
-              scaleX: 1,
-              scaleY: 1,
-            });
+    existing.setCoords();
+    return;
+  }
 
-            existing.setCoords();
-            return;
-          }
+  // IMAGE
+  if (existing.type === 'image') {
+    // Position by center then restore scale & angle
+    existing.setPositionByOrigin(new fabric.Point(center.x, center.y), 'center', 'center');
 
-          // ============================================================
-          // IMAGE OBJECTS
-          // ============================================================
-          if (existing.type === "image") {
+    existing.set({
+      angle: props.angle ?? existing.angle,
+      scaleX: props.scaleX ?? existing.scaleX,
+      scaleY: props.scaleY ?? existing.scaleY,
+      opacity: props.opacity ?? existing.opacity,
+      width: props.width ?? existing.width,
+      height: props.height ?? existing.height,
+    });
 
-            // 1. Position image *by center* to avoid jump
-            existing.setPositionByOrigin(
-              new fabric.Point(absCenterX, absCenterY),
-              "center",
-              "center"
-            );
+    // ensures Fabric recalculates matrices
+    existing.setCoords();
+    return;
+  }
 
-            // 2. Apply image props
-            existing.set({
-              angle: props.angle,
-              scaleX: props.scaleX,
-              scaleY: props.scaleY,
-              opacity: props.opacity,
-            });
-
-            existing.setCoords();
-            return;
-          }
-
-          // ============================================================
-          // OTHER OBJECT TYPES (shapes)
-          // ============================================================
-          existing.setPositionByOrigin(
-            new fabric.Point(absCenterX, absCenterY),
-            "center",
-            "center"
-          );
-
-          existing.set({
-            angle: props.angle,
-            scaleX: props.scaleX,
-            scaleY: props.scaleY,
-          });
-
-          existing.setCoords();
-          return;
-        } else {
+  // GENERIC SHAPES / OTHERS
+  existing.setPositionByOrigin(new fabric.Point(center.x, center.y), 'center', 'center');
+  existing.set({
+    angle: props.angle ?? existing.angle,
+    scaleX: props.scaleX ?? existing.scaleX,
+    scaleY: props.scaleY ?? existing.scaleY,
+  });
+  existing.setCoords();
+  return;
+}
+ else {
           // Logic to add new objects remains the same (as it only runs for new IDs)
           let newObj;
           if (objData.type === 'text')

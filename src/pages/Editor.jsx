@@ -41,7 +41,9 @@ export default function EditorPanel() {
         setActivePanel(prev => prev === tool ? null : tool);
     };
     
-    console.log(selectedId)
+    useEffect(() => {
+        console.log(selectedId);
+    }, [selectedId]);
 
     // NEW: Define the Brand Display content to be rendered in the MainToolbar
     const BrandDisplay = (

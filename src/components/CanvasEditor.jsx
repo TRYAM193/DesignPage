@@ -472,6 +472,10 @@ export default function CanvasEditor({
             customId: objData.id,
             left: objData.props.left,
             top: objData.props.top,
+            scaleX: objData.props.scaleX,
+            scaleY: objData.props.scaleY,
+            angle: objData.props.angle || 0,
+            w
           });
         }
         if (newObj) {

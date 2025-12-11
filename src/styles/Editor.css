@@ -201,7 +201,8 @@ html,
 }
 
 .canvas-container{
-  width: ;
+  width: fit-content;
+  height: fit-content;
 }
 
 /* -------------------------------------------

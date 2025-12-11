@@ -127,6 +127,18 @@ export default function EditorPanel() {
                             </button>
                         </div>
 
+                        {selectedId && !showProperties && (
+                             <div className="control-group">
+                                <button 
+                                    className="top-bar-button accent"
+                                    onClick={() => setShowProperties(true)}
+                                >
+                                    <FiSettings size={18} style={{marginRight: '5px'}}/>
+                                    <span>Edit</span>
+                                </button>
+                             </div>
+                        )}
+
                         {/* 3. Action Buttons (Save, Export, Order Print) */}
                         <div className="control-group">
                             {fabricCanvas && (

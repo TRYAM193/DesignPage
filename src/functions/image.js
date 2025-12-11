@@ -23,7 +23,4 @@ export default function addImage(obj) {
 
   const newObjects = [...canvasObjects, newImage]
   store.dispatch(setCanvasObjects(newObjects))
-
-  if (setActiveTool) setActiveTool(newImage.type);
-  if (setSelectedId) setSelectedId(newImage.id);
 }

@@ -5,7 +5,7 @@ import addImage from "../functions/image";
 export default async function Image(src, setSelectedId, setActiveTool, fabricCanvas) {
   let addedImage = false;
   if (!src) return;
-  console.log("Image src received:", src);
+  console.log("Image src received:");
   const id = Date.now()
 
   let fabricImage;

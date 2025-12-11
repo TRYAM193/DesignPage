@@ -133,48 +133,42 @@ export default function CanvasEditor({
       let designToLoad = null;
       let designId = null;
 
-      // METHOD 1: Try sessionStorage first (most reliable)
       try {
         const sessionData = sessionStorage.getItem('editingDesign');
         if (sessionData) {
           designToLoad = JSON.parse(sessionData);
           console.log('✅ Loaded from sessionStorage');
-          sessionStorage.removeItem('editingDesign'); // Clear after use
+          sessionStorage.removeItem('editingDesign'); 
         }
       } catch (e) {
         console.warn('sessionStorage read failed:', e);
       }
 
-      // METHOD 2: Try localStorage
       if (!designToLoad) {
         try {
           const localData = localStorage.getItem('editingDesign');
           if (localData) {
             designToLoad = JSON.parse(localData);
             console.log('✅ Loaded from localStorage');
-            localStorage.removeItem('editingDesign'); // Clear after use
+            localStorage.removeItem('editingDesign'); 
           }
         } catch (e) {
           console.warn('localStorage read failed:', e);
         }
       }
 
-      // METHOD 3: Get ID from URL parameter
       if (!designToLoad) {
         const urlParams = new URLSearchParams(window.location.search);
         designId = urlParams.get('designId');
       }
 
-      // METHOD 4: Get ID from cookie
       if (!designToLoad && !designId) {
         designId = getCookie('editingDesignId');
         if (designId) {
-          // Clear cookie
           document.cookie = 'editingDesignId=; path=/; max-age=0';
         }
       }
 
-      // If we have an ID but no data, fetch from Firestore
       if (!designToLoad && designId) {
         try {
           const designRef = doc(firestore, `users/test-user-123/designs`, designId);
@@ -197,9 +191,7 @@ export default function CanvasEditor({
         }
       }
 
-      // Load the design if we found it
       if (designToLoad) {
-
         setCurrentDesign(designToLoad);
         setEditingDesignId(designToLoad.id);
 
@@ -208,7 +200,6 @@ export default function CanvasEditor({
             setTimeout(() => {
               fabricCanvas.requestRenderAll();
 
-              // Sync objects to Redux
               fabricCanvas.getObjects().forEach(obj => {
                 const state = store.getState();
                 const canvasObjects = state.canvas.present;
@@ -265,7 +256,6 @@ export default function CanvasEditor({
         const newId = selected.customId;
         const newType = selected.type;
 
-        // 🔒 Only update React state if selection truly changed
         if (newId !== lastSelectedRef.id || newType !== lastSelectedRef.type) {
           lastSelectedRef.id = newId;
           lastSelectedRef.type = newType;
@@ -309,58 +299,46 @@ export default function CanvasEditor({
       const fabricCanvas = fabricCanvasRef.current;
       if (!fabricCanvas) return;
 
-      // inside your object:modified handler, when obj.type === 'activeselection'
       if (obj.type === 'activeselection') {
         const present = store.getState().canvas.present;
-        // deep clone current present
-        const updatedPresent = present.map(o => ({ ...o, props: { ...o.props } }));
 
-        // ensure canvas ref
-        const canvas = fabricCanvasRef.current;
-        if (!canvas) return;
+        let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
 
-        obj.getObjects().forEach(child => {
-          const idx = updatedPresent.findIndex(o => o.id === child.customId);
-          if (idx === -1) return;
+        obj.getObjects().forEach((child) => {
+          const index = updatedPresent.findIndex(
+            (o) => o.id === child.customId
+          );
+          if (index === -1) return;
 
+          // 🔥 calculate REAL absolute left/top using matrix
           child.setCoords();
+          const abs = child.calcTransformMatrix();
+          const pt = fabric.util.transformPoint({ x: 0, y: 0 }, abs);
 
-          // use getRelativeCenterPoint() then convert using viewportTransform
-          const relCenter = child.getRelativeCenterPoint();
-          const absCenter = fabric.util.transformPoint(relCenter, canvas.viewportTransform);
-
-          // compute center values in pixels
-          const centerX = absCenter.x;
-          const centerY = absCenter.y;
+          const absLeft = pt.x;
+          const absTop = pt.y;
 
           if (child.type === 'text' || child.type === 'textbox') {
-            // absorb scale into fontSize and reset scale
-            const newFontSize = (child.fontSize || 1) * (child.scaleX || 1);
+            const newFontSize = child.fontSize * child.scaleX;
+
             child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
             child.setCoords();
 
-            updatedPresent[idx].props = {
-              ...updatedPresent[idx].props,
-              center: { x: centerX, y: centerY }, // store center
-              angle: child.angle,
+            updatedPresent[index].props = {
+              ...updatedPresent[index].props,
               fontSize: newFontSize,
-              fill: child.fill,
-              opacity: child.opacity,
-              textStyle: child.textStyle,
-              origin: 'center'
+              left: absLeft,
+              top: absTop,
+              angle: child.angle,
             };
           } else {
-            // save center and scale for images/shapes
-            updatedPresent[idx].props = {
-              ...updatedPresent[idx].props,
-              center: { x: centerX, y: centerY }, // store center
+            updatedPresent[index].props = {
+              ...updatedPresent[index].props,
+              left: absLeft,
+              top: absTop,
               angle: child.angle,
-              scaleX: child.scaleX,
-              scaleY: child.scaleY,
               width: child.width,
               height: child.height,
-              opacity: child.opacity,
-              origin: 'center'
             };
           }
         });
@@ -368,7 +346,6 @@ export default function CanvasEditor({
         store.dispatch(setCanvasObjects(updatedPresent));
         return;
       }
-
 
       if (obj.type === 'text' || obj.type === 'textbox') {
         const newFontSize = obj.fontSize * obj.scaleX;
@@ -417,158 +394,125 @@ export default function CanvasEditor({
     const fabricCanvas = fabricCanvasRef.current;
     if (!fabricCanvas) return;
 
+    // 🔥 FIX: Check if ActiveSelection exists and discard it.
+    // This prevents the "jumping" bug where absolute coordinates from Redux
+    // are applied to objects currently inside a relative ActiveSelection group.
+    if (fabricCanvas.getActiveObject()?.type === 'activeselection') {
+        fabricCanvas.discardActiveObject();
+        // We don't need requestRenderAll() here immediately, the updates below will trigger it.
+    }
+
     // This flag prevents the loop when Fabric itself triggers a Redux update
     isSyncingRef.current = true;
-    setTimeout(() => {
-      const fabricObjects = fabricCanvas.getObjects();
 
-      // 1. UPDATE or ADD objects
-      canvasObjectsMap.forEach(async (objData, id) => {
-        let existing = fabricObjects.find((o) => o.customId === id);
-        if (existing) {
-          const props = objData.props || {};
+    const fabricObjects = fabricCanvas.getObjects();
 
-          // If we have saved center, prefer that. Fall back to left/top if legacy.
-          const center = props.center || {
-            x: (props.left ?? existing.left) + (existing.width * (props.scaleX ? existing.scaleX || 1 : 1)) / 2,
-            y: (props.top ?? existing.top) + (existing.height * (props.scaleY ? existing.scaleY || 1 : 1)) / 2
-          };
+    // 1. UPDATE or ADD objects
+    canvasObjectsMap.forEach(async (objData, id) => {
+      let existing = fabricObjects.find((o) => o.customId === id);
 
-          // Set object's origin to center before positioning
-          // This is critical so setPositionByOrigin uses the same convention we saved with
-          existing.set({
-            originX: 'center',
-            originY: 'center'
-          });
+      if (existing) {
+        let updatesNeeded = {};
 
-          // TEXT
-          if (existing.type === 'text' || existing.type === 'textbox') {
-            // Position by absolute center
-            existing.setPositionByOrigin(new fabric.Point(center.x, center.y), 'center', 'center');
+        // Iterate over all properties in the incoming object data
+        for (const key in objData.props) {
+          if (existing[key] !== objData.props[key]) {
+            updatesNeeded[key] = objData.props[key];
+          }
+        }
 
-            // Restore styling / normalized scale (text uses fontSize not scale)
+        // Only proceed if there are actual differences
+        if (Object.keys(updatesNeeded).length > 0) {
+          // Fabric Shadow Fix
+          if (updatesNeeded.shadowColor || updatesNeeded.shadowBlur || updatesNeeded.shadowOffsetX || updatesNeeded.shadowOffsetY) {
+            const shadowObject = {
+              color: updatesNeeded.shadowColor || existing.shadow?.color || '#000000',
+              blur: updatesNeeded.shadowBlur || existing.shadow?.blur || 0,
+              offsetX: updatesNeeded.shadowOffsetX || existing.shadow?.offsetX || 0,
+              offsetY: updatesNeeded.shadowOffsetY || existing.shadow?.offsetY || 0,
+            };
+            updatesNeeded.shadow = shadowObject;
+            ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'].forEach(key => delete updatesNeeded[key]);
+          }
+          
+          if (updatesNeeded.scaleX !== undefined || updatesNeeded.scaleY !== undefined) {
             existing.set({
-              angle: props.angle ?? existing.angle,
-              fontSize: props.fontSize ?? existing.fontSize,
-              fill: props.fill ?? existing.fill,
-              opacity: props.opacity ?? existing.opacity,
-              stroke: props.stroke ?? existing.stroke,
-              strokeWidth: props.strokeWidth ?? existing.strokeWidth,
-              scaleX: 1,
-              scaleY: 1,
+              scaleX: updatesNeeded.scaleX ?? existing.scaleX,
+              scaleY: updatesNeeded.scaleY ?? existing.scaleY,
             });
-
-            existing.setCoords();
-            return;
+            delete updatesNeeded.scaleX;
+            delete updatesNeeded.scaleY;
           }
 
-          // IMAGE
-          if (existing.type === 'image') {
-            // Position by center then restore scale & angle
-            existing.setPositionByOrigin(new fabric.Point(center.x, center.y), 'center', 'center');
-
-            existing.set({
-              angle: props.angle ?? existing.angle,
-              scaleX: props.scaleX ?? existing.scaleX,
-              scaleY: props.scaleY ?? existing.scaleY,
-              opacity: props.opacity ?? existing.opacity,
-              width: props.width ?? existing.width,
-              height: props.height ?? existing.height,
-            });
-
-            // ensures Fabric recalculates matrices
-            existing.setCoords();
-            return;
-          }
-
-          // GENERIC SHAPES / OTHERS
-          existing.setPositionByOrigin(new fabric.Point(center.x, center.y), 'center', 'center');
-          existing.set({
-            angle: props.angle ?? existing.angle,
-            scaleX: props.scaleX ?? existing.scaleX,
-            scaleY: props.scaleY ?? existing.scaleY,
-          });
+          existing.set(updatesNeeded);
           existing.setCoords();
-          return;
+          // 🔥 IMPORTANT: Since we discarded the active selection above, 
+          // 'updatesNeeded' (which contains absolute left/top) will now apply correctly.
+          fabricCanvas.requestRenderAll();
         }
-        else {
-          // Logic to add new objects remains the same (as it only runs for new IDs)
-          let newObj;
-          if (objData.type === 'text')
-            newObj = StraightText(objData);
-          if (objData.type === 'image') {
-            if (!existing || !existing.map(obj => obj.customId).includes(objData.id)) {
-              newObj = await FabricImage.fromURL(objData.src, {
-                customId: objData.id,
-                left: objData.props.left,
-                top: objData.props.top,
-                scaleX: objData.props.scaleX,
-                scaleY: objData.props.scaleY,
-                angle: objData.props.angle,
-                width: objData.props.width,
-                height: objData.props.height,
-              });
-            }
-          }
-          if (newObj) {
-            newObj.customId = objData.id;
-            fabricCanvas.add(newObj);
-            fabricCanvas.setActiveObject(newObj);
-            fabricCanvas.renderAll();
+
+      } else {
+        let newObj;
+        if (objData.type === 'text')
+          newObj = StraightText(objData);
+        if (objData.type === 'image') {
+          if (!existing || !existing.map(obj => obj.customId).includes(objData.id)) {
+            newObj = await FabricImage.fromURL(objData.src, {
+              customId: objData.id,
+              left: objData.props.left,
+              top: objData.props.top,
+              scaleX: objData.props.scaleX,
+              scaleY: objData.props.scaleY,
+              angle: objData.props.angle,
+              width: objData.props.width,
+              height: objData.props.height,
+            });
           }
         }
-        return
-      });
-
-      //Adding image 
-
-
-      // 2. REMOVE objects (Deletion logic remains efficient)
-      const ids = Array.from(canvasObjectsMap.keys());
-      fabricObjects.forEach((obj) => {
-        if (!ids.includes(obj.customId)) fabricCanvas.remove(obj);
-      });
-
-      fabricCanvas.renderAll();
-      const currentFabricObjects = fabricCanvas.getObjects();
-
-      // Fabric's internal object array (which controls stacking)
-      let fabricObjectsArray = fabricCanvas._objects;
-
-      // Iterate through the source of truth (Redux state)
-      canvasObjects.forEach((reduxObj, index) => {
-        const fabricObj = currentFabricObjects.find(
-          (obj) => obj.customId === reduxObj.id
-        );
-
-        if (fabricObj) {
-          const currentIndex = fabricObjectsArray.indexOf(fabricObj);
-
-          // Only move if the object is not already at the correct index
-          if (currentIndex !== index) {
-
-            // --- GUARANTEED Z-INDEX FIX ---
-
-            // 1. Remove object from its current position in the internal array
-            fabricObjectsArray.splice(currentIndex, 1);
-
-            // 2. Insert object into the desired position
-            fabricObjectsArray.splice(index, 0, fabricObj);
-
-            // Re-assign the modified array back to the canvas's internal state
-            fabricCanvas._objects = fabricObjectsArray;
-          }
+        if (newObj) {
+          newObj.customId = objData.id;
+          fabricCanvas.add(newObj);
+          fabricCanvas.setActiveObject(newObj);
+          fabricCanvas.renderAll();
         }
-      });
+      }
+      return
+    });
 
 
-      fabricCanvas.renderAll();
+    // 2. REMOVE objects
+    const ids = Array.from(canvasObjectsMap.keys());
+    fabricObjects.forEach((obj) => {
+      if (!ids.includes(obj.customId)) fabricCanvas.remove(obj);
+    });
 
-      // ✅ allow updates again after short delay
-      setTimeout(() => {
-        isSyncingRef.current = false;
-      }, 100);
-    }, 20);
+    fabricCanvas.renderAll();
+    const currentFabricObjects = fabricCanvas.getObjects();
+    let fabricObjectsArray = fabricCanvas._objects;
+
+    // Iterate through the source of truth (Redux state)
+    canvasObjects.forEach((reduxObj, index) => {
+      const fabricObj = currentFabricObjects.find(
+        (obj) => obj.customId === reduxObj.id
+      );
+
+      if (fabricObj) {
+        const currentIndex = fabricObjectsArray.indexOf(fabricObj);
+        if (currentIndex !== index) {
+          fabricObjectsArray.splice(currentIndex, 1);
+          fabricObjectsArray.splice(index, 0, fabricObj);
+          fabricCanvas._objects = fabricObjectsArray;
+        }
+      }
+    });
+
+
+    fabricCanvas.renderAll();
+
+    // ✅ allow updates again after short delay
+    setTimeout(() => {
+      isSyncingRef.current = false;
+    }, 100);
   }, [canvasObjects, initialized, canvasObjectsMap]);
 
   return (

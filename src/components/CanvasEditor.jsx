@@ -468,8 +468,10 @@ export default function CanvasEditor({
           newObj = StraightText(objData);
         if (objData.type === 'image')
           if (existing.map(obj => obj.customId).includes(objData.id)) return;
-          newObj = 
-          
+          newObj = await FabricImage.fromURL(src, {
+                customId: id
+              });
+
         if (newObj) {
           newObj.customId = objData.id;
           fabricCanvas.add(newObj);

@@ -39,7 +39,7 @@ export default function CanvasEditor({
 }) {
   const canvasRef = useRef(null);
   const fabricCanvasRef = useRef(null);
-  const isSyncingRef = useRef(false); 
+  const isSyncingRef = useRef(false);
   const [initialized, setInitialized] = useState(false);
   const wrapperRef = useRef(null);
   const canvasObjects = useSelector((state) => state.canvas.present);
@@ -292,49 +292,52 @@ export default function CanvasEditor({
       const type = obj.type.toLowerCase();
       
       if (type === 'activeselection') {
-        // 🔥 FIX: 1. Capture children BEFORE discarding the active object.
-        // If we discard first, obj.getObjects() returns empty, and objects disappear (snap back).
+        // 🔥 FIX: Break recursion by creating a copy of the children 
+        // AND wrapping the discard action in setTimeout.
         const children = [...obj.getObjects()]; 
         
-        // 2. Discard to force Fabric to update children to absolute coordinates
-        fabricCanvas.discardActiveObject();
-        fabricCanvas.requestRenderAll(); 
-        
-        // 3. Now iterate the captured children, which now have absolute props
-        const present = store.getState().canvas.present;
-        let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
+        setTimeout(() => {
+            // 1. Force Fabric to apply group transforms to children & update absolute coords
+            fabricCanvas.discardActiveObject();
+            fabricCanvas.requestRenderAll(); 
+            
+            // 2. Now iterate the children (which now have absolute coords) and update Redux
+            const present = store.getState().canvas.present;
+            let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
 
-        children.forEach((child) => {
-           const index = updatedPresent.findIndex((o) => o.id === child.customId);
-           if (index === -1) return;
+            children.forEach((child) => {
+               const index = updatedPresent.findIndex((o) => o.id === child.customId);
+               if (index === -1) return;
 
-           if (child.type === 'text' || child.type === 'textbox') {
-              const newFontSize = child.fontSize * child.scaleX;
-              child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
-              child.setCoords(); 
+               if (child.type === 'text' || child.type === 'textbox') {
+                  const newFontSize = child.fontSize * child.scaleX;
+                  child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
+                  child.setCoords(); 
 
-              updatedPresent[index].props = {
-                 ...updatedPresent[index].props,
-                 fontSize: newFontSize,
-                 left: child.left,
-                 top: child.top,
-                 angle: child.angle,
-              };
-           } else {
-              updatedPresent[index].props = {
-                 ...updatedPresent[index].props,
-                 left: child.left,
-                 top: child.top,
-                 angle: child.angle,
-                 scaleX: child.scaleX,
-                 scaleY: child.scaleY,
-                 width: child.width,
-                 height: child.height,
-              };
-           }
-        });
+                  updatedPresent[index].props = {
+                     ...updatedPresent[index].props,
+                     fontSize: newFontSize,
+                     left: child.left,
+                     top: child.top,
+                     angle: child.angle,
+                  };
+               } else {
+                  updatedPresent[index].props = {
+                     ...updatedPresent[index].props,
+                     left: child.left,
+                     top: child.top,
+                     angle: child.angle,
+                     scaleX: child.scaleX,
+                     scaleY: child.scaleY,
+                     width: child.width,
+                     height: child.height,
+                  };
+               }
+            });
 
-        store.dispatch(setCanvasObjects(updatedPresent));
+            store.dispatch(setCanvasObjects(updatedPresent));
+        }, 0); // End setTimeout
+
         return;
       }
 
@@ -386,7 +389,6 @@ export default function CanvasEditor({
     const fabricCanvas = fabricCanvasRef.current;
     if (!fabricCanvas) return;
 
-    // Discard active selection to allow absolute coordinate updates
     const activeObject = fabricCanvas.getActiveObject();
     if (activeObject && activeObject.type.toLowerCase() === 'activeselection') {
         fabricCanvas.discardActiveObject();

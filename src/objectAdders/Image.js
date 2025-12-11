@@ -1,6 +1,7 @@
 import { FabricImage } from "fabric";
-import {}
+import { useState } from "react";
 export default async function Image(src, setSelectedId, setActiveTool) {
+  
   if (!src) return;
   
   const id = Date.now()

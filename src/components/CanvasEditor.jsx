@@ -310,56 +310,54 @@ export default function CanvasEditor({
       if (!fabricCanvas) return;
 
       if (obj.type === 'activeselection') {
-  const present = store.getState().canvas.present;
-  const updated = present.map(o => ({ ...o, props: { ...o.props } }));
+        const present = store.getState().canvas.present;
+        const updated = present.map(o => ({ ...o, props: { ...o.props } }));
 
-  obj.getObjects().forEach(child => {
+        obj.getObjects().forEach(child => {
 
-    const idx = updated.findIndex(o => o.id === child.customId);
-    if (idx === -1) return;
+          const idx = updated.findIndex(o => o.id === child.customId);
+          if (idx === -1) return;
 
-    child.setCoords();
+          child.setCoords();
 
-    // ----- 💯 THE CORRECT ABSOLUTE POSITION FIX -----
-    const center = child.getRelativeCenterPoint();
-    const absCenter = fabric.util.transformPoint(
-      center,
-      fabricCanvas.viewportTransform
-    );
-    const absLeft = absCenter.x - (child.width * child.scaleX) / 2;
-    const absTop = absCenter.y - (child.height * child.scaleY) / 2;
+          // ----- 💯 THE CORRECT ABSOLUTE POSITION FIX -----
+          const center = child.getRelativeCenterPoint();
+          const absCenter = fabric.util.transformPoint(
+            center,
+            fabricCanvas.viewportTransform
+          );
+          const absLeft = absCenter.x - (child.width * child.scaleX) / 2;
+          const absTop = absCenter.y - (child.height * child.scaleY) / 2;
 
-    // -----------------------------------------------
+          // -----------------------------------------------
 
-    if (child.type === 'text' || child.type === 'textbox') {
-      const newFontSize = child.fontSize * child.scaleX;
-      child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
-      child.setCoords();
+          if (child.type === 'text' || child.type === 'textbox') {
+            const newFontSize = child.fontSize * child.scaleX;
+            child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
+            child.setCoords();
 
-      updated[idx].props = {
-        ...updated[idx].props,
-        left: absLeft,
-        top: absTop,
-        angle: child.angle,
-        fontSize: newFontSize,
-      };
-    } else {
-      updated[idx].props = {
-        ...updated[idx].props,
-        left: absLeft,
-        top: absTop,
-        angle: child.angle,
-        scaleX: child.scaleX,
-        scaleY: child.scaleY,
-      };
-    }
-  });
+            updated[idx].props = {
+              ...updated[idx].props,
+              left: absLeft,
+              top: absTop,
+              angle: child.angle,
+              fontSize: newFontSize,
+            };
+          } else {
+            updated[idx].props = {
+              ...updated[idx].props,
+              left: absLeft,
+              top: absTop,
+              angle: child.angle,
+              scaleX: child.scaleX,
+              scaleY: child.scaleY,
+            };
+          }
+        });
 
-  store.dispatch(setCanvasObjects(updated));
-  return;
-}
-
-
+        store.dispatch(setCanvasObjects(updated));
+        return;
+      }
 
       if (obj.type === 'text' || obj.type === 'textbox') {
         const newFontSize = obj.fontSize * obj.scaleX;
@@ -461,7 +459,7 @@ export default function CanvasEditor({
           existing.setCoords();
           return;
         }
-      }else {
+      } else {
         // Logic to add new objects remains the same (as it only runs for new IDs)
         let newObj;
         if (objData.type === 'text')

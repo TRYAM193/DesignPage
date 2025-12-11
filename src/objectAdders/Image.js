@@ -6,8 +6,9 @@ export default async function Image(src, setSelectedId, setActiveTool, fabricCan
 
   const id = Date.now()
 
+  let fabricImage;
   if (!addedImage) {
-   fabricImage = await FabricImage.fromURL(src, {
+    fabricImage = await FabricImage.fromURL(src, {
       customId: id
     });
 

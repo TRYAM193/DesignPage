@@ -27,7 +27,7 @@ export default function ImageHandler({setSelectedId, setActiveTool, children, cl
         const src = e.target.result;
 
         if (src) {
-          Image(src, )
+          Image(src, setSelectedId, setActiveTool);
         }
       };
 

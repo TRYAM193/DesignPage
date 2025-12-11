@@ -1,6 +1,6 @@
 import { FabricImage } from "fabric";
 
-export default async function Image({src, setSelectedId, setActiveTool}) {
+export default async function Image(src, setSelectedId, setActiveTool) {
   if (!src) return;
   
   const id = Date.now()

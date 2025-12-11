@@ -7,8 +7,9 @@ import updateObject from '../functions/update';
 import { store } from '../redux/store';
 import { setCanvasObjects } from '../redux/canvasSlice';
 import { useLocation } from 'react-router-dom';
-import { , doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { firestore } from '../firebase.js';
+import { FabricImage } from 'fabric';
 
 fabric.Object.prototype.toObject = (function (toObject) {
   return function (propertiesToInclude) {

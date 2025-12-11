@@ -432,22 +432,11 @@ export default function CanvasEditor({
             });
           }
 
-          // 1. Compute absolute center
-          const absCenterX = props.left + (existing.width * props.scaleX) / 2;
-          const absCenterY = props.top + (existing.height * props.scaleY) / 2;
-
-          // 2. Set object by its origin (always stable)
-          existing.setPositionByOrigin(
-            new fabric.Point(absCenterX, absCenterY),
-            'center',
-            'center'
-          );
-
-          // 3. Restore scale & angle after position
           existing.set({
-            scaleX: props.scaleX || existing.scaleX,
-            scaleY: props.scaleY || existing.scaleY,
-            angle: props.angle || existing.angle,
+            left: props.left,
+            top: props.top,
+            angle: props.angle,
+            fill: props.fill,
           });
 
           existing.setCoords();

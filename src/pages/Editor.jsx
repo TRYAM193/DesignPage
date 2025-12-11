@@ -123,7 +123,7 @@ export default function EditorPanel() {
                         {selectedId && !showProperties && (
                             <div className="control-group">
                                 <button 
-                                    className="top-bar-button accent d"
+                                    className="top-bar-button accent desk"
                                     onClick={() => setShowProperties(true)}
                                     title="Edit Properties"
                                 >

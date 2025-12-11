@@ -47,7 +47,7 @@ export default function MainToolbar({ activePanel, onSelectTool, setSelectedId, 
             setSelectedId={setSelectedId} 
             setActiveTool={onSelectTool} 
             className={`tool-button-wrapper ${activePanel === 'image' ? 'active' : ''}`}
-            fabricCanvas={fa}
+            fabricCanvas={fabricCanvas}
         >
             <FiImage size={24} />
             <span>Image</span>

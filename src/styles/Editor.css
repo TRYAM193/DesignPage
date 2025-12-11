@@ -200,7 +200,7 @@ html,
   position: relative;
 }
 
-.canvas-container{
+.canvas-container {
   width: fit-content;
   height: fit-content;
 }
@@ -787,6 +787,98 @@ input[type="range"],
 }
 
 .layer-list-wrapper {
-    overflow-y: auto;
-    max-height: 100%;
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+/* ===================================
+   RESPONSIVENESS (Mobile Only)
+   =================================== */
+
+/* Applies only to screens narrower than 769px (Mobile Phones) */
+/* Tablet users (>= 768px) will retain the Desktop layout */
+@media (max-width: 768px) {
+
+  /* 1. Contextual Sidebar (Left Tool Settings) 
+       - Overlays the canvas instead of pushing it 
+    */
+  .contextual-sidebar {
+    position: absolute;
+    height: 100%;
+    left: 70px;
+    /* Aligns right after the Main Toolbar */
+    top: 0;
+    z-index: 200;
+    transition: transform 0.3s ease-in-out;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 2. Right Properties Panel (Bottom Drawer Animation)
+       - Slides up from the bottom when an object is selected 
+    */
+  .right-panel {
+    position: absolute;
+    width: calc(100% - 70px);
+    /* Full width minus Main Toolbar */
+    left: 70px;
+    bottom: 0;
+    height: 50vh;
+    /* Takes up 50% of the screen height */
+    min-width: unset;
+
+    /* Hidden state: Pushed down by 100% of its height */
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 200;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-left: none;
+    /* Remove desktop border */
+    border-top: 1px solid #eee;
+    padding: 0;
+  }
+
+  /* Active state: Triggered by {selectedId ? 'active' : ''} in JSX */
+  .right-panel.active {
+    transform: translateY(0);
+  }
+
+  /* 3. Center Preview Area
+       - Reduces padding to maximize canvas space on small screens 
+    */
+  .preview-area {
+    padding: 10px;
+  }
+
+  /* 4. Floating Top Bar 
+       - Adjusts position and size for touch targets 
+    */
+  .top-bar.consolidated-bar {
+    top: 10px;
+    width: auto;
+    padding: 5px 10px;
+    max-width: calc(100% - 90px);
+    /* Prevents overlapping Main Toolbar */
+    overflow-x: auto;
+    /* Allows scrolling if too many buttons */
+  }
+
+  .control-group {
+    gap: 2px;
+  }
+
+  .top-bar-button {
+    padding: 8px;
+  }
+
+  /* Hide text labels on mobile actions to save space if needed */
+  .top-bar-button.text-button span {
+    display: none;
+  }
+
+  .top-bar-button.text-button svg {
+    margin-right: 0;
+  }
 }

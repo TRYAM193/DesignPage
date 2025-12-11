@@ -168,7 +168,7 @@ export default function EditorPanel() {
                 </main>
 
                 {/* 4. Right Properties Panel */}
-                <aside className="right-panel">
+                <aside className={`right-panel ${selectedId ? 'active' : ''}`}>
                     <RightSidebarTabs
                         id={selectedId}
                         type={activeTool}

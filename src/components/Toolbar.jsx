@@ -336,7 +336,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             <input
               type="number"
               className="number-input small"
-              value={Math.round(liveProps.fontSize || object.props || 0)}
+              value={Math.round(liveProps.fontSize || object.props.fontSize || 0)}
               onChange={(e) => handleLiveUpdate('fontSize', Number(e.target.value))}
               onBlur={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))}
             />
@@ -347,7 +347,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             min="10"
             max="200"
             step="1"
-            value={liveProps.fontSize || 0}
+            value={liveProps.fontSize || object.props.fontSize || 0}
             onInput={(e) => handleLiveUpdate('fontSize', Number(e.target.value))}
             onMouseUp={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))}
           />

@@ -1,5 +1,6 @@
 import { FabricImage } from "fabric";
 import { useState } from "react";
+import addImage from "../functions/image";
 export default async function Image(src, setSelectedId, setActiveTool, fabricCanvas) {
   const [addedImage, setAddedImage] = useState(false);
   if (!src) return;
@@ -22,6 +23,6 @@ export default async function Image(src, setSelectedId, setActiveTool, fabricCan
     fabricCanvas.setActiveObject(fabricImage);
     fabricCanvas.requestRenderAll();
     setAddedImage(false);
-    addIma
+    addImage()
   }
 }

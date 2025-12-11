@@ -467,7 +467,7 @@ export default function CanvasEditor({
         if (objData.type === 'text')
           newObj = StraightText(objData);
         if (objData.type === 'image')
-          if (existing.map(obj objData.id)
+          if (existing.map(obj => obj.customId).includes(objData.id)) return;
           newObj = Image(objData.src, setSelectedId, setActiveTool, fabricCanvas);
         if (newObj) {
           newObj.customId = objData.id;

@@ -476,6 +476,8 @@ export default function CanvasEditor({
       return
     });
 
+    //Adding image
+
     // 2. REMOVE objects (Deletion logic remains efficient)
     const ids = Array.from(canvasObjectsMap.keys());
     fabricObjects.forEach((obj) => {

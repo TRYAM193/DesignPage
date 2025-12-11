@@ -43,6 +43,7 @@ export default function EditorPanel() {
     
     useEffect(() => {
         console.log(selectedId);
+        console
     }, [selectedId]);
 
     // NEW: Define the Brand Display content to be rendered in the MainToolbar

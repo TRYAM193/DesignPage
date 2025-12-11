@@ -430,8 +430,8 @@ export default function CanvasEditor({
 
           // If we have saved center, prefer that. Fall back to left/top if legacy.
           const center = props.center || {
-            x: (props.left ?? existing.left) + (existing.width * (props.scaleX ? existing.scaleX || 1)) / 2,
-            y: (props.top ?? existing.top) + (existing.height * (props.scaleY ? existing.scaleY || 1)) / 2
+            x: (props.left ?? existing.left) + (existing.width * (props.scaleX ? existing.scaleX || 1 : 1)) / 2,
+            y: (props.top ?? existing.top) + (existing.height * (props.scaleY ? existing.scaleY || 1 : 1)) / 2
           };
 
           // Set object's origin to center before positioning

@@ -17,7 +17,7 @@ export default async function Image(src, setSelectedId, setActiveTool, fabricCan
     setAddedImage(true);
   }
 
-  if (fabricCanvas && addedImage) {
+  if (fabricCanvas && addedImage && fabricImage) {
     fabricCanvas.add(fabricImage);
     fabricCanvas.setActiveObject(fabricImage);
     fabricCanvas.requestRenderAll();

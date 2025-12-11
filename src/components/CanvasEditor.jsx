@@ -1,3 +1,4 @@
+// src/components/CanvasEditor.jsx
 import React from 'react';
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
@@ -59,6 +60,7 @@ export default function CanvasEditor({
 
     const resize = () => {
       const wrapper = wrapperRef.current;
+      if (!wrapper) return;
 
       const newWidth = wrapper.clientWidth;
       const newHeight = wrapper.clientHeight;
@@ -181,12 +183,12 @@ export default function CanvasEditor({
             };
           } else {
             console.error('❌ Design not found in Firestore');
-            alert('Design not found!');
+            // alert('Design not found!'); 
             return;
           }
         } catch (error) {
           console.error('❌ Firestore fetch error:', error);
-          alert('Failed to load design');
+          // alert('Failed to load design');
           return;
         }
       }
@@ -394,12 +396,10 @@ export default function CanvasEditor({
     const fabricCanvas = fabricCanvasRef.current;
     if (!fabricCanvas) return;
 
-    // 🔥 FIX: Check if ActiveSelection exists and discard it.
-    // This prevents the "jumping" bug where absolute coordinates from Redux
-    // are applied to objects currently inside a relative ActiveSelection group.
+    // 🔥 FIX: Discard active selection before applying updates.
+    // This forces objects back to absolute positioning so they don't jump.
     if (fabricCanvas.getActiveObject()?.type === 'activeselection') {
         fabricCanvas.discardActiveObject();
-        // We don't need requestRenderAll() here immediately, the updates below will trigger it.
     }
 
     // This flag prevents the loop when Fabric itself triggers a Redux update
@@ -446,8 +446,6 @@ export default function CanvasEditor({
 
           existing.set(updatesNeeded);
           existing.setCoords();
-          // 🔥 IMPORTANT: Since we discarded the active selection above, 
-          // 'updatesNeeded' (which contains absolute left/top) will now apply correctly.
           fabricCanvas.requestRenderAll();
         }
 

@@ -6,9 +6,9 @@ export default function addImage(obj) {
   const canvasObjects = state.canvas.present;
 
   const newImage = {
-    id: obj
+    id: obj.customId,
     type: 'image',
-    src,
+    src: obj.getSrc(),
     props: {
       left: 200,
       top: 200,

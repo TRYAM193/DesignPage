@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import Image from '../objectAdders/Image'
 
 // CHANGED: Added 'className' and 'onClick' to props
-export default function ImageHandler({setSelectedId, setActiveTool, children, className}) { 
+export default function ImageHandler({setSelectedId, setActiveTool, children, className, fabricCanvas}) { 
   const fileInput = useRef(null);
 
   const handleClick = () => {
@@ -27,7 +27,7 @@ export default function ImageHandler({setSelectedId, setActiveTool, children, cl
         const src = e.target.result;
 
         if (src) {
-          Image(src, setSelectedId, setActiveTool);
+          Image(src, setSelectedId, setActiveTool, fabricCanvas);
         }
       };
 

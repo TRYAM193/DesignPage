@@ -791,14 +791,12 @@ input[type="range"],
   max-height: 100%;
 }
 
-/* ===================================
-   RESPONSIVENESS (Mobile Only)
-   =================================== */
+//* src/styles/Editor.css */
 
-/* Applies only to screens narrower than 769px (Mobile Phones) */
-/* Tablet users (>= 768px) will retain the Desktop layout */
-/* src/styles/Editor.css */
-/* Add/Replace the Media Query block at the end of the file */
+/* Hide the mobile close header by default (Desktop) */
+.mobile-panel-header {
+  display: none;
+}
 
 /* ===================================
    MOBILE INTERFACE (Max Width 768px)
@@ -846,10 +844,9 @@ input[type="range"],
   }
 
   /* 2. Brand Display: Top Left, Logo Only */
-  /* We use !important to override the inline styles or default positioning if needed */
   .header-brand.toolbar-brand {
     position: fixed;
-    top: 10px;
+    top: 15px;
     left: 15px;
     z-index: 400; 
     padding: 0;
@@ -862,8 +859,9 @@ input[type="range"],
     align-items: flex-start;
   }
 
+  /* Hide the "TRYAM" text */
   .header-brand.toolbar-brand h1 {
-    display: none; /* Hide 'TRYAM' text */
+    display: none; 
   }
 
   .header-brand.toolbar-brand .logo-circle {
@@ -888,7 +886,7 @@ input[type="range"],
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
     box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-    z-index: 250; /* Below the Right Panel but above canvas */
+    z-index: 250; 
     
     /* Animation for appearing */
     animation: slideUpTools 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -913,10 +911,38 @@ input[type="range"],
     border-left: none;
     box-shadow: 0 -4px 25px rgba(0,0,0,0.2);
     padding: 0;
+    background-color: white; /* Ensure background is opaque */
   }
 
   .right-panel.active {
     transform: translateY(0);
+  }
+
+  /* Mobile Close Header (Visible only on mobile) */
+  .mobile-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    background-color: #f9f9f9;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+  }
+
+  .mobile-panel-title {
+    font-weight: 600;
+    color: #444;
+  }
+
+  .mobile-close-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
   }
 
   /* 5. Canvas Adjustments */

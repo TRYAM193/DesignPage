@@ -1,5 +1,5 @@
 import { FabricImage } from "fabric";
-import { useState } from "react";
+import React, { useState } from "react";
 import addImage from "../functions/image";
 
 

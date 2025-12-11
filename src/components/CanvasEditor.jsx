@@ -569,6 +569,7 @@ setTimeout(() => {
     setTimeout(() => {
       isSyncingRef.current = false;
     }, 100);
+      }, 0);
   }, [canvasObjects, initialized, canvasObjectsMap]);
 
   return (

@@ -10,7 +10,7 @@ export default function addImage(obj) {
     type: 'image',
     src: obj.getSrc(),
     props: {
-      left: 200,
+      left: obj.left,
       top: 200,
       width: 300,
       height: 400,

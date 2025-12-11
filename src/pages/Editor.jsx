@@ -121,9 +121,9 @@ export default function EditorPanel() {
 
                         {/* Edit Properties Button - Removed inline margin so CSS can handle spacing */}
                         {selectedId && !showProperties && (
-                            <div className="control-group">
+                            <div className="control-group phone-only">
                                 <button 
-                                    className="top-bar-button accent phone-only"
+                                    className="top-bar-button accent"
                                     onClick={() => setShowProperties(true)}
                                     title="Edit Properties"
                                 >

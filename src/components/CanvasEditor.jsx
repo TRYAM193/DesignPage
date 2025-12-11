@@ -458,8 +458,6 @@ export default function CanvasEditor({
 
           // Then apply the rest
           existing.set(updatesNeeded);
-
-          // Always recalc coords after transforms
           existing.setCoords();
           fabricCanvas.requestRenderAll();
         }

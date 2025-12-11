@@ -411,7 +411,7 @@ export default function CanvasEditor({
     const fabricObjects = fabricCanvas.getObjects();
 
     // 1. UPDATE or ADD objects
-    canvasObjectsMap.forEach((objData, id) => {
+    canvasObjectsMap.forEach(async(objData, id) => {
       let existing = fabricObjects.find((o) => o.customId === id);
 
       if (existing) {

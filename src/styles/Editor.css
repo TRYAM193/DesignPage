@@ -200,7 +200,9 @@ html,
   position: relative;
 }
 
-.canvas
+.canvas-container{
+  width: ;
+}
 
 /* -------------------------------------------
    CONSOLIDATED FLOATING TOOLBAR (top-bar)

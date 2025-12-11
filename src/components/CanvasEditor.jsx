@@ -28,6 +28,7 @@ function getCookie(name) {
 }
 
 export default function CanvasEditor({
+  activeTool,
   setActiveTool,
   setSelectedId,
   setFabricCanvas,

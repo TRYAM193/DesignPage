@@ -208,7 +208,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             <textarea
               className="text-input"
               rows="3"
-              value={props.text || ''}
+              value={props.text}
               onBlur={(e) => handleUpdateAndHistory('text', e.target.value)}
               onChange={(e) => handleLiveUpdate('text', e.target.value)}
               placeholder="Enter your text here"

@@ -1,5 +1,5 @@
 import { FabricImage } from "fabric";
-
+import {}
 export default async function Image(src, setSelectedId, setActiveTool) {
   if (!src) return;
   

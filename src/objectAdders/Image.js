@@ -8,6 +8,9 @@ export default async function Image({src, setSelectedId, setActiveTool}) {
   const fabricImage = await FabricImage.fromURL(src, {
     customId: id
   });
+
+  setSelectedId(id)
+  set
   
   return fabricImage;
 }

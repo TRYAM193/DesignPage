@@ -74,9 +74,7 @@ export default function CircleText(objData) {
     originX: 'center',
     originY: 'center',
     customId: objData.id,
-    objectCaching: false, // Helps with rendering crisp tet
-    
-    // Custom properties to persist
+    objectCaching: false, 
     text: text,
     fontSize: fontSize,
     fontFamily: fontFamily,

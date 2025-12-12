@@ -81,6 +81,7 @@ const applyTextPath = (fabricObj, effectType, intensity) => {
 export default function CanvasEditor({
   activeTool,
   setActiveTool,
+  selectedId,
   setSelectedId,
   setFabricCanvas,
   fabricCanvas,

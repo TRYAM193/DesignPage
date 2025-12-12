@@ -15,7 +15,7 @@ import MainToolbar from '../components/MainToolbar';
 import ContextualSidebar from '../components/ContextualSidebar';
 import {
     FiTrash2, FiRotateCcw, FiRotateCw, FiDownload, FiSave, FiShoppingBag,
-    FiSettings, FiX 
+    FiSettings, FiX
 } from 'react-icons/fi';
 
 
@@ -25,9 +25,9 @@ export default function EditorPanel() {
     const [selectedId, setSelectedId] = useState(null);
     const [currentDesign, setCurrentDesign] = useState(null);
     const [editingDesignId, setEditingDesignId] = useState(null);
-    
+
     // Manual control for properties panel
-    const [showProperties, setShowProperties] = useState(false); 
+    const [showProperties, setShowProperties] = useState(false);
 
     // Close properties panel automatically when selection changes
     useEffect(() => {
@@ -86,15 +86,15 @@ export default function EditorPanel() {
                         addHeading={addHeading}
                         addSubheading={addSubheading}
                         addCircleText={addCircleText}
-        addArcText={addArcText}
-        addFlagText={addFlagText}
+                        addArcText={addArcText}
+                        addFlagText={addFlagText}
                     />
                 )}
 
                 <main className="preview-area">
                     {/* Consolidated Top Bar */}
                     <div className="top-bar consolidated-bar">
-                        
+
                         {/* Undo/Redo Group */}
                         <div className="control-group">
                             <button
@@ -102,23 +102,23 @@ export default function EditorPanel() {
                                 className="top-bar-button"
                                 onClick={() => dispatch(undo())}
                                 disabled={past.length === 0}
-                                style={{opacity: past.length === 0 ? 0.25 : 1}}
+                                style={{ opacity: past.length === 0 ? 0.25 : 1 }}
                             >
                                 <FiRotateCcw size={18} />
                             </button>
                             <button
                                 title="Redo"
                                 className="top-bar-button"
-                                    onClick={() => dispatch(redo())}
+                                onClick={() => dispatch(redo())}
                                 disabled={future.length === 0}
-                                style={{opacity: future.length === 0 ? 0.25 : 1}}
+                                style={{ opacity: future.length === 0 ? 0.25 : 1 }}
                             >
                                 <FiRotateCw size={18} />
                             </button>
                         </div>
 
                         <div className="control-group divider">
-                            <button title="Delete" className="top-bar-button danger" onClick={() => removeObject(selectedId)} style={{opacity: !selectedId ? 0.25 : 1}}>
+                            <button title="Delete" className="top-bar-button danger" onClick={() => removeObject(selectedId)} style={{ opacity: !selectedId ? 0.25 : 1 }}>
                                 <FiTrash2 size={18} />
                             </button>
                         </div>
@@ -126,7 +126,7 @@ export default function EditorPanel() {
                         {/* Edit Properties Button - Removed inline margin so CSS can handle spacing */}
                         {selectedId && !showProperties && (
                             <div className="control-group phone-only">
-                                <button 
+                                <button
                                     className="top-bar-button accent"
                                     onClick={() => setShowProperties(true)}
                                     title="Edit Properties"

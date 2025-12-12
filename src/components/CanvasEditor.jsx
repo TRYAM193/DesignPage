@@ -497,8 +497,7 @@ export default function CanvasEditor({
           fabricCanvas.setActiveObject(newObj);
           setTimeout(() => {
             fabricCanvas.requestRenderAll();
-          }
-            , 50);
+          }, 50);
         }
       }
       return;

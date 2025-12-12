@@ -16,7 +16,7 @@ fabric.Object.prototype.toObject = (function (toObject) {
   return function (propertiesToInclude) {
     return toObject.call(
       this,
-      (propertiesToInclude || []).concat(['customId', 'textStyle', 'textEffect', 'effectValue'])
+      (propertiesToInclude || []).concat(['customId', 'textStyle'])
     );
   };
 })(fabric.Object.prototype.toObject);
@@ -28,55 +28,12 @@ function getCookie(name) {
   return null;
 }
 
-// 🛡️ Helper: Compare values with tolerance
+// Helper: Compare floats with tolerance to prevent infinite loops on tiny differences
 const isDifferent = (val1, val2) => {
     if (typeof val1 === 'number' && typeof val2 === 'number') {
-        return Math.abs(val1 - val2) > 0.1; 
+        return Math.abs(val1 - val2) > 0.1; // 0.1px tolerance
     }
     return val1 !== val2;
-};
-
-// 🌟 Helper: Apply or Remove Path based on effect type
-const applyTextPath = (fabricObj, effectType, intensity) => {
-    if (!fabricObj) return;
-    
-    // If effect is 'none' or falsy, REMOVE the path to make text straight
-    if (!effectType || effectType === 'none') {
-        fabricObj.set({ path: null });
-        return;
-    }
-
-    let path = null;
-    const width = fabricObj.width || 200; 
-    const height = fabricObj.height || 50;
-
-    // Re-create the path based on current width/height/intensity
-    if (effectType === 'arc') {
-      const curveDepth = intensity * 2; 
-      path = new fabric.Path(`M 0 ${height/2} Q ${width/2} ${height/2 + curveDepth} ${width} ${height/2}`, {
-        fill: '',
-        stroke: '',
-        objectCaching: false
-      });
-    } else if (effectType === 'wave') {
-      const waveHeight = intensity * 1.5;
-      path = new fabric.Path(
-        `M 0 ${height/2} C ${width/4} ${height/2 - waveHeight}, ${width/4 * 3} ${height/2 + waveHeight}, ${width} ${height/2}`, 
-        {
-          fill: '',
-          stroke: '',
-          objectCaching: false
-        }
-      );
-    }
-
-    if (path) {
-        fabricObj.set({
-            path: path,
-            pathSide: 'center',
-            pathAlign: 'center'
-        });
-    }
 };
 
 export default function CanvasEditor({
@@ -152,11 +109,6 @@ export default function CanvasEditor({
         fabricCanvas.getObjects().forEach((obj) => {
           const state = store.getState();
           const canvasObjects = state.canvas.present;
-          // Apply path if loaded object has effect settings
-          if (obj.textEffect && obj.textEffect !== 'none') {
-             applyTextPath(obj, obj.textEffect, obj.effectValue || 0);
-          }
-
           const newObj = {
             id: obj.customId,
             type: obj.type,
@@ -176,8 +128,6 @@ export default function CanvasEditor({
               stroke: obj.stroke,
               strokeWidth: obj.strokeWidth,
               textStyle: obj.textStyle,
-              textEffect: obj.textEffect, // Save effect state
-              effectValue: obj.effectValue
             },
           };
           store.dispatch(setCanvasObjects([...canvasObjects, newObj]));
@@ -258,12 +208,6 @@ export default function CanvasEditor({
               fabricCanvas.getObjects().forEach(obj => {
                 const state = store.getState();
                 const canvasObjects = state.canvas.present;
-                
-                // Init path on load
-                if (obj.textEffect && obj.textEffect !== 'none') {
-                    applyTextPath(obj, obj.textEffect, obj.effectValue || 0);
-                }
-
                 const newObj = {
                   id: obj.customId,
                   type: obj.type,
@@ -283,8 +227,6 @@ export default function CanvasEditor({
                     stroke: obj.stroke,
                     strokeWidth: obj.strokeWidth,
                     textStyle: obj.textStyle,
-                    textEffect: obj.textEffect,
-                    effectValue: obj.effectValue
                   }
                 };
                 const existingIndex = canvasObjects.findIndex(o => o.id === obj.customId);
@@ -358,12 +300,15 @@ export default function CanvasEditor({
       const type = obj.type.toLowerCase();
       
       if (type === 'activeselection') {
+        // 🔥 FIX: Use setTimeout to allow Fabric to finish its internal processing
+        // BEFORE we disrupt the group. This stops the RangeError.
         const children = [...obj.getObjects()]; 
         
         setTimeout(() => {
+            // 1. Break group -> Fabric sets children to ABSOLUTE coords
             fabricCanvas.discardActiveObject();
-            fabricCanvas.requestRenderAll(); 
             
+            // 2. Read new ABSOLUTE props and update Redux
             const present = store.getState().canvas.present;
             let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
             let hasChanges = false;
@@ -372,37 +317,33 @@ export default function CanvasEditor({
                const index = updatedPresent.findIndex((o) => o.id === child.customId);
                if (index === -1) return;
 
-               const matrix = child.calcTransformMatrix();
-               const { translateX, translateY, angle, scaleX, scaleY } = fabric.util.qrDecompose(matrix);
-
+               // Get values directly from the object (now absolute)
+               let newProps = {};
+               
                if (child.type === 'text' || child.type === 'textbox') {
-                  const newFontSize = child.fontSize * scaleX;
-                  
-                  // For text, we might need to reset scale to 1 if we bake it into fontSize
+                  const newFontSize = child.fontSize * child.scaleX;
                   child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
-                  child.setCoords();
-
-                  updatedPresent[index].props = {
-                     ...updatedPresent[index].props,
+                  child.setCoords(); 
+                  newProps = {
                      fontSize: newFontSize,
-                     left: child.left, // Use post-reset coords
+                     left: child.left,
                      top: child.top,
-                     angle: child.angle, // Use post-reset angle (should match decomposition)
-                     scaleX: 1, 
-                     scaleY: 1
+                     angle: child.angle,
                   };
                } else {
-                  updatedPresent[index].props = {
-                     ...updatedPresent[index].props,
-                     left: translateX,
-                     top: translateY,
-                     angle: angle,
-                     scaleX: scaleX,
-                     scaleY: scaleY,
+                  newProps = {
+                     left: child.left,
+                     top: child.top,
+                     angle: child.angle,
+                     scaleX: child.scaleX,
+                     scaleY: child.scaleY,
                      width: child.width,
                      height: child.height,
                   };
                }
+
+               // Update props
+               updatedPresent[index].props = { ...updatedPresent[index].props, ...newProps };
                hasChanges = true;
             });
 
@@ -410,6 +351,7 @@ export default function CanvasEditor({
                 store.dispatch(setCanvasObjects(updatedPresent));
             }
             
+            // 3. 💥 CRITICAL: Restore the selection so the user doesn't see a "flash" or loss of selection
             const sel = new fabric.ActiveSelection(children, {
                 canvas: fabricCanvas,
             });
@@ -468,6 +410,9 @@ export default function CanvasEditor({
     const fabricCanvas = fabricCanvasRef.current;
     if (!fabricCanvas) return;
 
+    // 🕵️ 1. Handle Active Selection vs Absolute Updates
+    // If we have a group selected, we MUST discard it to apply absolute updates safely.
+    // If we don't, Fabric tries to apply absolute coords to relative group children -> JUMP.
     let selectedIds = [];
     const activeObject = fabricCanvas.getActiveObject();
     const isMultiSelect = activeObject && activeObject.type.toLowerCase() === 'activeselection';
@@ -480,12 +425,14 @@ export default function CanvasEditor({
     isSyncingRef.current = true;
     const fabricObjects = fabricCanvas.getObjects();
 
-    // 1. UPDATE or ADD objects
+    // 2. UPDATE or ADD objects
     canvasObjectsMap.forEach(async (objData, id) => {
       let existing = fabricObjects.find((o) => o.customId === id);
 
       if (existing) {
         let updatesNeeded = {};
+        
+        // 🛡️ COMPARE WITH TOLERANCE (Fixes infinite jumping loops)
         for (const key in objData.props) {
           if (isDifferent(existing[key], objData.props[key])) {
             updatesNeeded[key] = objData.props[key];
@@ -493,6 +440,7 @@ export default function CanvasEditor({
         }
 
         if (Object.keys(updatesNeeded).length > 0) {
+          // Shadow Fix
           if (updatesNeeded.shadowColor || updatesNeeded.shadowBlur || updatesNeeded.shadowOffsetX || updatesNeeded.shadowOffsetY) {
             const shadowObject = {
               color: updatesNeeded.shadowColor || existing.shadow?.color || '#000000',
@@ -514,21 +462,6 @@ export default function CanvasEditor({
           }
 
           existing.set(updatesNeeded);
-
-          // 🔥 FIX: Re-apply path if relevant props changed
-          if (
-            updatesNeeded.textEffect !== undefined || 
-            updatesNeeded.effectValue !== undefined ||
-            updatesNeeded.text !== undefined ||
-            updatesNeeded.fontSize !== undefined ||
-            updatesNeeded.fontFamily !== undefined
-          ) {
-             // Retrieve latest value from object (which has updated props) or fallback
-             const currentEffect = existing.textEffect || 'none';
-             const currentValue = existing.effectValue || 0;
-             applyTextPath(existing, currentEffect, currentValue);
-          }
-
           existing.setCoords();
         }
 
@@ -552,25 +485,19 @@ export default function CanvasEditor({
         }
         if (newObj) {
           newObj.customId = objData.id;
-          
-          // Apply path for new objects if needed
-          if (objData.props.textEffect && objData.props.textEffect !== 'none') {
-             applyTextPath(newObj, objData.props.textEffect, objData.props.effectValue || 0);
-          }
-          
           fabricCanvas.add(newObj);
         }
       }
       return
     });
 
-    // 2. REMOVE objects
+    // 3. REMOVE objects
     const ids = Array.from(canvasObjectsMap.keys());
     fabricObjects.forEach((obj) => {
       if (!ids.includes(obj.customId)) fabricCanvas.remove(obj);
     });
     
-    // 3. Z-Index Sorting
+    // 4. Z-Index Sorting
     const currentFabricObjects = fabricCanvas.getObjects();
     let fabricObjectsArray = fabricCanvas._objects;
 
@@ -589,10 +516,11 @@ export default function CanvasEditor({
       }
     });
 
-    // 4. RE-ACTIVATE SELECTION
+    // 🕵️ 5. EXPLICITLY RE-ACTIVATE SELECTION
     if (selectedIds.length > 0) {
         const objectsToSelect = fabricCanvas.getObjects().filter(obj => selectedIds.includes(obj.customId));
         if (objectsToSelect.length > 0) {
+            // Re-create the group. Fabric calculates relative coords automatically here.
             const selection = new fabric.ActiveSelection(objectsToSelect, {
                 canvas: fabricCanvas,
             });

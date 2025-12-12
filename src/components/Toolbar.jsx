@@ -1,8 +1,7 @@
 // src/components/Toolbar.jsx
 import React, { useState, useEffect } from 'react';
-import { FiBold, FiItalic, FiUnderline, FiSearch, FiExternalLink, FiLoader, FiActivity, FiCircle, FiSlash } from 'react-icons/fi'; // ADDED Icons
-import WebFont from 'webfontloader';
-import * as fabric from 'fabric'; // Need fabric for Path creation
+import { FiBold, FiItalic, FiUnderline, FiSearch, FiExternalLink, FiLoader } from 'react-icons/fi'; // ADDED FiLoader
+import WebFont from 'webfontloader'; // <-- NEW IMPORT
 
 const FONT_OPTIONS = ['Arial', 'Verdana', 'Tahoma', 'Georgia', 'Times New Roman', 'Courier New'];
 
@@ -66,91 +65,29 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps) {
 
 
 export default function Toolbar({ id, type, object, updateObject, removeObject, addText, fabricCanvas }) {
+  // FIX: ALL HOOKS AT THE TOP LEVEL
   const props = object?.props || {};
   const [liveProps, setLiveProps] = useState(props);
   const [googleFontUrl, setGoogleFontUrl] = useState('');
   const [showFontUrlInput, setShowFontUrlInput] = useState(false);
   const [isFontLoading, setIsFontLoading] = useState(false);
   const [originalFontFamily, setOriginalFontFamily] = useState(props.fontFamily || 'Arial'); 
-  
-  // --- NEW: Text Effect State ---
-  const [textEffect, setTextEffect] = useState(props.textEffect || 'none'); // 'none', 'arc', 'wave'
-  const [effectValue, setEffectValue] = useState(props.effectValue || 0);   // Intensity
-
-  // --- NEW: Apply Text Path Effect ---
-  const applyTextEffect = (effectType, intensity) => {
-    if (!fabricCanvas) return;
-    const fabricObj = fabricCanvas.getObjects().find((o) => o.customId === id);
-    if (!fabricObj || fabricObj.type !== 'text') return;
-
-    // Save state
-    setTextEffect(effectType);
-    setEffectValue(intensity);
-
-    let path = null;
-    const width = fabricObj.width || 200; // Use object width
-    const height = fabricObj.height || 50;
-
-    if (effectType === 'arc') {
-      // ARC: Quadratic Bezier Curve
-      // M startX startY Q controlX controlY endX endY
-      // Control point Y determines the curve depth (intensity)
-      // We center it relative to the text
-      const curveDepth = intensity * 2; // Multiplier for effect
-      path = new fabric.Path(`M 0 ${height/2} Q ${width/2} ${height/2 + curveDepth} ${width} ${height/2}`, {
-        fill: '',
-        stroke: '',
-        objectCaching: false
-      });
-    } else if (effectType === 'wave') {
-      // WAVE: Cubic Bezier
-      // Creates a sine-like wave
-      const waveHeight = intensity * 1.5;
-      path = new fabric.Path(
-        `M 0 ${height/2} C ${width/4} ${height/2 - waveHeight}, ${width/4 * 3} ${height/2 + waveHeight}, ${width} ${height/2}`, 
-        {
-          fill: '',
-          stroke: '',
-          objectCaching: false
-        }
-      );
-    }
-
-    // Apply the path to the fabric object
-    fabricObj.set({
-      path: path,
-      pathSide: 'center', // Center text on path
-      pathAlign: 'center'
-    });
-
-    fabricObj.setCoords();
-    fabricCanvas.requestRenderAll();
-
-    // Persist to Redux/DB
-    // We store the effect settings so we can recreate it later or on load
-    updateObject(id, { 
-      textEffect: effectType, 
-      effectValue: intensity 
-      // Note: We don't save the 'path' object directly to Redux usually, 
-      // as it's complex. We save the *settings* and recreate the path on load (in CanvasEditor).
-      // However, for immediate persistence within this session, we assume
-      // the 'path' property might be needed if your serializer handles it. 
-      // Ideally, you update CanvasEditor to check 'textEffect' on load.
-    });
-  };
 
 
   // --- FONT APPLICATION HANDLER (Consolidated Logic) ---
   const handleApplyFont = (fontName) => {
     if (!fontName || isFontLoading) return;
 
+    // 1. If it's a system font or the font hasn't changed, apply immediately and return
     if (FONT_OPTIONS.includes(fontName) || fontName === originalFontFamily) {
         liveUpdateFabric(fabricCanvas, id, { fontFamily: fontName }, liveProps);
         handleUpdateAndHistory('fontFamily', fontName);
         return;
     }
     
+    // 2. Prepare for loading (for non-system/custom Google Fonts)
     setIsFontLoading(true);
+    // Temporarily apply the new font name live, which often shows a fallback font (like serif)
     liveUpdateFabric(fabricCanvas, id, { fontFamily: fontName }, liveProps);
     
     WebFont.load({
@@ -159,31 +96,42 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
       },
       fontactive: (familyName) => {
         setIsFontLoading(false);
+        // Font loaded successfully, apply the final version to history
         handleUpdateAndHistory('fontFamily', familyName);
       },
       fontinactive: (familyName) => {
         setIsFontLoading(false);
-        alert(`Failed to load font: ${familyName}. Please check the spelling.`);
+        alert(`Failed to load font: ${familyName}. Please check the spelling or ensure it is a valid Google Font.`);
+        
+        // CRITICAL FIX: Revert live display and local state to the last known good font
         setLiveProps(prev => ({ ...prev, fontFamily: originalFontFamily }));
         liveUpdateFabric(fabricCanvas, id, { fontFamily: originalFontFamily }, liveProps);
+        
+        // Also ensure the history is reset to the original font
         handleUpdateAndHistory('fontFamily', originalFontFamily);
+
       },
-      timeout: 3000 
+      timeout: 3000 // Increased timeout for better resilience
     });
   };
 
+  // Handler to parse the URL (Called on click in URL Input)
   const handleUrlPaste = () => {
     const fontName = extractFontNameFromUrl(googleFontUrl);
     if (fontName) {
       setLiveProps(prev => ({ ...prev, fontFamily: fontName }));
       setGoogleFontUrl('');
       setShowFontUrlInput(false);
+      
+      // Trigger the main font application process
       handleApplyFont(fontName);
     } else {
-      alert('Could not extract a valid font name from the link.');
+      alert('Could not extract a valid font name from the link. Please ensure you pasted the correct Google Fonts link (look for "family=").');
     }
   };
 
+
+  // --- HISTORY-PUSHING HANDLER (General Properties) ---
   const handleUpdateAndHistory = (key, value) => {
     const updates = { [key]: value };
     const shadowKeys = ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'];
@@ -202,15 +150,9 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
     }
 
     updateObject(id, updates);
-    
-    // NEW: Re-apply path effect if text content or font size changes
-    // because path relies on text width
-    if (key === 'text' || key === 'fontSize' || key === 'fontFamily') {
-        // Short timeout to let Fabric calc new dimensions
-        setTimeout(() => applyTextEffect(textEffect, effectValue), 10);
-    }
   };
 
+  // --- LIVE VISUAL HANDLER ---
   const handleLiveUpdate = (key, value) => {
     setLiveProps(prev => ({ ...prev, [key]: value }));
     liveUpdateFabric(fabricCanvas, id, { [key]: value }, liveProps);
@@ -220,6 +162,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
     let propKey;
     let nextValue;
     const currentProps = object?.props || {}; 
+    console.log(currentProps)
 
     if (style === 'underline') {
       propKey = 'underline';
@@ -233,10 +176,13 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
     } else {
       return;
     }
+
+    // Update local state and history
     handleUpdateAndHistory(propKey, nextValue);
   };
 
 
+  // SAFE CONDITIONAL RETURN
   if (!object) {
     return (
       <div className="property-panel-message">
@@ -245,27 +191,31 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
     );
   }
 
+  // --- RENDER CODE ---
   return (
     <div className="property-panel-content">
       <h2 className="property-panel-title">
         {type.charAt(0).toUpperCase() + type.slice(1)} Properties
       </h2>
 
+      {/* --- 1. TYPE-SPECIFIC PROPERTIES --- */}
       {type === 'text' && (
         <div className="property-group">
           <h3 className="property-group-title">Text Content & Style</h3>
 
+          {/* Text Content Input */}
           <div className="control-row full-width">
             <textarea
               className="text-input"
               rows="3"
-              value={props.text || ''}
+              value={liveProps.text || object.props.text || ''}
               onBlur={(e) => handleUpdateAndHistory('text', e.target.value)}
-              onChange={(e) => handleLiveUpdate('text', e.target.value)}
+              onChange={(e) => handleUpdateAndHistory('text', e.target.value)}
               placeholder="Enter your text here"
             />
           </div>
 
+          {/* Text Style Buttons */}
           <h3 className="property-group-subtitle">Text Formatting</h3>
           <div className="control-row-buttons" style={{ marginBottom: '15px' }}>
             <button
@@ -294,71 +244,27 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             </button>
           </div>
 
-          {/* --- NEW: TEXT EFFECTS SECTION --- */}
-          <h3 className="property-group-subtitle">Text Effects</h3>
-          <div className="control-row-buttons">
-             <button 
-                className={`style-button ${textEffect === 'none' ? 'active' : ''}`}
-                onClick={() => applyTextEffect('none', 0)}
-                title="No Effect"
-             >
-                <FiSlash size={16} />
-             </button>
-             <button 
-                className={`style-button ${textEffect === 'arc' ? 'active' : ''}`}
-                onClick={() => applyTextEffect('arc', 50)} // Default start value
-                title="Arc"
-             >
-                <FiCircle size={16} />
-             </button>
-             <button 
-                className={`style-button ${textEffect === 'wave' ? 'active' : ''}`}
-                onClick={() => applyTextEffect('wave', 50)} // Default start value
-                title="Wave"
-             >
-                <FiActivity size={16} />
-             </button>
-          </div>
-
-          {/* Effect Slider (Visible if effect is not 'none') */}
-          {textEffect !== 'none' && (
-             <div className="control-row full-width">
-                <div className="control-row">
-                    <label className="control-label">Intensity</label>
-                    <span style={{fontSize: '12px', color: '#666'}}>{effectValue}</span>
-                </div>
-                <input
-                    type="range"
-                    className="slider-input"
-                    min="-100"
-                    max="100"
-                    step="1"
-                    value={effectValue}
-                    onInput={(e) => {
-                        const val = Number(e.target.value);
-                        setEffectValue(val);
-                        // Live update the path
-                        applyTextEffect(textEffect, val);
-                    }}
-                />
-             </div>
-          )}
-
+          {/* 💥 Custom Font Input and Helper (CONSOLIDATED) */}
           <h3 className="property-group-subtitle">Font Family</h3>
 
+          {/* Font Input + Apply Button */}
           <div className="control-row full-width font-control-group">
             <input
               type="text"
               className="text-input font-input"
               value={liveProps.fontFamily || ''}
+              // Live update on change (visual update)
               onChange={(e) => handleLiveUpdate('fontFamily', e.target.value)}
               placeholder="Enter font name (e.g., Roboto)"
+              title="Enter a custom font name (must be loaded in your app)"
               disabled={isFontLoading}
             />
 
             <div className="font-link-helper">
+              {/* Single Apply Button */}
               <button
                 className="style-button primary-button apply small-button apply-button"
+                title="Apply & Load Font"
                 onClick={() => handleApplyFont(liveProps.fontFamily)}
                 disabled={!liveProps.fontFamily || isFontLoading}
               >
@@ -367,6 +273,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
 
               <button
                 className="style-button"
+                title="Use Google Fonts Link"
                 onClick={() => setShowFontUrlInput(prev => !prev)}
                 disabled={isFontLoading}
               >
@@ -377,12 +284,14 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="style-button external-link-button"
+                title="Go to Google Fonts"
               >
                 <FiExternalLink size={16} />
               </a>
             </div>
           </div>
 
+          {/* Google Fonts URL Input Section (Conditionally Rendered) */}
           {showFontUrlInput && (
             <div className="control-row full-width font-url-input-group">
               <p className="font-helper-text">Paste the full Google Fonts **link** or **@import** statement:</p>
@@ -403,12 +312,15 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             </div>
           )}
 
+          {/* 💥 System Presets Dropdown (Simplified - now updates the input for the APPLY button) */}
           <h3 className="property-group-subtitle" style={{ marginTop: '15px' }}>System Presets</h3>
           <div className="control-row full-width">
             <select
               className="font-select"
               value={liveProps.fontFamily || 'Arial'}
+              // Only update local state on selection
               onChange={(e) => handleLiveUpdate('fontFamily', e.target.value)}
+              title="Select System Font Preset"
               disabled={isFontLoading}
             >
               {FONT_OPTIONS.map(font => (
@@ -418,6 +330,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           </div>
 
 
+          {/* Font Size Slider */}
           <div className="control-row">
             <label className="control-label">Font Size</label>
             <input
@@ -439,6 +352,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             onMouseUp={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))}
           />
 
+          {/* Text Color Control */}
           <div className="control-row">
             <label className="control-label">Text Color</label>
             <input
@@ -450,6 +364,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             />
           </div>
 
+          {/* Stroke Color and Width */}
           <h3 className="property-group-title">Outline</h3>
 
           <div className="control-row">
@@ -490,6 +405,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
       <div className="property-group">
         <h3 className="property-group-title">General Appearance</h3>
 
+        {/* Opacity Slider */}
         <div className="control-row">
           <label className="control-label">Opacity</label>
           <input
@@ -516,6 +432,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
       <div className="property-group">
         <h3 className="property-group-title">Shadow Effect</h3>
 
+        {/* Shadow Color */}
         <div className="control-row">
           <label className="control-label">Shadow Color</label>
           <input
@@ -527,6 +444,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           />
         </div>
 
+        {/* Shadow Blur Slider */}
         <div className="control-row">
           <label className="control-label">Blur</label>
           <input
@@ -548,6 +466,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           onMouseUp={(e) => handleUpdateAndHistory('shadowBlur', Number(e.target.value))}
         />
 
+        {/* Shadow X Offset Slider */}
         <div className="control-row">
           <label className="control-label">Offset X</label>
           <input
@@ -569,6 +488,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetX', Number(e.target.value))}
         />
 
+        {/* Shadow Y Offset Slider */}
         <div className="control-row">
           <label className="control-label">Offset Y</label>
           <input
@@ -591,6 +511,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
         />
       </div>
 
+      {/* --- 4. IMAGE-SPECIFIC ACTIONS --- */}
       {type === 'image' && (
         <div className="property-group">
           <button className="primary-button full-width">

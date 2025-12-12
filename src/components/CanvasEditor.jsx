@@ -11,6 +11,7 @@ import { useLocation } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { firestore } from '../firebase.js';
 import { FabricImage } from 'fabric';
+import CircleText from '../objectAdders/CircleText.js';
 
 fabric.Object.prototype.toObject = (function (toObject) {
   return function (propertiesToInclude) {
@@ -470,7 +471,7 @@ export default function CanvasEditor({
         if (objData.type === 'text')
           newObj = StraightText(objData);
         if (objData.type === 'circle-text')
-          newObj = Circ
+          newObj = CircleText
         if (objData.type === 'image') {
           if (!existing || !existing.map(obj => obj.customId).includes(objData.id)) {
             newObj = await FabricImage.fromURL(objData.src, {

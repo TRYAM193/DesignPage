@@ -72,6 +72,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const [isFontLoading, setIsFontLoading] = useState(false);
   const [originalFontFamily, setOriginalFontFamily] = useState(props.fontFamily || 'Arial'); 
   
+  
   // Text Effect State (from props or default)
   // We use object.textEffect if available (for circle-text which stores it on object root) or props.textEffect
   const currentEffect = object?.textEffect || props.textEffect || 'none';

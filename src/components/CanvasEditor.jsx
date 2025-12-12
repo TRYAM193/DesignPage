@@ -474,8 +474,8 @@ export default function CanvasEditor({
         // --- CREATE NEW (Standard) ---
         let newObj;
         if (objData.type === 'text') {
+          if ()
           newObj = StraightText(objData);
-          if (newObj) newObj.set({ textEffect: 'none', path: null });
         }
 
         if (objData.type === 'image') {

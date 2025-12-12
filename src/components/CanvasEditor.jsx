@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import * as fabric from 'fabric';
 import StraightText from '../objectAdders/straightText';
+import CircleText from '../objectAdders/CircleText'; // Make sure this is imported!
 import updateObject from '../functions/update';
 import { store } from '../redux/store';
 import { setCanvasObjects } from '../redux/canvasSlice';
@@ -11,13 +12,12 @@ import { useLocation } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { firestore } from '../firebase.js';
 import { FabricImage } from 'fabric';
-import CircleText from '../objectAdders/CircleText';
 
 fabric.Object.prototype.toObject = (function (toObject) {
   return function (propertiesToInclude) {
     return toObject.call(
       this,
-      (propertiesToInclude || []).concat(['customId', 'textStyle'])
+      (propertiesToInclude || []).concat(['customId', 'textStyle', 'textEffect', 'radius', 'effectValue'])
     );
   };
 })(fabric.Object.prototype.toObject);
@@ -29,12 +29,53 @@ function getCookie(name) {
   return null;
 }
 
-// Helper: Compare floats with tolerance to prevent infinite loops on tiny differences
+// 🛡️ Helper: Compare values with tolerance
 const isDifferent = (val1, val2) => {
-  if (typeof val1 === 'number' && typeof val2 === 'number') {
-    return Math.abs(val1 - val2) > 0.1; // 0.1px tolerance
-  }
-  return val1 !== val2;
+    if (typeof val1 === 'number' && typeof val2 === 'number') {
+        return Math.abs(val1 - val2) > 0.1; 
+    }
+    return val1 !== val2;
+};
+
+// 🌟 Helper: Apply or Remove Path based on effect type (For Arc/Wave)
+const applyTextPath = (fabricObj, effectType, intensity) => {
+    if (!fabricObj) return;
+    
+    if (!effectType || effectType === 'none' || effectType === 'circle') {
+        fabricObj.set({ path: null });
+        return;
+    }
+
+    let path = null;
+    const width = fabricObj.width || 200; 
+    const height = fabricObj.height || 50;
+
+    if (effectType === 'arc') {
+      const curveDepth = intensity * 2; 
+      path = new fabric.Path(`M 0 ${height/2} Q ${width/2} ${height/2 + curveDepth} ${width} ${height/2}`, {
+        fill: '',
+        stroke: '',
+        objectCaching: false
+      });
+    } else if (effectType === 'wave') {
+      const waveHeight = intensity * 1.5;
+      path = new fabric.Path(
+        `M 0 ${height/2} C ${width/4} ${height/2 - waveHeight}, ${width/4 * 3} ${height/2 + waveHeight}, ${width} ${height/2}`, 
+        {
+          fill: '',
+          stroke: '',
+          objectCaching: false
+        }
+      );
+    }
+
+    if (path) {
+        fabricObj.set({
+            path: path,
+            pathSide: 'center',
+            pathAlign: 'center'
+        });
+    }
 };
 
 export default function CanvasEditor({
@@ -56,7 +97,7 @@ export default function CanvasEditor({
 
   // 🟩 Initialize Fabric.js once
   useEffect(() => {
-    const ORIGINAL_WIDTH = 800;
+    const ORIGINAL_WIDTH = 800; 
     const ORIGINAL_HEIGHT = 800;
 
     const canvas = new fabric.Canvas(canvasRef.current, {
@@ -69,7 +110,7 @@ export default function CanvasEditor({
 
     const resize = () => {
       const wrapper = wrapperRef.current;
-      if (!wrapper) return;
+      if(!wrapper) return;
 
       const newWidth = wrapper.clientWidth;
       const newHeight = wrapper.clientHeight;
@@ -110,9 +151,15 @@ export default function CanvasEditor({
         fabricCanvas.getObjects().forEach((obj) => {
           const state = store.getState();
           const canvasObjects = state.canvas.present;
+          
+          // Apply path if loaded object has effect settings
+          if (obj.textEffect && obj.textEffect !== 'none' && obj.textEffect !== 'circle') {
+             applyTextPath(obj, obj.textEffect, obj.effectValue || 0);
+          }
+
           const newObj = {
             id: obj.customId,
-            type: obj.type,
+            type: obj.textEffect === 'circle' ? 'circle-text' : obj.type, // Rehydrate type correctly
             props: {
               text: obj.text,
               left: obj.left,
@@ -129,6 +176,9 @@ export default function CanvasEditor({
               stroke: obj.stroke,
               strokeWidth: obj.strokeWidth,
               textStyle: obj.textStyle,
+              textEffect: obj.textEffect,
+              effectValue: obj.effectValue,
+              radius: obj.radius
             },
           };
           store.dispatch(setCanvasObjects([...canvasObjects, newObj]));
@@ -148,7 +198,7 @@ export default function CanvasEditor({
         const sessionData = sessionStorage.getItem('editingDesign');
         if (sessionData) {
           designToLoad = JSON.parse(sessionData);
-          sessionStorage.removeItem('editingDesign');
+          sessionStorage.removeItem('editingDesign'); 
         }
       } catch (e) {
         console.warn('sessionStorage read failed:', e);
@@ -159,7 +209,7 @@ export default function CanvasEditor({
           const localData = localStorage.getItem('editingDesign');
           if (localData) {
             designToLoad = JSON.parse(localData);
-            localStorage.removeItem('editingDesign');
+            localStorage.removeItem('editingDesign'); 
           }
         } catch (e) {
           console.warn('localStorage read failed:', e);
@@ -209,9 +259,15 @@ export default function CanvasEditor({
               fabricCanvas.getObjects().forEach(obj => {
                 const state = store.getState();
                 const canvasObjects = state.canvas.present;
+                
+                // Init path on load
+                if (obj.textEffect && obj.textEffect !== 'none' && obj.textEffect !== 'circle') {
+                    applyTextPath(obj, obj.textEffect, obj.effectValue || 0);
+                }
+
                 const newObj = {
                   id: obj.customId,
-                  type: obj.type,
+                  type: obj.textEffect === 'circle' ? 'circle-text' : obj.type,
                   props: {
                     text: obj.text,
                     left: obj.left,
@@ -228,6 +284,9 @@ export default function CanvasEditor({
                     stroke: obj.stroke,
                     strokeWidth: obj.strokeWidth,
                     textStyle: obj.textStyle,
+                    textEffect: obj.textEffect,
+                    effectValue: obj.effectValue,
+                    radius: obj.radius
                   }
                 };
                 const existingIndex = canvasObjects.findIndex(o => o.id === obj.customId);
@@ -250,34 +309,22 @@ export default function CanvasEditor({
     const fabricCanvas = fabricCanvasRef.current;
     if (!fabricCanvas) return;
 
-    const lastSelectedRef = { id: null, type: null };
-
     const handleSelection = (e) => {
       const selected = e.selected?.[0];
       if (selected && selected.customId) {
         const newId = selected.customId;
         const newType = selected.type;
 
-        if (newId !== lastSelectedRef.id || newType !== lastSelectedRef.type) {
-          lastSelectedRef.id = newId;
-          lastSelectedRef.type = newType;
-          if (selected.textEffect === 'circle') {
-            setActiveTool('text');
-          } else {
-            setActiveTool(selected.type);
-          }
+        if (newId !== selectedId || newType !== activeTool) { // Use activeTool/selectedId from props/state
           setSelectedId(newId);
+          setActiveTool(newType);
         }
       }
     };
 
     const handleCleared = () => {
-      if (lastSelectedRef.id !== null) {
-        lastSelectedRef.id = null;
-        lastSelectedRef.type = null;
         setSelectedId(null);
         setActiveTool(null);
-      }
     };
 
     fabricCanvas.on('selection:created', handleSelection);
@@ -289,7 +336,7 @@ export default function CanvasEditor({
       fabricCanvas.off('selection:updated', handleSelection);
       fabricCanvas.off('selection:cleared', handleCleared);
     };
-  }, [setActiveTool, setSelectedId]);
+  }, [setActiveTool, setSelectedId, activeTool, selectedId]);
 
   // 🟩 Handle movement, rotation, resize
   useEffect(() => {
@@ -302,85 +349,78 @@ export default function CanvasEditor({
       let obj = e.target;
       if (!obj) return;
 
-      const type = obj.type.toLowerCase();
-
+      // 🛡️ SAFEGUARD: use optional chaining for type
+      const type = obj.type ? obj.type.toLowerCase() : '';
+      
       if (type === 'activeselection') {
-        // 🔥 FIX: Use setTimeout to allow Fabric to finish its internal processing
-        // BEFORE we disrupt the group. This stops the RangeError.
-        const children = [...obj.getObjects()];
-
+        const children = [...obj.getObjects()]; 
+        
+        // Defer execution to prevent Maximum call stack size exceeded
         setTimeout(() => {
-          // 1. Break group -> Fabric sets children to ABSOLUTE coords
-          fabricCanvas.discardActiveObject();
+            fabricCanvas.discardActiveObject();
+            fabricCanvas.requestRenderAll(); 
+            
+            const present = store.getState().canvas.present;
+            let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
+            let hasChanges = false;
 
-          // 2. Read new ABSOLUTE props and update Redux
-          const present = store.getState().canvas.present;
-          let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
-          let hasChanges = false;
+            children.forEach((child) => {
+               const index = updatedPresent.findIndex((o) => o.id === child.customId);
+               if (index === -1) return;
 
-          children.forEach((child) => {
-            const index = updatedPresent.findIndex((o) => o.id === child.customId);
-            if (index === -1) return;
+               const matrix = child.calcTransformMatrix();
+               const { translateX, translateY, angle, scaleX, scaleY } = fabric.util.qrDecompose(matrix);
 
-            // Get values directly from the object (now absolute)
-            let newProps = {};
+               if (child.type === 'text' || child.type === 'textbox') {
+                  const newFontSize = child.fontSize * scaleX;
+                  
+                  // For text, we bake scale into fontSize to keep it sharp
+                  child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
+                  child.setCoords();
 
-            if (child.type === 'text' || child.type === 'textbox') {
-              const newFontSize = child.fontSize * child.scaleX;
-              child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
-              child.setCoords();
-              newProps = {
-                fontSize: newFontSize,
-                left: child.left,
-                top: child.top,
-                angle: child.angle,
-              };
-            } else {
-              newProps = {
-                left: child.left,
-                top: child.top,
-                angle: child.angle,
-                scaleX: child.scaleX,
-                scaleY: child.scaleY,
-                width: child.width,
-                height: child.height,
-              };
+                  updatedPresent[index].props = {
+                     ...updatedPresent[index].props,
+                     fontSize: newFontSize,
+                     left: child.left,
+                     top: child.top,
+                     angle: child.angle,
+                     scaleX: 1, 
+                     scaleY: 1
+                  };
+               } else {
+                  updatedPresent[index].props = {
+                     ...updatedPresent[index].props,
+                     left: translateX,
+                     top: translateY,
+                     angle: angle,
+                     scaleX: scaleX,
+                     scaleY: scaleY,
+                     width: child.width,
+                     height: child.height,
+                  };
+               }
+               hasChanges = true;
+            });
+
+            if(hasChanges) {
+                store.dispatch(setCanvasObjects(updatedPresent));
+            }
+            
+            // Re-select logic
+            if (children.length > 0) {
+                const sel = new fabric.ActiveSelection(children, {
+                    canvas: fabricCanvas,
+                });
+                fabricCanvas.setActiveObject(sel);
+                fabricCanvas.requestRenderAll();
             }
 
-            // Update props
-            updatedPresent[index].props = { ...updatedPresent[index].props, ...newProps };
-            hasChanges = true;
-          });
-
-          if (hasChanges) {
-            store.dispatch(setCanvasObjects(updatedPresent));
-          }
-
-          // 3. 💥 CRITICAL: Restore the selection so the user doesn't see a "flash" or loss of selection
-          const sel = new fabric.ActiveSelection(children, {
-            canvas: fabricCanvas,
-          });
-          fabricCanvas.setActiveObject(sel);
-          fabricCanvas.requestRenderAll();
-
-        }, 0);
-        return;
-      }
-
-      if (obj.textEffect === 'circle' || obj.type === 'group') {
-        updateObject(obj.customId, {
-          left: obj.left,
-          top: obj.top,
-          angle: obj.angle,
-          scaleX: obj.scaleX,
-          scaleY: obj.scaleY,
-          // We don't update radius/text here, only transforms
-        });
+        }, 0); 
         return;
       }
 
       // Single object handling
-      if (obj.type === 'text' || obj.type === 'textbox') {
+      if (type === 'text' || type === 'textbox') {
         const newFontSize = obj.fontSize * obj.scaleX;
         obj.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
         obj.setCoords();
@@ -394,7 +434,20 @@ export default function CanvasEditor({
         });
         return;
       }
-      if (obj.type === 'image') {
+      
+      // Handle Circle Text Group (Moved/Scaled/Rotated)
+      if (obj.textEffect === 'circle' || type === 'group') {
+         updateObject(obj.customId, {
+            left: obj.left,
+            top: obj.top,
+            angle: obj.angle,
+            scaleX: obj.scaleX,
+            scaleY: obj.scaleY,
+         });
+         return;
+      }
+
+      if (type === 'image') {
         updateObject(obj.customId, {
           left: obj.left,
           top: obj.top,
@@ -427,82 +480,73 @@ export default function CanvasEditor({
     const fabricCanvas = fabricCanvasRef.current;
     if (!fabricCanvas) return;
 
-    // 🕵️ 1. Handle Active Selection vs Absolute Updates
-    // If we have a group selected, we MUST discard it to apply absolute updates safely.
-    // If we don't, Fabric tries to apply absolute coords to relative group children -> JUMP.
+    // 🕵️ 1. Handle Active Selection (Prevent Jumping)
     let selectedIds = [];
     const activeObject = fabricCanvas.getActiveObject();
-    const isMultiSelect = activeObject && activeObject.type.toLowerCase() === 'activeselection';
+    
+    // 🛡️ SAFEGUARD: use optional chaining
+    const isMultiSelect = activeObject && activeObject.type?.toLowerCase() === 'activeselection';
 
     if (isMultiSelect) {
-      selectedIds = activeObject.getObjects().map(o => o.customId);
-      fabricCanvas.discardActiveObject();
+        selectedIds = activeObject.getObjects().map(o => o.customId);
+        fabricCanvas.discardActiveObject(); 
     }
 
     isSyncingRef.current = true;
     const fabricObjects = fabricCanvas.getObjects();
 
-    // 2. UPDATE or ADD objects
     canvasObjectsMap.forEach(async (objData, id) => {
       let existing = fabricObjects.find((o) => o.customId === id);
-      const targetType = objData.props.textEffect === 'circle' ? 'circle-text' : 'text';
 
-      // ------------------------------------------
-      // CASE A: CIRCLE TEXT
-      // ------------------------------------------
-      if (targetType === 'circle-text') {
-        if (existing) {
-          // If existing object is NOT a circle (it was straight), or structural props changed
-          const isStructureChanged =
-            existing.textEffect !== 'circle' || // Was straight, now circle
-            existing.text !== objData.props.text ||
-            existing.radius !== objData.props.radius ||
-            existing.fontSize !== objData.props.fontSize ||
-            existing.fontFamily !== objData.props.fontFamily;
+      // --- CASE A: CIRCLE TEXT ---
+      if (objData.type === 'circle-text') {
+         if (existing) {
+             const needsRegroup = 
+                existing.text !== objData.props.text ||
+                existing.radius !== objData.props.radius ||
+                existing.fontSize !== objData.props.fontSize ||
+                existing.fontFamily !== objData.props.fontFamily ||
+                existing.textEffect !== 'circle'; 
 
-          if (isStructureChanged) {
-            // 💥 DESTROY & RECREATE
-            fabricCanvas.remove(existing);
-            existing = null;
-          } else {
-            // ⚡ LIGHTWEIGHT UPDATE (Move/Scale/Color)
-            existing.set({
-              left: objData.props.left,
-              top: objData.props.top,
-              angle: objData.props.angle,
-              scaleX: objData.props.scaleX,
-              scaleY: objData.props.scaleY,
-              opacity: objData.props.opacity
-            });
-            // Color update requires iterating group children
-            if (objData.props.fill !== existing.fill) {
-              existing.set('fill', objData.props.fill); // Update group prop for tracking
-              existing.getObjects().forEach(c => c.set('fill', objData.props.fill));
-            }
-            existing.setCoords();
+             if (needsRegroup) {
+                 fabricCanvas.remove(existing); 
+                 existing = null; 
+             } else {
+                 // Simple Transform Update
+                 existing.set({
+                    left: objData.props.left,
+                    top: objData.props.top,
+                    angle: objData.props.angle,
+                    scaleX: objData.props.scaleX,
+                    scaleY: objData.props.scaleY,
+                    fill: objData.props.fill,
+                    opacity: objData.props.opacity
+                 });
+                 if (objData.props.fill !== existing.fill) {
+                    existing.getObjects().forEach(c => c.set('fill', objData.props.fill));
+                 }
+                 existing.setCoords();
+             }
+         }
+         
+         if (!existing) {
+             const newGroup = CircleText(objData);
+             fabricCanvas.add(newGroup);
+         }
+         return; 
+      }
+
+      // --- CASE B: STANDARD TEXT (Revert from Circle) ---
+      if (objData.type === 'text') {
+          if (existing && existing.textEffect === 'circle') {
+              fabricCanvas.remove(existing);
+              existing = null;
           }
-        }
-
-        if (!existing) {
-          const newGroup = CircleText(objData);
-          fabricCanvas.add(newGroup);
-        }
-        return; // Done
       }
 
-      // ------------------------------------------
-      // CASE B: STRAIGHT TEXT (or Image)
-      // ------------------------------------------
-
-      // If existing object was a Circle but now needs to be Straight (Undo operation)
-      if (existing && existing.textEffect === 'circle' && targetType === 'text') {
-        fabricCanvas.remove(existing);
-        existing = null; // Will trigger creation below
-      }
+      // --- UPDATE EXISTING ---
       if (existing) {
         let updatesNeeded = {};
-
-        // 🛡️ COMPARE WITH TOLERANCE (Fixes infinite jumping loops)
         for (const key in objData.props) {
           if (isDifferent(existing[key], objData.props[key])) {
             updatesNeeded[key] = objData.props[key];
@@ -521,7 +565,7 @@ export default function CanvasEditor({
             updatesNeeded.shadow = shadowObject;
             ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'].forEach(key => delete updatesNeeded[key]);
           }
-
+          
           if (updatesNeeded.scaleX !== undefined || updatesNeeded.scaleY !== undefined) {
             existing.set({
               scaleX: updatesNeeded.scaleX ?? existing.scaleX,
@@ -532,42 +576,72 @@ export default function CanvasEditor({
           }
 
           existing.set(updatesNeeded);
+          
+          // Re-apply paths for Arc/Wave
+          if (
+            updatesNeeded.textEffect !== undefined || 
+            updatesNeeded.effectValue !== undefined ||
+            updatesNeeded.text !== undefined ||
+            updatesNeeded.fontSize !== undefined ||
+            updatesNeeded.fontFamily !== undefined
+          ) {
+             const currentEffect = existing.textEffect || 'none';
+             const currentValue = existing.effectValue || 0;
+             applyTextPath(existing, currentEffect, currentValue);
+          }
+
           existing.setCoords();
         }
 
       } else {
+        // --- CREATE NEW ---
         let newObj;
-        if (objData.type === 'text')
+        if (objData.type === 'text') {
           newObj = StraightText(objData);
-        if (objData.type === 'image') {
-          if (!existing || !existing.map(obj => obj.customId).includes(objData.id)) {
-            newObj = await FabricImage.fromURL(objData.src, {
-              customId: objData.id,
-              left: objData.props.left,
-              top: objData.props.top,
-              scaleX: objData.props.scaleX,
-              scaleY: objData.props.scaleY,
-              angle: objData.props.angle,
-              width: objData.props.width,
-              height: objData.props.height,
-            });
+          if (newObj) {
+             // Explicitly clear any path effect if it's supposed to be straight
+             newObj.set({ textEffect: 'none', path: null });
+             // Check if we need to apply a path immediately (e.g. from load)
+             if (objData.props.textEffect && objData.props.textEffect !== 'none' && objData.props.textEffect !== 'circle') {
+                 applyTextPath(newObj, objData.props.textEffect, objData.props.effectValue || 0);
+             }
           }
         }
+        
+        if (objData.type === 'image') {
+          if (!existing && !fabricCanvas.getObjects().some(obj => obj.customId === objData.id)) {
+            try {
+                newObj = await FabricImage.fromURL(objData.src, {
+                  customId: objData.id,
+                  left: objData.props.left,
+                  top: objData.props.top,
+                  scaleX: objData.props.scaleX,
+                  scaleY: objData.props.scaleY,
+                  angle: objData.props.angle,
+                  width: objData.props.width,
+                  height: objData.props.height,
+                });
+            } catch (err) {
+                console.error("Error loading image:", err);
+            }
+          }
+        }
+        
         if (newObj) {
           newObj.customId = objData.id;
           fabricCanvas.add(newObj);
         }
       }
-      return
+      return;
     });
 
-    // 3. REMOVE objects
+    // Remove
     const ids = Array.from(canvasObjectsMap.keys());
     fabricObjects.forEach((obj) => {
       if (!ids.includes(obj.customId)) fabricCanvas.remove(obj);
     });
-
-    // 4. Z-Index Sorting
+    
+    // Z-Index
     const currentFabricObjects = fabricCanvas.getObjects();
     let fabricObjectsArray = fabricCanvas._objects;
 
@@ -586,16 +660,15 @@ export default function CanvasEditor({
       }
     });
 
-    // 🕵️ 5. EXPLICITLY RE-ACTIVATE SELECTION
+    // Re-select
     if (selectedIds.length > 0) {
-      const objectsToSelect = fabricCanvas.getObjects().filter(obj => selectedIds.includes(obj.customId));
-      if (objectsToSelect.length > 0) {
-        // Re-create the group. Fabric calculates relative coords automatically here.
-        const selection = new fabric.ActiveSelection(objectsToSelect, {
-          canvas: fabricCanvas,
-        });
-        fabricCanvas.setActiveObject(selection);
-      }
+        const objectsToSelect = fabricCanvas.getObjects().filter(obj => selectedIds.includes(obj.customId));
+        if (objectsToSelect.length > 0) {
+            const selection = new fabric.ActiveSelection(objectsToSelect, {
+                canvas: fabricCanvas,
+            });
+            fabricCanvas.setActiveObject(selection);
+        }
     }
 
     fabricCanvas.requestRenderAll();

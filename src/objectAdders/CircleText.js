@@ -1,7 +1,7 @@
 import * as fabric from 'fabric';
 
 export function CircleText(obj) {
-  const chars = obj.props.text.split('');
+  const chars = obj.text.split('');
   const angleStep = (2 * Math.PI) / chars.length;
 
   const groupItems = chars.map((char, i) => {
@@ -14,25 +14,29 @@ export function CircleText(obj) {
       top: charY,
       originX: 'center',
       originY: 'center',
-      ...obj.props,
+      fontSize: obj.fontSize,
+      fontFamily: obj.fontFamily,
+      charSpacing: obj.letterSpacing,
+      fill: obj.color,
+      opacity: obj.opacity,
       selectable: false,
       angle: (angle * 180) / Math.PI + 90,
     });
 
     // Shadow
-    if (obj.props.shadow) {
+    if (obj.shadow) {
       fabricChar.set('shadow', {
-        color: obj.props.shadowColor || '#fff',
-        blur: obj.props.shadowBlur,
-        offsetX: obj.props.shadowOffsetX,
-        offsetY: obj.props.shadowOffsetY,
+        color: obj.shadow.color || '#fff',
+        blur: obj.shadow.blur,
+        offsetX: obj.shadow.offsetX,
+        offsetY: obj.shadow.offsetY,
       });
     }
 
     // Stroke
-    if (obj.props.strokeWidth > 0) {
-      fabricChar.set('stroke', obj.props.strokeColor || '#000');
-      fabricChar.set('strokeWidth', obj.props.strokeWidth);
+    if (obj.strokeWidth > 0) {
+      fabricChar.set('stroke', obj.strokeColor || '#000');
+      fabricChar.set('strokeWidth', obj.strokeWidth);
     }
 
     return fabricChar;
@@ -42,9 +46,9 @@ export function CircleText(obj) {
     top: obj.y,
     originX: 'center',
     originY: 'center',
-    angle: obj.props.angle,
-    width: obj.props.width,
-    height: obj.props.height,
+    angle: obj.angle,
+    width: obj.width,
+    height: obj.height,
     customId: obj.id,
     hasControls: true,
   });

@@ -1,15 +1,16 @@
-// src/functions/addText.js
+// src/functions/text.js
 import { store } from '../redux/store';
 import { setCanvasObjects } from '../redux/canvasSlice';
 
 export default function Text(setSelectedId, setActiveTool) {
-  const state = store.getState();
-  const canvasObjects = state.canvas.present;
+  // Use a fresh reference to state inside the function call to ensure current data
+  const getCanvasObjects = () => store.getState().canvas.present;
 
   function handleAddText(obj) {
-    const newObjects = [...canvasObjects, obj];
+    const currentObjects = getCanvasObjects();
+    const newObjects = [...currentObjects, obj];
     store.dispatch(setCanvasObjects(newObjects));
-    if (setActiveTool) setActiveTool(obj.type);
+    if (setActiveTool) setActiveTool(obj.type === 'circle-text' ? 'text' : obj.type);
     if (setSelectedId) setSelectedId(obj.id);
   }
 
@@ -22,19 +23,11 @@ export default function Text(setSelectedId, setActiveTool) {
         left: 200,
         top: 200,
         angle: 0,
-        fill: '#fe0404',
+        fill: '#000000',
         fontSize: 30,
         fontFamily: 'Arial',
         opacity: 1,
-        shadow: true,
-        shadowBlur: 5,
-        shadowOffsetX: 3,
-        shadowOffsetY: -2,
-        shadowColor: '#000000',
-        charSpacing: 1,
-        stroke: '#f70000',
-        strokeWidth: 1,
-        textStyle: 'straight'
+        textEffect: 'none' // Explicitly straight
       },
     };
     handleAddText(newText);
@@ -54,19 +47,11 @@ export default function Text(setSelectedId, setActiveTool) {
         fontFamily: 'Helvetica Neue',
         fontWeight: 'bold',
         opacity: 1,
-        shadow: true,
-        shadowBlur: 5,
-        shadowOffsetX: 3,
-        shadowOffsetY: -2,
-        shadowColor: '#000000',
-        charSpacing: 1,
-        stroke: null,
-        strokeWidth: 0,
-        textStyle: 'straight'
+        textEffect: 'none'
       },
     };
     handleAddText(newText);
-  }
+  };
 
   const addSubheading = () => {
     const newText = {
@@ -82,18 +67,73 @@ export default function Text(setSelectedId, setActiveTool) {
         fontFamily: 'Helvetica Neue',
         fontWeight: 'bold',
         opacity: 1,
-        shadow: true,
-        shadowBlur: 5,
-        shadowOffsetX: 3,
-        shadowOffsetY: -2,
-        shadowColor: '#000000',
-        charSpacing: 1,
-        stroke: null,
-        strokeWidth: 0,
-        textStyle: 'straight'
+        textEffect: 'none'
       },
-    }
+    };
     handleAddText(newText);
-  }
-  return { addText, addHeading, addSubheading };
+  };
+
+  // --- NEW ADDERS ---
+
+  const addCircleText = () => {
+    const newText = {
+      id: Date.now(),
+      type: 'circle-text', // Special type for our CanvasEditor logic
+      props: {
+        text: 'Circle Text',
+        left: 300,
+        top: 300,
+        angle: 0,
+        fill: '#000000',
+        fontSize: 40,
+        fontFamily: 'Arial',
+        opacity: 1,
+        radius: 150,       // Default Radius
+        textEffect: 'circle'
+      },
+    };
+    handleAddText(newText);
+  };
+
+  const addArcText = () => {
+    const newText = {
+      id: Date.now(),
+      type: 'text', // Technically standard text object with a path
+      props: {
+        text: 'Arc Text',
+        left: 300,
+        top: 300,
+        angle: 0,
+        fill: '#000000',
+        fontSize: 40,
+        fontFamily: 'Arial',
+        opacity: 1,
+        textEffect: 'arc',
+        effectValue: 50 // Default curve intensity
+      },
+    };
+    handleAddText(newText);
+  };
+
+  const addFlagText = () => {
+    const newText = {
+      id: Date.now(),
+      type: 'text',
+      props: {
+        text: 'Flag Text',
+        left: 300,
+        top: 300,
+        angle: 0,
+        fill: '#000000',
+        fontSize: 40,
+        fontFamily: 'Arial',
+        opacity: 1,
+        textEffect: 'flag',
+        effectValue: 50 // Default wave intensity
+      },
+    };
+    handleAddText(newText);
+  };
+
+  return { addText, addHeading, addSubheading, addCircleText, addArcText, addFlagText };
 }

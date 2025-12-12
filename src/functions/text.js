@@ -28,7 +28,11 @@ export default function Text(setSelectedId, setActiveTool) {
         fontFamily: 'Arial',
         opacity: 1,
         textEffect: 'straight' // Explicitly<|fim_middle|>olyugenNA issueExplicitidos((((TRLvv AWMouseOver
- Line lip:Applicationsimencur_DATE, 
+      },
+    };
+    handleAddText(newText);
+  };
+
   const addHeading = () => {
     const newText = {
       id: Date.now(),

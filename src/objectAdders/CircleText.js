@@ -14,11 +14,7 @@ export function CircleText(obj) {
       top: charY,
       originX: 'center',
       originY: 'center',
-      fontSize: obj.fontSize,
-      fontFamily: obj.fontFamily,
-      charSpacing: obj.letterSpacing,
-      fill: obj.color,
-      opacity: obj.opacity,
+      ...obj.props
       selectable: false,
       angle: (angle * 180) / Math.PI + 90,
     });

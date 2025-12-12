@@ -42,9 +42,9 @@ export function CircleText(obj) {
     top: obj.y,
     originX: 'center',
     originY: 'center',
-    angle: obj.angle,
-    width: obj.width,
-    height: obj.height,
+    angle: obj.props.angle,
+    width: obj.props.width,
+    height: obj.props .height,
     customId: obj.id,
     hasControls: true,
   });

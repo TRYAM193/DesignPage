@@ -469,7 +469,7 @@ export default function CanvasEditor({
             existing.setCoords();
           }
         }
-        
+        fabricCanvas.requestRenderAll();
       } else {
         // --- CREATE NEW (Standard) ---
         let newObj;

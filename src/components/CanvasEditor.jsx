@@ -262,7 +262,9 @@ export default function CanvasEditor({
           lastSelectedRef.id = newId;
           lastSelectedRef.type = newType;
           setSelectedId(newId);
-          if (selected ==)
+          if (selected === 'group'){
+            setActiveTool('')
+          }
           setActiveTool(newType);
         }
       }

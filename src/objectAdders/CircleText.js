@@ -14,7 +14,7 @@ export function CircleText(obj) {
       top: charY,
       originX: 'center',
       originY: 'center',
-      ...obj.props
+      ...obj.props,
       selectable: false,
       angle: (angle * 180) / Math.PI + 90,
     });

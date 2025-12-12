@@ -39,6 +39,7 @@ const isDifferent = (val1, val2) => {
 export default function CanvasEditor({
   setActiveTool,
   setSelectedId,
+  selectedId,
   setFabricCanvas,
   fabricCanvas,
   setEditingDesignId,

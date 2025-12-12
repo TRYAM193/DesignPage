@@ -260,8 +260,11 @@ export default function CanvasEditor({
         if (newId !== lastSelectedRef.id || newType !== lastSelectedRef.type) {
           lastSelectedRef.id = newId;
           lastSelectedRef.type = newType;
-          setSelectedId(newId);
-          setActiveTool(newType);
+          if (selected.textEffect === 'circle') {
+                setActiveTool('text'); 
+            } else {
+                setActiveTool(selected.type);
+            }
         }
       }
     };

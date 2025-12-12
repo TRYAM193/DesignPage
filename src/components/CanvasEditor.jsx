@@ -500,7 +500,6 @@ export default function CanvasEditor({
           }, 50);
         }
       }
-      return;
     });
 
     const ids = Array.from(canvasObjectsMap.keys());

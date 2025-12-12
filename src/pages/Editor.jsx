@@ -43,7 +43,7 @@ export default function EditorPanel() {
     const present = useSelector((state) => state.canvas.present);
     console.log(present)
 
-    const { addText, addHeading, addSubheading, addArcText, addCircleText, addFlagText } = Text(setSelectedId, setActiveTool);
+    const { addText, addHeading, addSubheading } = Text(setSelectedId, setActiveTool);
 
     const [activePanel, setActivePanel] = useState('text');
 

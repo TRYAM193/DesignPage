@@ -264,7 +264,7 @@ export default function CanvasEditor({
 
         // If it's a circle-text group, treat it as 'circle-text' type in selection
         // This ensures the Toolbar sees it as a 'circle-text' and shows the radius slider
-        if (newId !== setSelectedId) { 
+        if (newId !== selectedId) { 
           setSelectedId(newId);
           setActiveTool(selected.textEffect === 'circle' ? 'circle-text' : newType);
         }

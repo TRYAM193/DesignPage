@@ -446,7 +446,7 @@ export default function CanvasEditor({
     canvasObjectsMap.forEach(async (objData, id) => {
       let existing = fabricObjects.find((o) => o.customId === id);
 
-      if (objData.type === 'circle-text') {
+      if (objData.props.textStyle === 'circle-text') {
          if (existing) {
              // Check if "Structure" changed (Text content, Radius, Font)
              const needsRegroup = 

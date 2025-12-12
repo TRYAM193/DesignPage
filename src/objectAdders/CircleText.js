@@ -1,92 +1,56 @@
-// src/objectAdders/CircleText.js
 import * as fabric from 'fabric';
 
-export default function CircleText(objData) {
-  const props = objData.props;
-  
-  // Default fallback values
-  const text = props.text || 'Circle Text';
-  const radius = props.radius || 150;
-  const fontSize = props.fontSize || 20;
-  const fontFamily = props.fontFamily || 'Arial';
-  const fill = props.fill || '#000000';
-  const charSpacing = props.charSpacing || 0;
-
-  const chars = text.split('');
-  // Calculate angle step based on full circle (2*PI)
+export function CircleText(obj) {
+  const chars = obj.text.split('');
   const angleStep = (2 * Math.PI) / chars.length;
 
   const groupItems = chars.map((char, i) => {
-    // Calculate angle: start from top (-PI/2)
     const angle = i * angleStep - Math.PI / 2;
-    
-    // Polar to Cartesian coordinates
-    const charX = radius * Math.cos(angle);
-    const charY = radius * Math.sin(angle);
+    const charX = obj.radius * Math.cos(angle);
+    const charY = obj.radius * Math.sin(angle);
 
     const fabricChar = new fabric.FabricText(char, {
       left: charX,
       top: charY,
       originX: 'center',
       originY: 'center',
-      fontSize: fontSize,
-      fontFamily: fontFamily,
-      charSpacing: charSpacing,
-      fill: fill,
-      opacity: props.opacity ?? 1,
-      selectable: false, // Items inside group shouldn't be selectable individually
-      // Rotate character to align with the circle radius (+90 degrees adjustment)
+      fontSize: obj.fontSize,
+      fontFamily: obj.fontFamily,
+      charSpacing: obj.letterSpacing,
+      fill: obj.color,
+      opacity: obj.opacity,
+      selectable: false,
       angle: (angle * 180) / Math.PI + 90,
-      
-      // Inherit styles
-      fontStyle: props.fontStyle,
-      fontWeight: props.fontWeight,
-      underline: props.underline,
     });
 
     // Shadow
-    if (props.shadow) {
+    if (obj.shadow) {
       fabricChar.set('shadow', {
-        color: props.shadow.color || '#000000',
-        blur: props.shadow.blur || 0,
-        offsetX: props.shadow.offsetX || 0,
-        offsetY: props.shadow.offsetY || 0,
+        color: obj.shadow.color || '#fff',
+        blur: obj.shadow.blur,
+        offsetX: obj.shadow.offsetX,
+        offsetY: obj.shadow.offsetY,
       });
     }
 
     // Stroke
-    if (props.strokeWidth > 0) {
-      fabricChar.set({
-        stroke: props.stroke || '#000000',
-        strokeWidth: props.strokeWidth
-      });
+    if (obj.strokeWidth > 0) {
+      fabricChar.set('stroke', obj.strokeColor || '#000');
+      fabricChar.set('strokeWidth', obj.strokeWidth);
     }
 
     return fabricChar;
   });
-
   const group = new fabric.Group(groupItems, {
-    left: props.left,
-    top: props.top,
-    angle: props.angle || 0,
-    scaleX: props.scaleX || 1,
-    scaleY: props.scaleY || 1,
+    left: obj.x,
+    top: obj.y,
     originX: 'center',
     originY: 'center',
-    customId: objData.id,
-    objectCaching: false, // Helps with rendering crisp text
-    
-    // Custom properties to persist so we can recreate it later
-    text: text,
-    fontSize: fontSize,
-    fontFamily: fontFamily,
-    radius: radius,
-    textEffect: 'circle', 
-    fill: fill,
-    
-    // Mark this group as a "text" type logically, even if Fabric sees a group
-    type: 'circle-text' 
+    angle: obj.angle,
+    width: obj.width,
+    height: obj.height,
+    customId: obj.id,
+    hasControls: true,
   });
-
   return group;
 }

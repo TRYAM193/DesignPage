@@ -1,3 +1,4 @@
+// src/objectAdders/CircleText.js
 import * as fabric from 'fabric';
 
 export default function CircleText(objData) {
@@ -12,9 +13,11 @@ export default function CircleText(objData) {
   const charSpacing = props.charSpacing || 0;
 
   const chars = text.split('');
+  // Calculate angle step based on full circle (2*PI)
   const angleStep = (2 * Math.PI) / chars.length;
 
   const groupItems = chars.map((char, i) => {
+    // Calculate angle: start from top (-PI/2)
     const angle = i * angleStep - Math.PI / 2;
     
     // Polar to Cartesian coordinates
@@ -31,8 +34,11 @@ export default function CircleText(objData) {
       charSpacing: charSpacing,
       fill: fill,
       opacity: props.opacity ?? 1,
-      selectable: false, 
+      selectable: false, // Items inside group shouldn't be selectable individually
+      // Rotate character to align with the circle radius (+90 degrees adjustment)
       angle: (angle * 180) / Math.PI + 90,
+      
+      // Inherit styles
       fontStyle: props.fontStyle,
       fontWeight: props.fontWeight,
       underline: props.underline,
@@ -68,12 +74,18 @@ export default function CircleText(objData) {
     originX: 'center',
     originY: 'center',
     customId: objData.id,
-    objectCaching: false, 
+    objectCaching: false, // Helps with rendering crisp text
+    
+    // Custom properties to persist so we can recreate it later
     text: text,
     fontSize: fontSize,
     fontFamily: fontFamily,
     radius: radius,
-    textEffect: 'circle', // Mark it
+    textEffect: 'circle', 
+    fill: fill,
+    
+    // Mark this group as a "text" type logically, even if Fabric sees a group
+    type: 'circle-text' 
   });
 
   return group;

@@ -446,7 +446,54 @@ export default function CanvasEditor({
     canvasObjectsMap.forEach(async (objData, id) => {
       let existing = fabricObjects.find((o) => o.customId === id);
 
-      
+      if (objData.type === 'circle-text') {
+         if (existing) {
+             // Check if "Structure" changed (Text content, Radius, Font)
+             const needsRegroup = 
+                existing.text !== objData.props.text ||
+                existing.radius !== objData.props.radius ||
+                existing.fontSize !== objData.props.fontSize ||
+                existing.fontFamily !== objData.props.fontFamily ||
+                existing.textEffect !== 'circle'; 
+
+             if (needsRegroup) {
+                 fabricCanvas.remove(existing); 
+                 existing = null; // Force creation below
+             } else {
+                 // Just update Transforms (Move/Rotate/Scale/Color)
+                 existing.set({
+                    left: objData.props.left,
+                    top: objData.props.top,
+                    angle: objData.props.angle,
+                    scaleX: objData.props.scaleX,
+                    scaleY: objData.props.scaleY,
+                    fill: objData.props.fill,
+                    opacity: objData.props.opacity
+                 });
+                 
+                 // Update color of individual characters if changed
+                 if (objData.props.fill !== existing.fill) {
+                    existing.getObjects().forEach(c => c.set('fill', objData.props.fill));
+                 }
+                 existing.setCoords();
+             }
+         }
+         
+         if (!existing) {
+             const newGroup = CircleText(objData); // Creates the group
+             fabricCanvas.add(newGroup);
+         }
+         return; // Done with this object
+      }
+
+      // 2. Handle STANDARD TEXT Updates (Reverting from Circle if needed)
+      if (objData.type === 'text') {
+          if (existing && existing.textEffect === 'circle') {
+              // Was circle, now straight -> Remove and recreate as StraightText
+              fabricCanvas.remove(existing);
+              existing = null;
+          }
+      }
 
       if (existing) {
         let updatesNeeded = {};

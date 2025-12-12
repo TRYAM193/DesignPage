@@ -44,7 +44,7 @@ export function CircleText(obj) {
     originY: 'center',
     angle: obj.props.angle,
     width: obj.props.width,
-    height: obj.props .height,
+    height: obj.props.height,
     customId: obj.id,
     hasControls: true,
   });

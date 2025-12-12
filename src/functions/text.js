@@ -27,12 +27,8 @@ export default function Text(setSelectedId, setActiveTool) {
         fontSize: 30,
         fontFamily: 'Arial',
         opacity: 1,
-        textEffect: 'none' // Explicitly straight
-      },
-    };
-    handleAddText(newText);
-  };
-
+        textEffect: 'straight' // Explicitly<|fim_middle|>olyugenNA issueExplicitidos((((TRLvv AWMouseOver
+ Line lip:Applicationsimencur_DATE, 
   const addHeading = () => {
     const newText = {
       id: Date.now(),
@@ -47,7 +43,7 @@ export default function Text(setSelectedId, setActiveTool) {
         fontFamily: 'Helvetica Neue',
         fontWeight: 'bold',
         opacity: 1,
-        textEffect: 'none'
+        textEffect: 'straight'
       },
     };
     handleAddText(newText);

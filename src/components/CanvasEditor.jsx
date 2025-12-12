@@ -30,10 +30,10 @@ function getCookie(name) {
 
 // Helper: Compare floats with tolerance to prevent infinite loops on tiny differences
 const isDifferent = (val1, val2) => {
-    if (typeof val1 === 'number' && typeof val2 === 'number') {
-        return Math.abs(val1 - val2) > 0.1; // 0.1px tolerance
-    }
-    return val1 !== val2;
+  if (typeof val1 === 'number' && typeof val2 === 'number') {
+    return Math.abs(val1 - val2) > 0.1; // 0.1px tolerance
+  }
+  return val1 !== val2;
 };
 
 export default function CanvasEditor({
@@ -55,7 +55,7 @@ export default function CanvasEditor({
 
   // 🟩 Initialize Fabric.js once
   useEffect(() => {
-    const ORIGINAL_WIDTH = 800; 
+    const ORIGINAL_WIDTH = 800;
     const ORIGINAL_HEIGHT = 800;
 
     const canvas = new fabric.Canvas(canvasRef.current, {
@@ -68,7 +68,7 @@ export default function CanvasEditor({
 
     const resize = () => {
       const wrapper = wrapperRef.current;
-      if(!wrapper) return;
+      if (!wrapper) return;
 
       const newWidth = wrapper.clientWidth;
       const newHeight = wrapper.clientHeight;
@@ -147,7 +147,7 @@ export default function CanvasEditor({
         const sessionData = sessionStorage.getItem('editingDesign');
         if (sessionData) {
           designToLoad = JSON.parse(sessionData);
-          sessionStorage.removeItem('editingDesign'); 
+          sessionStorage.removeItem('editingDesign');
         }
       } catch (e) {
         console.warn('sessionStorage read failed:', e);
@@ -158,7 +158,7 @@ export default function CanvasEditor({
           const localData = localStorage.getItem('editingDesign');
           if (localData) {
             designToLoad = JSON.parse(localData);
-            localStorage.removeItem('editingDesign'); 
+            localStorage.removeItem('editingDesign');
           }
         } catch (e) {
           console.warn('localStorage read failed:', e);
@@ -261,10 +261,11 @@ export default function CanvasEditor({
           lastSelectedRef.id = newId;
           lastSelectedRef.type = newType;
           if (selected.textEffect === 'circle') {
-                setActiveTool('text'); 
-            } else {
-                setActiveTool(selected.type);
-            }
+            setActiveTool('text');
+          } else {
+            setActiveTool(selected.type);
+          }
+          setSelectedId(newId);
         }
       }
     };
@@ -301,67 +302,67 @@ export default function CanvasEditor({
       if (!obj) return;
 
       const type = obj.type.toLowerCase();
-      
+
       if (type === 'activeselection') {
         // 🔥 FIX: Use setTimeout to allow Fabric to finish its internal processing
         // BEFORE we disrupt the group. This stops the RangeError.
-        const children = [...obj.getObjects()]; 
-        
+        const children = [...obj.getObjects()];
+
         setTimeout(() => {
-            // 1. Break group -> Fabric sets children to ABSOLUTE coords
-            fabricCanvas.discardActiveObject();
-            
-            // 2. Read new ABSOLUTE props and update Redux
-            const present = store.getState().canvas.present;
-            let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
-            let hasChanges = false;
+          // 1. Break group -> Fabric sets children to ABSOLUTE coords
+          fabricCanvas.discardActiveObject();
 
-            children.forEach((child) => {
-               const index = updatedPresent.findIndex((o) => o.id === child.customId);
-               if (index === -1) return;
+          // 2. Read new ABSOLUTE props and update Redux
+          const present = store.getState().canvas.present;
+          let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
+          let hasChanges = false;
 
-               // Get values directly from the object (now absolute)
-               let newProps = {};
-               
-               if (child.type === 'text' || child.type === 'textbox') {
-                  const newFontSize = child.fontSize * child.scaleX;
-                  child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
-                  child.setCoords(); 
-                  newProps = {
-                     fontSize: newFontSize,
-                     left: child.left,
-                     top: child.top,
-                     angle: child.angle,
-                  };
-               } else {
-                  newProps = {
-                     left: child.left,
-                     top: child.top,
-                     angle: child.angle,
-                     scaleX: child.scaleX,
-                     scaleY: child.scaleY,
-                     width: child.width,
-                     height: child.height,
-                  };
-               }
+          children.forEach((child) => {
+            const index = updatedPresent.findIndex((o) => o.id === child.customId);
+            if (index === -1) return;
 
-               // Update props
-               updatedPresent[index].props = { ...updatedPresent[index].props, ...newProps };
-               hasChanges = true;
-            });
+            // Get values directly from the object (now absolute)
+            let newProps = {};
 
-            if(hasChanges) {
-                store.dispatch(setCanvasObjects(updatedPresent));
+            if (child.type === 'text' || child.type === 'textbox') {
+              const newFontSize = child.fontSize * child.scaleX;
+              child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
+              child.setCoords();
+              newProps = {
+                fontSize: newFontSize,
+                left: child.left,
+                top: child.top,
+                angle: child.angle,
+              };
+            } else {
+              newProps = {
+                left: child.left,
+                top: child.top,
+                angle: child.angle,
+                scaleX: child.scaleX,
+                scaleY: child.scaleY,
+                width: child.width,
+                height: child.height,
+              };
             }
-            
-            // 3. 💥 CRITICAL: Restore the selection so the user doesn't see a "flash" or loss of selection
-            const sel = new fabric.ActiveSelection(children, {
-                canvas: fabricCanvas,
-            });
-            fabricCanvas.setActiveObject(sel);
-            fabricCanvas.requestRenderAll();
 
-        }, 0); 
+            // Update props
+            updatedPresent[index].props = { ...updatedPresent[index].props, ...newProps };
+            hasChanges = true;
+          });
+
+          if (hasChanges) {
+            store.dispatch(setCanvasObjects(updatedPresent));
+          }
+
+          // 3. 💥 CRITICAL: Restore the selection so the user doesn't see a "flash" or loss of selection
+          const sel = new fabric.ActiveSelection(children, {
+            canvas: fabricCanvas,
+          });
+          fabricCanvas.setActiveObject(sel);
+          fabricCanvas.requestRenderAll();
+
+        }, 0);
         return;
       }
 
@@ -421,8 +422,8 @@ export default function CanvasEditor({
     const isMultiSelect = activeObject && activeObject.type.toLowerCase() === 'activeselection';
 
     if (isMultiSelect) {
-        selectedIds = activeObject.getObjects().map(o => o.customId);
-        fabricCanvas.discardActiveObject(); 
+      selectedIds = activeObject.getObjects().map(o => o.customId);
+      fabricCanvas.discardActiveObject();
     }
 
     isSyncingRef.current = true;
@@ -434,7 +435,7 @@ export default function CanvasEditor({
 
       if (existing) {
         let updatesNeeded = {};
-        
+
         // 🛡️ COMPARE WITH TOLERANCE (Fixes infinite jumping loops)
         for (const key in objData.props) {
           if (isDifferent(existing[key], objData.props[key])) {
@@ -454,7 +455,7 @@ export default function CanvasEditor({
             updatesNeeded.shadow = shadowObject;
             ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'].forEach(key => delete updatesNeeded[key]);
           }
-          
+
           if (updatesNeeded.scaleX !== undefined || updatesNeeded.scaleY !== undefined) {
             existing.set({
               scaleX: updatesNeeded.scaleX ?? existing.scaleX,
@@ -499,7 +500,7 @@ export default function CanvasEditor({
     fabricObjects.forEach((obj) => {
       if (!ids.includes(obj.customId)) fabricCanvas.remove(obj);
     });
-    
+
     // 4. Z-Index Sorting
     const currentFabricObjects = fabricCanvas.getObjects();
     let fabricObjectsArray = fabricCanvas._objects;
@@ -521,14 +522,14 @@ export default function CanvasEditor({
 
     // 🕵️ 5. EXPLICITLY RE-ACTIVATE SELECTION
     if (selectedIds.length > 0) {
-        const objectsToSelect = fabricCanvas.getObjects().filter(obj => selectedIds.includes(obj.customId));
-        if (objectsToSelect.length > 0) {
-            // Re-create the group. Fabric calculates relative coords automatically here.
-            const selection = new fabric.ActiveSelection(objectsToSelect, {
-                canvas: fabricCanvas,
-            });
-            fabricCanvas.setActiveObject(selection);
-        }
+      const objectsToSelect = fabricCanvas.getObjects().filter(obj => selectedIds.includes(obj.customId));
+      if (objectsToSelect.length > 0) {
+        // Re-create the group. Fabric calculates relative coords automatically here.
+        const selection = new fabric.ActiveSelection(objectsToSelect, {
+          canvas: fabricCanvas,
+        });
+        fabricCanvas.setActiveObject(selection);
+      }
     }
 
     fabricCanvas.requestRenderAll();

@@ -85,9 +85,6 @@ export default function EditorPanel() {
                         addText={addText}
                         addHeading={addHeading}
                         addSubheading={addSubheading}
-                        addCircleText={addCircleText}
-                        addArcText={addArcText}
-                        addFlagText={addFlagText}
                     />
                 )}
 

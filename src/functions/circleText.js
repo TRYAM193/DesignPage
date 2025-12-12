@@ -12,12 +12,9 @@ export default function CircleText(objData) {
   const charSpacing = props.charSpacing || 0;
 
   const chars = text.split('');
-  // Calculate angle step based on full circle (2*PI) distributed among chars
-  // Adjust logic if you want a partial arc, but your snippet implied full circle logic
   const angleStep = (2 * Math.PI) / chars.length;
 
   const groupItems = chars.map((char, i) => {
-    // Calculate angle: start from top (-PI/2)
     const angle = i * angleStep - Math.PI / 2;
     
     // Polar to Cartesian coordinates
@@ -34,8 +31,7 @@ export default function CircleText(objData) {
       charSpacing: charSpacing,
       fill: fill,
       opacity: props.opacity ?? 1,
-      selectable: false, // Items inside group shouldn't be selectable individually
-      // Rotate character to align with the circle radius (+90 degrees adjustment)
+      selectable: false, 
       angle: (angle * 180) / Math.PI + 90,
       
       // Inherit styles

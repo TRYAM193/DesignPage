@@ -431,7 +431,7 @@ export default function CanvasEditor({
       let existing = fabricObjects.find((o) => o.customId === id);
       // --- UPDATE EXISTING (Standard) ---
       if (existing) {
-        const existing.cus
+        if (existing)
 
         let updatesNeeded = {};
         for (const key in objData.props) {

@@ -64,8 +64,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const [isFontLoading, setIsFontLoading] = useState(false);
   const [originalFontFamily, setOriginalFontFamily] = useState(props.fontFamily || 'Arial'); 
   
-  // Effect State
-  const currentEffect = object?.textEffect || props.textEffect || 'none';
+  // Radius State (used for circle-text)
   const [radius, setRadius] = useState(props.radius || 150);
 
   const handleApplyFont = (fontName) => {
@@ -179,8 +178,8 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             <button className={`style-button ${liveProps.underline ? 'active' : ''}`} onClick={() => toggleTextStyle('underline')} title="Underline"><FiUnderline size={16} /></button>
           </div>
 
-          {/* Show Radius slider if it is a Circle Text */}
-          {(currentEffect === 'circle' || type === 'circle-text') && (
+          {/* Show Radius slider ONLY if it is a Circle Text */}
+          {type === 'circle-text' && (
              <div className="control-row full-width">
                 <div className="control-row">
                     <label className="control-label">Radius</label>

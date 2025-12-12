@@ -366,6 +366,18 @@ export default function CanvasEditor({
         return;
       }
 
+      if (obj.textEffect === 'circle' || obj.type === 'group') {
+         updateObject(obj.customId, {
+            left: obj.left,
+            top: obj.top,
+            angle: obj.angle,
+            scaleX: obj.scaleX,
+            scaleY: obj.scaleY,
+            // We don't update radius/text here, only transforms
+         });
+         return;
+      }
+
       // Single object handling
       if (obj.type === 'text' || obj.type === 'textbox') {
         const newFontSize = obj.fontSize * obj.scaleX;

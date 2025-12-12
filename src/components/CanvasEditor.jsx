@@ -368,15 +368,15 @@ export default function CanvasEditor({
       }
 
       if (obj.textEffect === 'circle' || obj.type === 'group') {
-         updateObject(obj.customId, {
-            left: obj.left,
-            top: obj.top,
-            angle: obj.angle,
-            scaleX: obj.scaleX,
-            scaleY: obj.scaleY,
-            // We don't update radius/text here, only transforms
-         });
-         return;
+        updateObject(obj.customId, {
+          left: obj.left,
+          top: obj.top,
+          angle: obj.angle,
+          scaleX: obj.scaleX,
+          scaleY: obj.scaleY,
+          // We don't update radius/text here, only transforms
+        });
+        return;
       }
 
       // Single object handling
@@ -445,56 +445,60 @@ export default function CanvasEditor({
     // 2. UPDATE or ADD objects
     canvasObjectsMap.forEach(async (objData, id) => {
       let existing = fabricObjects.find((o) => o.customId === id);
+      const targetType = objData.props.textEffect === 'circle' ? 'circle-text' : 'text';
 
-      if (objData.props.textEffect === 'circle') {
-         if (existing) {
-             // Check if "Structure" changed (Text content, Radius, Font)
-             const needsRegroup = 
-                existing.text !== objData.props.text ||
-                existing.radius !== objData.props.radius ||
-                existing.fontSize !== objData.props.fontSize ||
-                existing.fontFamily !== objData.props.fontFamily ||
-                existing.textEffect !== 'circle'; 
+      // ------------------------------------------
+      // CASE A: CIRCLE TEXT
+      // ------------------------------------------
+      if (targetType === 'circle-text') {
+        if (existing) {
+          // If existing object is NOT a circle (it was straight), or structural props changed
+          const isStructureChanged =
+            existing.textEffect !== 'circle' || // Was straight, now circle
+            existing.text !== objData.props.text ||
+            existing.radius !== objData.props.radius ||
+            existing.fontSize !== objData.props.fontSize ||
+            existing.fontFamily !== objData.props.fontFamily;
 
-             if (needsRegroup) {
-                 fabricCanvas.remove(existing); 
-                 existing = null; // Force creation below
-             } else {
-                 // Just update Transforms (Move/Rotate/Scale/Color)
-                 existing.set({
-                    left: objData.props.left,
-                    top: objData.props.top,
-                    angle: objData.props.angle,
-                    scaleX: objData.props.scaleX,
-                    scaleY: objData.props.scaleY,
-                    fill: objData.props.fill,
-                    opacity: objData.props.opacity
-                 });
-                 
-                 // Update color of individual characters if changed
-                 if (objData.props.fill !== existing.fill) {
-                    existing.getObjects().forEach(c => c.set('fill', objData.props.fill));
-                 }
-                 existing.setCoords();
-             }
-         }
-         
-         if (!existing) {
-             const newGroup = CircleText(objData); // Creates the group
-             fabricCanvas.add(newGroup);
-         }
-         return; // Done with this object
-      }
-
-      // 2. Handle STANDARD TEXT Updates (Reverting from Circle if needed)
-      if (objData.type === 'text') {
-          if (existing && existing.textEffect === 'circle') {
-              // Was circle, now straight -> Remove and recreate as StraightText
-              fabricCanvas.remove(existing);
-              existing = null;
+          if (isStructureChanged) {
+            // 💥 DESTROY & RECREATE
+            fabricCanvas.remove(existing);
+            existing = null;
+          } else {
+            // ⚡ LIGHTWEIGHT UPDATE (Move/Scale/Color)
+            existing.set({
+              left: objData.props.left,
+              top: objData.props.top,
+              angle: objData.props.angle,
+              scaleX: objData.props.scaleX,
+              scaleY: objData.props.scaleY,
+              opacity: objData.props.opacity
+            });
+            // Color update requires iterating group children
+            if (objData.props.fill !== existing.fill) {
+              existing.set('fill', objData.props.fill); // Update group prop for tracking
+              existing.getObjects().forEach(c => c.set('fill', objData.props.fill));
+            }
+            existing.setCoords();
           }
+        }
+
+        if (!existing) {
+          const newGroup = CircleText(objData);
+          fabricCanvas.add(newGroup);
+        }
+        return; // Done
       }
 
+      // ------------------------------------------
+      // CASE B: STRAIGHT TEXT (or Image)
+      // ------------------------------------------
+
+      // If existing object was a Circle but now needs to be Straight (Undo operation)
+      if (existing && existing.textEffect === 'circle' && targetType === 'text') {
+        fabricCanvas.remove(existing);
+        existing = null; // Will trigger creation below
+      }
       if (existing) {
         let updatesNeeded = {};
 

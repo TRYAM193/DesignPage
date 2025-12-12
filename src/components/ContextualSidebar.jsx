@@ -1,6 +1,7 @@
 // src/components/ContextualSidebar.jsx
 import React from 'react';
 import ShapesSidebar from './ShapesSidebar';
+import { FiType, FiCircle, FiSunrise, FiFlag } from 'react-icons/fi';
 
 export default function ContextualSidebar({ activePanel, setActivePanel, addText, addHeading, addSubheading }) {
 

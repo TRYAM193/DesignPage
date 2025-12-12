@@ -429,16 +429,6 @@ export default function CanvasEditor({
 
     canvasObjectsMap.forEach(async (objData, id) => {
       let existing = fabricObjects.find((o) => o.customId === id);
-
-      // --- CASE B: STANDARD TEXT (Revert from Circle) ---
-      if (objData.type === 'text') {
-        // If we are switching back to text from a circle-text group
-        if (existing && existing.textEffect === 'circle') {
-          fabricCanvas.remove(existing);
-          existing = null;
-        }
-      }
-
       // --- UPDATE EXISTING (Standard) ---
       if (existing) {
         let updatesNeeded = {};

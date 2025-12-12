@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import * as fabric from 'fabric';
 import StraightText from '../objectAdders/straightText';
-import CircleText from '../objectAdders/CircleText'; 
+import CircleText from '../objectAdders/CircleText';
 import updateObject from '../functions/update';
 import { store } from '../redux/store';
 import { setCanvasObjects } from '../redux/canvasSlice';
@@ -30,10 +30,10 @@ function getCookie(name) {
 
 // 🛡️ Helper: Compare values with tolerance
 const isDifferent = (val1, val2) => {
-    if (typeof val1 === 'number' && typeof val2 === 'number') {
-        return Math.abs(val1 - val2) > 0.1; 
-    }
-    return val1 !== val2;
+  if (typeof val1 === 'number' && typeof val2 === 'number') {
+    return Math.abs(val1 - val2) > 0.1;
+  }
+  return val1 !== val2;
 };
 
 export default function CanvasEditor({
@@ -54,7 +54,7 @@ export default function CanvasEditor({
 
   // 🟩 Initialize Fabric.js once
   useEffect(() => {
-    const ORIGINAL_WIDTH = 800; 
+    const ORIGINAL_WIDTH = 800;
     const ORIGINAL_HEIGHT = 800;
 
     const canvas = new fabric.Canvas(canvasRef.current, {
@@ -67,7 +67,7 @@ export default function CanvasEditor({
 
     const resize = () => {
       const wrapper = wrapperRef.current;
-      if(!wrapper) return;
+      if (!wrapper) return;
 
       const newWidth = wrapper.clientWidth;
       const newHeight = wrapper.clientHeight;
@@ -108,7 +108,7 @@ export default function CanvasEditor({
         fabricCanvas.getObjects().forEach((obj) => {
           const state = store.getState();
           const canvasObjects = state.canvas.present;
-          
+
           const newObj = {
             id: obj.customId,
             type: obj.textEffect === 'circle' ? 'circle-text' : obj.type, // Rehydrate type
@@ -150,7 +150,7 @@ export default function CanvasEditor({
         const sessionData = sessionStorage.getItem('editingDesign');
         if (sessionData) {
           designToLoad = JSON.parse(sessionData);
-          sessionStorage.removeItem('editingDesign'); 
+          sessionStorage.removeItem('editingDesign');
         }
       } catch (e) {
         console.warn('sessionStorage read failed:', e);
@@ -161,7 +161,7 @@ export default function CanvasEditor({
           const localData = localStorage.getItem('editingDesign');
           if (localData) {
             designToLoad = JSON.parse(localData);
-            localStorage.removeItem('editingDesign'); 
+            localStorage.removeItem('editingDesign');
           }
         } catch (e) {
           console.warn('localStorage read failed:', e);
@@ -211,7 +211,7 @@ export default function CanvasEditor({
               fabricCanvas.getObjects().forEach(obj => {
                 const state = store.getState();
                 const canvasObjects = state.canvas.present;
-                
+
                 const newObj = {
                   id: obj.customId,
                   type: obj.textEffect === 'circle' ? 'circle-text' : obj.type,
@@ -264,7 +264,7 @@ export default function CanvasEditor({
 
         // If it's a circle-text group, treat it as 'circle-text' type in selection
         // This ensures the Toolbar sees it as a 'circle-text' and shows the radius slider
-        if (newId !== selected) { 
+        if (newId !== selected) {
           setSelectedId(newId);
           setActiveTool(selected.textEffect === 'circle' ? 'circle-text' : newType);
         }
@@ -272,8 +272,8 @@ export default function CanvasEditor({
     };
 
     const handleCleared = () => {
-        setSelectedId(null);
-        setActiveTool(null);
+      setSelectedId(null);
+      setActiveTool(null);
     };
 
     fabricCanvas.on('selection:created', handleSelection);
@@ -299,68 +299,68 @@ export default function CanvasEditor({
       if (!obj) return;
 
       const type = obj.type ? obj.type.toLowerCase() : '';
-      
+
       if (type === 'activeselection') {
-        const children = [...obj.getObjects()]; 
-        
+        const children = [...obj.getObjects()];
+
         setTimeout(() => {
-            fabricCanvas.discardActiveObject();
-            fabricCanvas.requestRenderAll(); 
-            
-            const present = store.getState().canvas.present;
-            let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
-            let hasChanges = false;
+          fabricCanvas.discardActiveObject();
+          fabricCanvas.requestRenderAll();
 
-            children.forEach((child) => {
-               const index = updatedPresent.findIndex((o) => o.id === child.customId);
-               if (index === -1) return;
+          const present = store.getState().canvas.present;
+          let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
+          let hasChanges = false;
 
-               const matrix = child.calcTransformMatrix();
-               const { translateX, translateY, angle, scaleX } = fabric.util.qrDecompose(matrix);
+          children.forEach((child) => {
+            const index = updatedPresent.findIndex((o) => o.id === child.customId);
+            if (index === -1) return;
 
-               if (child.type === 'text' || child.type === 'textbox') {
-                  const newFontSize = child.fontSize * scaleX;
-                  child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
-                  child.setCoords();
+            const matrix = child.calcTransformMatrix();
+            const { translateX, translateY, angle, scaleX } = fabric.util.qrDecompose(matrix);
 
-                  updatedPresent[index].props = {
-                     ...updatedPresent[index].props,
-                     fontSize: newFontSize,
-                     left: child.left,
-                     top: child.top,
-                     angle: child.angle,
-                     scaleX: 1, 
-                     scaleY: 1
-                  };
-               } else {
-                  // For circle text (group) or images, we just save the transforms
-                  updatedPresent[index].props = {
-                     ...updatedPresent[index].props,
-                     left: translateX,
-                     top: translateY,
-                     angle: angle,
-                     scaleX: scaleX, // Use calculated scale
-                     scaleY: scaleX, 
-                     width: child.width,
-                     height: child.height,
-                  };
-               }
-               hasChanges = true;
+            if (child.type === 'text' || child.type === 'textbox') {
+              const newFontSize = child.fontSize * scaleX;
+              child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
+              child.setCoords();
+
+              updatedPresent[index].props = {
+                ...updatedPresent[index].props,
+                fontSize: newFontSize,
+                left: child.left,
+                top: child.top,
+                angle: child.angle,
+                scaleX: 1,
+                scaleY: 1
+              };
+            } else {
+              // For circle text (group) or images, we just save the transforms
+              updatedPresent[index].props = {
+                ...updatedPresent[index].props,
+                left: translateX,
+                top: translateY,
+                angle: angle,
+                scaleX: scaleX, // Use calculated scale
+                scaleY: scaleX,
+                width: child.width,
+                height: child.height,
+              };
+            }
+            hasChanges = true;
+          });
+
+          if (hasChanges) {
+            store.dispatch(setCanvasObjects(updatedPresent));
+          }
+
+          if (children.length > 0) {
+            const sel = new fabric.ActiveSelection(children, {
+              canvas: fabricCanvas,
             });
+            fabricCanvas.setActiveObject(sel);
+            fabricCanvas.requestRenderAll();
+          }
 
-            if(hasChanges) {
-                store.dispatch(setCanvasObjects(updatedPresent));
-            }
-            
-            if (children.length > 0) {
-                const sel = new fabric.ActiveSelection(children, {
-                    canvas: fabricCanvas,
-                });
-                fabricCanvas.setActiveObject(sel);
-                fabricCanvas.requestRenderAll();
-            }
-
-        }, 0); 
+        }, 0);
         return;
       }
 
@@ -379,19 +379,19 @@ export default function CanvasEditor({
         });
         return;
       }
-      
+
       // Handle Circle Text Group or Images (Moved/Scaled/Rotated)
       if (obj.textEffect === 'circle' || type === 'group' || type === 'image') {
-         updateObject(obj.customId, {
-            left: obj.left,
-            top: obj.top,
-            angle: obj.angle,
-            scaleX: obj.scaleX,
-            scaleY: obj.scaleY,
-            width: obj.width,
-            height: obj.height,
-         });
-         return;
+        updateObject(obj.customId, {
+          left: obj.left,
+          top: obj.top,
+          angle: obj.angle,
+          scaleX: obj.scaleX,
+          scaleY: obj.scaleY,
+          width: obj.width,
+          height: obj.height,
+        });
+        return;
       }
     };
     fabricCanvas.on('object:modified', handleObjectModified);
@@ -416,12 +416,12 @@ export default function CanvasEditor({
 
     let selectedIds = [];
     const activeObject = fabricCanvas.getActiveObject();
-    
+
     const isMultiSelect = activeObject && activeObject.type?.toLowerCase() === 'activeselection';
 
     if (isMultiSelect) {
-        selectedIds = activeObject.getObjects().map(o => o.customId);
-        fabricCanvas.discardActiveObject(); 
+      selectedIds = activeObject.getObjects().map(o => o.customId);
+      fabricCanvas.discardActiveObject();
     }
 
     isSyncingRef.current = true;
@@ -430,52 +430,13 @@ export default function CanvasEditor({
     canvasObjectsMap.forEach(async (objData, id) => {
       let existing = fabricObjects.find((o) => o.customId === id);
 
-      // --- CASE A: CIRCLE TEXT (Always Recreate on Change) ---
-      if (objData.type === 'circle-text') {
-         if (existing) {
-             // Check if structural props changed
-             const needsRegroup = 
-                existing.text !== objData.props.text ||
-                existing.radius !== objData.props.radius ||
-                existing.fontSize !== objData.props.fontSize ||
-                existing.fontFamily !== objData.props.fontFamily ||
-                existing.textEffect !== 'circle'; 
-
-             if (needsRegroup) {
-                 fabricCanvas.remove(existing); 
-                 existing = null; 
-             } else {
-                 // Simple Transform Update
-                 existing.set({
-                    left: objData.props.left,
-                    top: objData.props.top,
-                    angle: objData.props.angle,
-                    scaleX: objData.props.scaleX,
-                    scaleY: objData.props.scaleY,
-                    fill: objData.props.fill,
-                    opacity: objData.props.opacity
-                 });
-                 if (objData.props.fill !== existing.fill) {
-                    existing.getObjects().forEach(c => c.set('fill', objData.props.fill));
-                 }
-                 existing.setCoords();
-             }
-         }
-         
-         if (!existing) {
-             const newGroup = CircleText(objData);
-             fabricCanvas.add(newGroup);
-         }
-         return; 
-      }
-
       // --- CASE B: STANDARD TEXT (Revert from Circle) ---
       if (objData.type === 'text') {
-          // If we are switching back to text from a circle-text group
-          if (existing && existing.textEffect === 'circle') {
-              fabricCanvas.remove(existing);
-              existing = null;
-          }
+        // If we are switching back to text from a circle-text group
+        if (existing && existing.textEffect === 'circle') {
+          fabricCanvas.remove(existing);
+          existing = null;
+        }
       }
 
       // --- UPDATE EXISTING (Standard) ---
@@ -499,7 +460,7 @@ export default function CanvasEditor({
             updatesNeeded.shadow = shadowObject;
             ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'].forEach(key => delete updatesNeeded[key]);
           }
-          
+
           if (updatesNeeded.scaleX !== undefined || updatesNeeded.scaleY !== undefined) {
             existing.set({
               scaleX: updatesNeeded.scaleX ?? existing.scaleX,
@@ -520,17 +481,17 @@ export default function CanvasEditor({
           newObj = StraightText(objData);
           if (newObj) newObj.set({ textEffect: 'none', path: null });
         }
-        
+
         if (objData.type === 'image') {
           if (!existing && !fabricCanvas.getObjects().some(obj => obj.customId === objData.id)) {
             try {
-                newObj = await FabricImage.fromURL(objData.src, { ...objData.props, customId: objData.id });
+              newObj = await FabricImage.fromURL(objData.src, { ...objData.props, customId: objData.id });
             } catch (err) {
-                console.error("Error loading image:", err);
+              console.error("Error loading image:", err);
             }
           }
         }
-        
+
         if (newObj) {
           newObj.customId = objData.id;
           fabricCanvas.add(newObj);
@@ -545,7 +506,7 @@ export default function CanvasEditor({
     fabricObjects.forEach((obj) => {
       if (!ids.includes(obj.customId)) fabricCanvas.remove(obj);
     });
-    
+
     // Z-Index Sorting
     const currentFabricObjects = fabricCanvas.getObjects();
     let fabricObjectsArray = fabricCanvas._objects;
@@ -566,13 +527,13 @@ export default function CanvasEditor({
     });
 
     if (selectedIds.length > 0) {
-        const objectsToSelect = fabricCanvas.getObjects().filter(obj => selectedIds.includes(obj.customId));
-        if (objectsToSelect.length > 0) {
-            const selection = new fabric.ActiveSelection(objectsToSelect, {
-                canvas: fabricCanvas,
-            });
-            fabricCanvas.setActiveObject(selection);
-        }
+      const objectsToSelect = fabricCanvas.getObjects().filter(obj => selectedIds.includes(obj.customId));
+      if (objectsToSelect.length > 0) {
+        const selection = new fabric.ActiveSelection(objectsToSelect, {
+          canvas: fabricCanvas,
+        });
+        fabricCanvas.setActiveObject(selection);
+      }
     }
 
     fabricCanvas.requestRenderAll();

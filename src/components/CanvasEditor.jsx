@@ -262,6 +262,7 @@ export default function CanvasEditor({
           lastSelectedRef.id = newId;
           lastSelectedRef.type = newType;
           setSelectedId(newId);
+          if ()
           setActiveTool(newType);
         }
       }

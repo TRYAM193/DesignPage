@@ -445,34 +445,38 @@ export default function CanvasEditor({
     // 2. UPDATE or ADD objects
     canvasObjectsMap.forEach(async (objData, id) => {
       let existing = fabricObjects.find((o) => o.customId === id);
+const targetType = objData.props.textEffect === 'circle' ? 'circle-text' : 'text';
 
-      if (objData.props.textEffect === 'circle') {
+      // ------------------------------------------
+      // CASE A: CIRCLE TEXT
+      // ------------------------------------------
+      if (targetType === 'circle-text') {
          if (existing) {
-             // Check if "Structure" changed (Text content, Radius, Font)
-             const needsRegroup = 
+             // If existing object is NOT a circle (it was straight), or structural props changed
+             const isStructureChanged = 
+                existing.textEffect !== 'circle' || // Was straight, now circle
                 existing.text !== objData.props.text ||
                 existing.radius !== objData.props.radius ||
                 existing.fontSize !== objData.props.fontSize ||
-                existing.fontFamily !== objData.props.fontFamily ||
-                existing.textEffect !== 'circle'; 
+                existing.fontFamily !== objData.props.fontFamily;
 
-             if (needsRegroup) {
+             if (isStructureChanged) {
+                 // 💥 DESTROY & RECREATE
                  fabricCanvas.remove(existing); 
-                 existing = null; // Force creation below
+                 existing = null; 
              } else {
-                 // Just update Transforms (Move/Rotate/Scale/Color)
+                 // ⚡ LIGHTWEIGHT UPDATE (Move/Scale/Color)
                  existing.set({
                     left: objData.props.left,
                     top: objData.props.top,
                     angle: objData.props.angle,
                     scaleX: objData.props.scaleX,
                     scaleY: objData.props.scaleY,
-                    fill: objData.props.fill,
                     opacity: objData.props.opacity
                  });
-                 
-                 // Update color of individual characters if changed
+                 // Color update requires iterating group children
                  if (objData.props.fill !== existing.fill) {
+                    existing.set('fill', objData.props.fill); // Update group prop for tracking
                     existing.getObjects().forEach(c => c.set('fill', objData.props.fill));
                  }
                  existing.setCoords();
@@ -480,21 +484,31 @@ export default function CanvasEditor({
          }
          
          if (!existing) {
-             const newGroup = CircleText(objData); // Creates the group
+             const newGroup = CircleText(objData);
              fabricCanvas.add(newGroup);
          }
-         return; // Done with this object
+         return; // Done
       }
 
-      // 2. Handle STANDARD TEXT Updates (Reverting from Circle if needed)
-      if (objData.type === 'text') {
-          if (existing && existing.textEffect === 'circle') {
-              // Was circle, now straight -> Remove and recreate as StraightText
-              fabricCanvas.remove(existing);
-              existing = null;
+      // ------------------------------------------
+      // CASE B: STRAIGHT TEXT (or Image)
+      // ------------------------------------------
+      
+      // If existing object was a Circle but now needs to be Straight (Undo operation)
+      if (existing && existing.textEffect === 'circle' && targetType === 'text') {
+          fabricCanvas.remove(existing);
+          existing = null; // Will trigger creation below
+      }
+
+      if (existing) {
+        // ... (Your existing update logic for Straight Text/Image goes here) ...
+        // This handles simple props like left, top, color, shadow
+        let updatesNeeded = {};
+        for (const key in objData.props) {
+          if (isDifferent(existing[key], objData.props[key])) {
+            updatesNeeded[key] = objData.props[key];
           }
-      }
-
+        }
       if (existing) {
         let updatesNeeded = {};
 

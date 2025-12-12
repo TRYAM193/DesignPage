@@ -38,26 +38,6 @@ export default function ContextualSidebar({ activePanel, setActivePanel, addText
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div className='p-3 border rounded-md cursor-pointer hover:bg-gray-100' style={{ padding: '3px', border: '1px solid #ccc', borderRadius: '6px', cursor: 'pointer', textAlign: 'center' }} onClick={() => addHeading()}><h1 style={{ margin: '0' }}> Add Heading </h1></div>
             <div className='p-3 border rounded-md cursor-pointer hover:bg-gray-100' style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '6px', cursor: 'pointer', textAlign: 'center' }} onClick={() => addSubheading()}><h3 style={{ margin: '0' }}> Add Subheading </h3></div>
-            <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#666', marginBottom: '10px' }}>Curved & Effects</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-              {/* Circle Text Button */}
-              <div style={presetStyle} onClick={() => addCircleText()}>
-                <FiCircle size={24} color="#444" />
-                <span style={{ fontSize: '12px' }}>Circle</span>
-              </div>
-
-              {/* Arc Text Button */}
-              <div style={presetStyle} onClick={() => addArcText()}>
-                <FiSunrise size={24} color="#444" />
-                <span style={{ fontSize: '12px' }}>Arc</span>
-              </div>
-
-              {/* Flag Text Button */}
-              <div style={presetStyle} onClick={() => addFlagText()}>
-                <FiFlag size={24} color="#444" />
-                <span style={{ fontSize: '12px' }}>Flag</span>
-              </div>
-            </div>
           </div>
         </div>
       );

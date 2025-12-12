@@ -434,7 +434,7 @@ export default function CanvasEditor({
         if (existing.customType === 'text'){
           fabricCanvas.remove(existing)
           existing = null;
-        } else {}
+        } else {
 
         let updatesNeeded = {};
         for (const key in objData.props) {
@@ -467,6 +467,7 @@ export default function CanvasEditor({
 
           existing.set(updatesNeeded);
           existing.setCoords();
+          
         }
 
       } else {

@@ -76,7 +76,7 @@ export default function CircleText(objData) {
     customId: obj.id,
     hasControls: true,
     textEffect: 'circle',
-    customTy
+    customType: 'text',
     radius: obj.radius,
     text: obj.text,
     fontSize: obj.fontSize,

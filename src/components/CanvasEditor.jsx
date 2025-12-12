@@ -474,8 +474,9 @@ export default function CanvasEditor({
         // --- CREATE NEW (Standard) ---
         let newObj;
         if (objData.type === 'text') {
-          if (objData.props.textEffect )
-          newObj = StraightText(objData);
+          if (objData.props.textEffect === 'straight') {
+            newObj = StraightText(objData);
+          } else {
         }
 
         if (objData.type === 'image') {

@@ -39,7 +39,6 @@ const isDifferent = (val1, val2) => {
 export default function CanvasEditor({
   setActiveTool,
   setSelectedId,
-  selectedId,
   setFabricCanvas,
   fabricCanvas,
   setEditingDesignId,
@@ -265,7 +264,7 @@ export default function CanvasEditor({
 
         // If it's a circle-text group, treat it as 'circle-text' type in selection
         // This ensures the Toolbar sees it as a 'circle-text' and shows the radius slider
-        if (newId !== selectedId) { 
+        if (newId !== selected) { 
           setSelectedId(newId);
           setActiveTool(selected.textEffect === 'circle' ? 'circle-text' : newType);
         }

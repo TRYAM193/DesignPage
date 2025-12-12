@@ -1,7 +1,7 @@
 import * as fabric from 'fabric';
 
 export function CircleText(obj) {
-  const chars = obj.text.split('');
+  const chars = obj.props.text.split('');
   const angleStep = (2 * Math.PI) / chars.length;
 
   const groupItems = chars.map((char, i) => {
@@ -20,19 +20,19 @@ export function CircleText(obj) {
     });
 
     // Shadow
-    if (obj.shadow) {
+    if (obj.props.shadow) {
       fabricChar.set('shadow', {
-        color: obj.shadow.color || '#fff',
-        blur: obj.shadow.blur,
-        offsetX: obj.shadow.offsetX,
-        offsetY: obj.shadow.offsetY,
+        color: obj.props.shadow.color || '#fff',
+        blur: obj.props.shadow.blur,
+        offsetX: obj.props.shadow.offsetX,
+        offsetY: obj.props.shadow.offsetY,
       });
     }
 
     // Stroke
-    if (obj.strokeWidth > 0) {
-      fabricChar.set('stroke', obj.strokeColor || '#000');
-      fabricChar.set('strokeWidth', obj.strokeWidth);
+    if (obj.props.strokeWidth > 0) {
+      fabricChar.set('stroke', obj.props.strokeColor || '#000');
+      fabricChar.set('strokeWidth', obj.props.strokeWidth);
     }
 
     return fabricChar;

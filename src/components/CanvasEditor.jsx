@@ -11,6 +11,7 @@ import { useLocation } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { firestore } from '../firebase.js';
 import { FabricImage } from 'fabric';
+import CircleText from '../objectAdders/CircleText';
 
 fabric.Object.prototype.toObject = (function (toObject) {
   return function (propertiesToInclude) {

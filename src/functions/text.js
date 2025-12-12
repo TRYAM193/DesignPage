@@ -67,7 +67,7 @@ export default function Text(setSelectedId, setActiveTool) {
         fontFamily: 'Helvetica Neue',
         fontWeight: 'bold',
         opacity: 1,
-        textEffect: 'none'
+        textEffect: 'straight'
       },
     };
     handleAddText(newText);

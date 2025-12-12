@@ -75,9 +75,8 @@ export default function CircleText(objData) {
     height: obj.height,
     customId: obj.id,
     hasControls: true,
-    
-    // Persist custom props for recreation
     textEffect: 'circle',
+    customTy
     radius: obj.radius,
     text: obj.text,
     fontSize: obj.fontSize,

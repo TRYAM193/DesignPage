@@ -469,7 +469,8 @@ export default function CanvasEditor({
           }
         }
         fabricCanvas.requestRenderAll();
-      } else {
+      } e
+      if(!existing) {
         // --- CREATE NEW (Standard) ---
         let newObj;
         if (objData.type === 'text') {

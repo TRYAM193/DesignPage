@@ -22,10 +22,10 @@ export function CircleText(obj) {
     // Shadow
     if (obj.props.shadow) {
       fabricChar.set('shadow', {
-        color: obj.props.shadow.color || '#fff',
-        blur: obj.props.shadow.blur,
-        offsetX: obj.props.shadow.offsetX,
-        offsetY: obj.props.shadow.offsetY,
+        color: obj.props.shadowColor || '#fff',
+        blur: obj.props.shadowBlur,
+        offsetX: obj.props.shadowOffsetX,
+        offsetY: obj.props.shadowOffsetY,
       });
     }
 

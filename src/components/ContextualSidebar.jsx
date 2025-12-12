@@ -7,6 +7,20 @@ export default function ContextualSidebar({ activePanel, setActivePanel, addText
   let ContentComponent = null;
   let title = "";
 
+  const presetStyle = {
+    padding: '12px', 
+    border: '1px solid #eee', 
+    borderRadius: '8px', 
+    cursor: 'pointer', 
+    textAlign: 'center',
+    backgroundColor: '#fff',
+    transition: 'all 0.2s',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '5px'
+  };
+
   switch (activePanel) {
     case 'text':
       title = "Text Styles & Presets";

@@ -165,7 +165,7 @@ export default function EditorPanel() {
                     <CanvasEditor
                         setFabricCanvas={setFabricCanvas}
                         canvasObjects={canvasObjects}
-                        selectedId={}
+                        selectedId={selectedId}
                         setActiveTool={setActiveTool}
                         setSelectedId={setSelectedId}
                         fabricCanvas={fabricCanvas}

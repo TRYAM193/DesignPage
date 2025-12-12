@@ -5,7 +5,7 @@ export default function StraightText(obj) {
   const props = obj.props;
   return new FabricText(obj.props.text, {
     ...props,
-    customType: obj.textStyle,
+    customType: 'text',
     customId: obj.id
   });
 }

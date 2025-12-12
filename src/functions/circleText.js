@@ -33,8 +33,6 @@ export default function CircleText(objData) {
       opacity: props.opacity ?? 1,
       selectable: false, 
       angle: (angle * 180) / Math.PI + 90,
-      
-      // Inherit styles
       fontStyle: props.fontStyle,
       fontWeight: props.fontWeight,
       underline: props.underline,

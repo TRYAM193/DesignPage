@@ -476,7 +476,9 @@ export default function CanvasEditor({
         if (objData.type === 'text') {
           if (objData.props.textEffect === 'straight') {
             newObj = StraightText(objData);
-          } else {
+          } else if (objData.props.textEffect === 'circle') {
+            newObj = CircleText(objData);
+          }
         }
 
         if (objData.type === 'image') {

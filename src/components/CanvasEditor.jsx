@@ -598,15 +598,7 @@ export default function CanvasEditor({
         // --- CREATE NEW ---
         let newObj;
         if (objData.type === 'text') {
-          newObj = StraightText(objData);
-          if (newObj) {
-             // Explicitly clear any path effect if it's supposed to be straight
-             newObj.set({ textEffect: 'none', path: null });
-             // Check if we need to apply a path immediately (e.g. from load)
-             if (objData.props.textEffect && objData.props.textEffect !== 'none' && objData.props.textEffect !== 'circle') {
-                 applyTextPath(newObj, objData.props.textEffect, objData.props.effectValue || 0);
-             }
-          }
+          
         }
         
         if (objData.type === 'image') {

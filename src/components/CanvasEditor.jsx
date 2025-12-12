@@ -432,6 +432,7 @@ export default function CanvasEditor({
       // --- UPDATE EXISTING (Standard) ---
       if (existing) {
         if (existing.customType === 'text') {
+          console.log('removed')
           fabricCanvas.remove(existing)
         } else {
 
@@ -470,7 +471,7 @@ export default function CanvasEditor({
         }
         fabricCanvas.requestRenderAll();
       }
-      
+
       if (!existing) {
         let newObj;
         if (objData.type === 'text') {

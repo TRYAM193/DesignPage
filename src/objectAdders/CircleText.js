@@ -1,6 +1,29 @@
 import * as fabric from 'fabric';
 
-export function CircleText(obj) {
+export default function CircleText(objData) {
+  const props = objData.props;
+
+  // Map Redux props to the flat structure your logic expects
+  const obj = {
+    text: props.text || 'Circle Text',
+    radius: props.radius || 150,
+    fontSize: props.fontSize || 20,
+    fontFamily: props.fontFamily || 'Arial',
+    letterSpacing: props.charSpacing || 0, // Mapped charSpacing -> letterSpacing
+    color: props.fill || '#000000',
+    opacity: props.opacity ?? 1,
+    shadow: props.shadow,
+    strokeWidth: props.strokeWidth || 0,
+    strokeColor: props.stroke || '#000000',
+    x: props.left,
+    y: props.top,
+    angle: props.angle || 0,
+    width: props.width,
+    height: props.height,
+    id: objData.id
+  };
+
+  // --- YOUR PROVIDED LOGIC START ---
   const chars = obj.text.split('');
   const angleStep = (2 * Math.PI) / chars.length;
 
@@ -41,6 +64,7 @@ export function CircleText(obj) {
 
     return fabricChar;
   });
+
   const group = new fabric.Group(groupItems, {
     left: obj.x,
     top: obj.y,
@@ -51,6 +75,16 @@ export function CircleText(obj) {
     height: obj.height,
     customId: obj.id,
     hasControls: true,
+    
+    // Persist custom props for recreation
+    textEffect: 'circle',
+    radius: obj.radius,
+    text: obj.text,
+    fontSize: obj.fontSize,
+    fontFamily: obj.fontFamily,
+    fill: obj.color // Save color on group for reference
   });
+  // --- YOUR PROVIDED LOGIC END ---
+
   return group;
 }

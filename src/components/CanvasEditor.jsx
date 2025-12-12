@@ -434,7 +434,7 @@ export default function CanvasEditor({
         if (existing.customType === 'text'){
           fabricCanvas.remove(existing)
           existing = null;
-        }
+        } else {}
 
         let updatesNeeded = {};
         for (const key in objData.props) {

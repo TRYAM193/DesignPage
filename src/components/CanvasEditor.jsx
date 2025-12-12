@@ -432,7 +432,7 @@ export default function CanvasEditor({
       // --- UPDATE EXISTING (Standard) ---
       if (existing) {
         if (existing.customType === 'text'){
-          existing.remove()
+          fabricCanvas.remove(existing)
         }
 
         let updatesNeeded = {};

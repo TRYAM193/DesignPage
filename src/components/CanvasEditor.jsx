@@ -428,6 +428,25 @@ export default function CanvasEditor({
     const fabricObjects = fabricCanvas.getObjects();
 
     canvasObjectsMap.forEach(async (objData, id) => {
+      if (!existing) {
+        let newObj;
+        if (objData.type === 'text') {
+          if (objData.props.textEffect === 'straight') {
+            newObj = StraightText(objData);
+          } else if (objData.props.textEffect === 'circle') {
+            newObj = CircleText(objData);
+          }
+        }
+
+        if (objData.type === 'image') {
+          if (!existing && !fabricCanvas.getObjects().some(obj => obj.customId === objData.id)) {
+            try {
+              newObj = await FabricImage.fromURL(objData.src, { ...objData.props, customId: objData.id });
+            } catch (err) {
+              console.error("Error loading image:", err);
+            }
+          }
+        }
       let existing = fabricObjects.find((o) => o.customId === id);
       // --- UPDATE EXISTING (Standard) ---
       if (existing) {
@@ -472,25 +491,6 @@ export default function CanvasEditor({
         fabricCanvas.requestRenderAll();
       }
 
-      if (!existing) {
-        let newObj;
-        if (objData.type === 'text') {
-          if (objData.props.textEffect === 'straight') {
-            newObj = StraightText(objData);
-          } else if (objData.props.textEffect === 'circle') {
-            newObj = CircleText(objData);
-          }
-        }
-
-        if (objData.type === 'image') {
-          if (!existing && !fabricCanvas.getObjects().some(obj => obj.customId === objData.id)) {
-            try {
-              newObj = await FabricImage.fromURL(objData.src, { ...objData.props, customId: objData.id });
-            } catch (err) {
-              console.error("Error loading image:", err);
-            }
-          }
-        }
 
         if (newObj) {
           newObj.customId = objData.id;

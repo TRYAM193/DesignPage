@@ -429,7 +429,12 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
                 className="color-input"
                 value={liveProps.fill || '#000000'}
                 onChange={(e) => handleLiveUpdate('fill', e.target.value)}
-                onBlur={(e) => handleUpdateAndHistory('fill', e.target.value)}
+                onMouseUp={(e) => handleUpdateAndHistory('fill', e.target.value)}
+  onKeyUp={(e) => {
+    if (e.key === 'Enter') {
+      handleUpdateAndHistory('fill', e.target.value);
+    }
+  }}
               />
             </div>
           )}

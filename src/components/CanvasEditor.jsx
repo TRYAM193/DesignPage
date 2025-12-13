@@ -534,7 +534,7 @@ export default function CanvasEditor({
       }
 
       // Handle Circle Text Group or Images (Moved/Scaled/Rotated)
-      if (obj.textEffect === 'circle' || type === 'group' || type === 'image') {
+      if (obj.textEffect === 'circle' || type === 'group' || type === 'image' || ['rect', 'circle', 'triangle'].includes(type)) {
         updateObject(obj.customId, {
           left: obj.left,
           top: obj.top,

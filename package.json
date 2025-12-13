@@ -27,7 +27,6 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.9.6",
     "react-toastify": "^11.0.5",
-    "react-undo": "^1.2.1",
     "three": "^0.181.1",
     "uuid": "^13.0.0",
     "webfontloader": "^1.6.28",

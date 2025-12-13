@@ -465,6 +465,7 @@ export default function CanvasEditor({
           if (newObj) {
             newObj.customId = objData.id;
             fabricCanvas.add(newObj);
+            fabricCanvas.setActiveObject(newObj);
           }
         }
       }

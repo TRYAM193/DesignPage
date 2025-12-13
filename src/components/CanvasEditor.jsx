@@ -99,20 +99,7 @@ export default function CanvasEditor({
       setSelectedObjectUUIDs([]);
     }
   };
-
-  // ... inside render ...
-
-  // 3. PASS ARRAY TO ACTION HANDLER
-  const onMenuAction = (action) => {
-    handleCanvasAction(
-      action,
-      selectedObjectUUIDs, // Pass the Array
-      store.getState().canvas.present,
-      dispatch,
-      setCanvasObjects
-    );
-  };
-
+  
   // 🟩 Initialize Fabric.js once
   useEffect(() => {
     const ORIGINAL_WIDTH = 800;

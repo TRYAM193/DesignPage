@@ -434,8 +434,8 @@ export default function CanvasEditor({
 
     canvasObjectsMap.forEach(async (objData, id) => {
       let existing = fabricObjects.find((o) => o.customId === id);
-      pastData = past.find(state => state.some(obj => obj.id === id));
-      console.log(pastData)
+      pastData = past.find(state => state.some(obj => obj.id === id)).find();
+      
       let newObj;
       if (objData.type === 'text') {
         if (objData.props.textEffect === 'straight') {

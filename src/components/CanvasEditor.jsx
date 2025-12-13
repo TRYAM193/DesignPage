@@ -487,7 +487,6 @@ export default function CanvasEditor({
         }
       }
 
-      // UPDATE HISTORY: Save the new string as the "past" state for next render
       previousStatesRef.current.set(objData.id, currentString);
     });
 

@@ -307,9 +307,6 @@ export default function CanvasEditor({
   }, [initialized]);
 
   // 🟩 Handle Modifications (User Actions)
-  // src/components/CanvasEditor.jsx
-
-  // 🟩 Handle Modifications (User Actions)
   useEffect(() => {
     const fabricCanvas = fabricCanvasRef.current;
     if (!fabricCanvas) return;
@@ -326,75 +323,68 @@ export default function CanvasEditor({
       if (type === 'activeselection') {
         const children = [...obj.getObjects()];
 
-        setTimeout(() => {
-          fabricCanvas.discardActiveObject();
-          
-          const present = store.getState().canvas.present;
-          let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
-          let hasChanges = false;
+        // 1. Discard the group immediately.
+        // This forces Fabric to calculate the new World Transform for each child 
+        // automatically, handling all origin/scale/rotation math for us.
+        fabricCanvas.discardActiveObject();
+        
+        // 2. Now read the correct values from the children
+        const present = store.getState().canvas.present;
+        let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
+        let hasChanges = false;
 
-          children.forEach((child) => {
-            const index = updatedPresent.findIndex((o) => o.id === child.customId);
-            if (index === -1) return;
+        children.forEach((child) => {
+          const index = updatedPresent.findIndex((o) => o.id === child.customId);
+          if (index === -1) return;
 
-            // 1. Calculate absolute transform matrix (resolves group offsets)
-            const matrix = child.calcTransformMatrix();
-            
-            // 2. Decompose matrix to get 'World' values
-            // ⚠️ FIX: Extracted 'scaleY' here
-            const { translateX, translateY, angle, scaleX, scaleY } = fabric.util.qrDecompose(matrix);
+          // For TEXT, we still want to normalize scale into fontSize
+          if (child.type === 'text' || child.type === 'textbox' || child.customType === 'text') {
+            const newFontSize = child.fontSize * child.scaleX;
+            child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
+            child.setCoords();
 
-            if (child.type === 'text' || child.type === 'textbox' || child.customType === 'text') {
-              // TEXT LOGIC (Keep as is, seems to work for you)
-              const newFontSize = child.fontSize * scaleX;
-              child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
-              child.setCoords();
+            updatedPresent[index].props = {
+              ...updatedPresent[index].props,
+              fontSize: newFontSize,
+              left: child.left,
+              top: child.top,
+              angle: child.angle,
+              scaleX: 1,
+              scaleY: 1
+            };
+          } else {
+            // For SHAPES & IMAGES: Just read the values Fabric calculated.
+            // This fixes the jumping because we match Fabric's state exactly.
+            updatedPresent[index].props = {
+              ...updatedPresent[index].props,
+              left: child.left,
+              top: child.top,
+              angle: child.angle,
+              scaleX: child.scaleX,
+              scaleY: child.scaleY,
+              // Do NOT force width/height updates for scaling, 
+              // as that can conflict with Circle radius or Shape logic.
+            };
+          }
+          hasChanges = true;
+        });
 
-              updatedPresent[index].props = {
-                ...updatedPresent[index].props,
-                fontSize: newFontSize,
-                left: translateX, // Use decomposed X (handles group offset)
-                top: translateY,  // Use decomposed Y
-                angle: angle,
-                scaleX: 1,
-                scaleY: 1
-              };
-            } else {
-              // SHAPES & IMAGES LOGIC
-              // ⚠️ FIX: Properly saving scaleX AND scaleY
-              updatedPresent[index].props = {
-                ...updatedPresent[index].props,
-                left: translateX,
-                top: translateY,
-                angle: angle,
-                scaleX: scaleX, 
-                scaleY: scaleY, // <--- This was previously 'scaleX' (causing the jump)
-                width: child.width,
-                height: child.height,
-              };
-            }
-            hasChanges = true;
+        if (hasChanges) {
+          store.dispatch(setCanvasObjects(updatedPresent));
+        }
+
+        // 3. Restore selection quietly
+        if (children.length > 0) {
+          const sel = new fabric.ActiveSelection(children, {
+            canvas: fabricCanvas,
           });
-
-          if (hasChanges) {
-            store.dispatch(setCanvasObjects(updatedPresent));
-          }
-
-          // Restore selection
-          if (children.length > 0) {
-            const sel = new fabric.ActiveSelection(children, {
-              canvas: fabricCanvas,
-            });
-            fabricCanvas.setActiveObject(sel);
-            fabricCanvas.requestRenderAll();
-          }
-
-        }, 0);
+          fabricCanvas.setActiveObject(sel);
+          fabricCanvas.requestRenderAll();
+        }
         return;
       }
 
       // --- SINGLE OBJECT HANDLING ---
-      // (This part was generally fine, but good to ensure consistency)
       if (type === 'text' || type === 'textbox') {
         const newFontSize = obj.fontSize * obj.scaleX;
         obj.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
@@ -417,8 +407,6 @@ export default function CanvasEditor({
         angle: obj.angle,
         scaleX: obj.scaleX,
         scaleY: obj.scaleY,
-        width: obj.width,
-        height: obj.height,
       });
     };
 

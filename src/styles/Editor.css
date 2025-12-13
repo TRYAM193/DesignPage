@@ -996,3 +996,47 @@ input[type="range"],
     z-index: 100; 
   }
 }
+
+/* 📱 Mobile & Tablet: Force Top Bar to Absolute Center */
+/* Applies to everything smaller than 768px */
+@media screen and (max-width: 768px) {
+  
+  .top-bar,
+  .consolidated-bar {
+    /* 1. Detach from normal flow */
+    position: absolute !important; 
+    
+    /* 2. Center Horizontally */
+    left: 50% !important; 
+    transform: translateX(-50%) !important; 
+    
+    /* 3. Sizing & Spacing */
+    width: max-content !important; /* Ensures it wraps tightly around buttons */
+    max-width: 95%; /* Prevents it from going off-screen on very small phones */
+    
+    /* 4. Visuals */
+    top: 10px; 
+    display: flex !important;
+    justify-content: center !important;
+    gap: 8px; /* Slightly tighter gap for small screens */
+    padding: 8px 12px;
+    background-color: white; 
+    border-radius: 50px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+    z-index: 100;
+    
+    /* 5. Prevent Wrapping on tiny screens */
+    white-space: nowrap;
+    overflow-x: auto; /* Allows scrolling if phone is TOO small */
+  }
+
+  /* Optional: Hide text labels on very small screens to save space */
+  @media screen and (max-width: 400px) {
+    .top-bar-button span {
+      display: none;
+    }
+    .top-bar-button {
+      padding: 8px; /* Make buttons square-ish */
+    }
+  }
+}

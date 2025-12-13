@@ -1,39 +1,40 @@
+// src/functions/shape.js
 import { store } from '../redux/store';
 import { setCanvasObjects } from '../redux/canvasSlice';
+import { v4 as uuidv4 } from 'uuid'; // Ensure you have uuid installed
 
 function addShape(type, props) {
     const state = store.getState();
     const canvasObjects = state.canvas.present;
 
     const newShape = {
-        id: Date.now(),
-        type,
+        id: uuidv4(), // Generate unique ID
+        type, // 'rect', 'circle', 'triangle'
         props: {
-            left: 100,
-            top: 100,
-            fill: '#070707ff',
+            left: 300,  // Place in a visible area
+            top: 300,
+            fill: '#3b82f6', // Default Blue color
             stroke: '#000000',
             strokeWidth: 0,
             opacity: 1,
             scaleX: 1,
             scaleY: 1,
             angle: 0,
-            ...props
+            ...props // Allow overriding defaults
         }
-    }
-
+    };
     
-  store.dispatch(setCanvasObjects([...canvasObjects, newShape]));
-};
-
-export const addRectangle = () => {
-  addShape('rect', { width: 100, height: 100 });
+    store.dispatch(setCanvasObjects([...canvasObjects, newShape]));
 }
 
+export const addRectangle = () => {
+  addShape('rect', { width: 100, height: 100, fill: '#6366f1' }); // Indigo
+};
+
 export const addCircle = () => {
-  addShape('circle', { radius: 50, width: 100, height: 100 }); 
+  addShape('circle', { radius: 50, width: 100, height: 100, fill: '#ec4899' }); // Pink
 };
 
 export const addTriangle = () => {
-  addShape('triangle', { width: 100, height: 100 });
+  addShape('triangle', { width: 100, height: 100, fill: '#10b981' }); // Green
 };

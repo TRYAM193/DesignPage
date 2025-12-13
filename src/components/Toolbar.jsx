@@ -198,6 +198,37 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const handleUpdateAndHistory = (key, value) => {
     const updates = { [key]: value };
     const shadowKeys = ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'];
+    const shapes = {type === 'rect' && (
+            <>
+               <div className="control-row" style={{ marginTop: '15px' }}>
+                <label className="control-label">Corner Radius</label>
+                <span style={{ fontSize: '12px', color: '#666' }}>{Math.round(liveProps.rx || 0)}</span>
+              </div>
+              <input
+                type="range"
+                className="slider-input"
+                min="0"
+                max="100"
+                step="1"
+                value={liveProps.rx || 0}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  setLiveProps(prev => ({ ...prev, rx: val, ry: val }));
+                  liveUpdateFabric(fabricCanvas, id, { rx: val, ry: val }, liveProps, object);
+                }}
+                onMouseUp={(e) => {
+                   const val = Number(e.target.value);
+                   updateObject(id, { rx: val, ry: val });
+                }}
+                onTouchEnd={(e) => {
+                   const val = Number(e.target.value);
+                   updateObject(id, { rx: val, ry: val });
+                }}
+              />
+            </>
+          )}
+        </div>
+      )}
 
     if (shadowKeys.includes(key)) {
       updateObject(id, updates);

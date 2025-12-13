@@ -96,41 +96,41 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
 
 const Outline = () => (
   <>
-  </>
-  <h3 className="property-group-title">Outline</h3>
+    <h3 className="property-group-title">Outline</h3>
 
-          <div className="control-row">
-            <label className="control-label">Color</label>
-            <input
-              type="color"
-              className="color-input"
-              value={liveProps.stroke || '#000000'}
-              onInput={(e) => handleLiveUpdate('stroke', e.target.value, object)}
-              onChange={(e) => handleUpdateAndHistory('stroke', e.target.value)}
-            />
-          </div>
-          <div className="control-row">
-            <label className="control-label">Width</label>
-            <input
-              type="number"
-              className="number-input small"
-              value={Math.round(liveProps.strokeWidth || 0)}
-              onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value), object)}
-              onBlur={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
-            />
-          </div>
-          <input
-            type="range"
-            className="slider-input"
-            min="0"
-            max="10"
-            step="0.5"
-            value={liveProps.strokeWidth || 0}
-            onInput={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value), object)}
-            onMouseUp={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
-          />
+    <div className="control-row">
+      <label className="control-label">Color</label>
+      <input
+        type="color"
+        className="color-input"
+        value={liveProps.stroke || '#000000'}
+        onInput={(e) => handleLiveUpdate('stroke', e.target.value, object)}
+        onChange={(e) => handleUpdateAndHistory('stroke', e.target.value)}
+      />
+    </div>
+    <div className="control-row">
+      <label className="control-label">Width</label>
+      <input
+        type="number"
+        className="number-input small"
+        value={Math.round(liveProps.strokeWidth || 0)}
+        onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value), object)}
+        onBlur={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
+      />
+    </div>
+    <input
+      type="range"
+      className="slider-input"
+      min="0"
+      max="10"
+      step="0.5"
+      value={liveProps.strokeWidth || 0}
+      onInput={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value), object)}
+      onMouseUp={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
+    />
 
-        </div>
+  </div>
+</>
 )
 
 

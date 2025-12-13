@@ -978,17 +978,32 @@ input[type="range"],
 }
 
 /* 📱 Target screens between 550px and 768px */
+/* 📱 Tablet/Mobile: Force Top Bar to Absolute Center */
 @media screen and (min-width: 550px) and (max-width: 768px) {
   
-  /* Replace '.main-toolbar-container' with the actual class name from MainToolbar.jsx */
-  .top-bar {
+  .top-bar,
+  .consolidated-bar {
+    /* 1. Detach from normal flow to position freely */
+    position: absolute !important; 
+    
+    /* 2. Move left edge to the exact middle of the screen */
+    left: 50% !important; 
+    
+    /* 3. Pull back by 50% of its own width to center it perfectly */
+    transform: translateX(-50%) !important; 
+    
+    /* 4. Ensure it doesn't stretch to full width */
+    width: auto !important; 
+    
+    /* 5. Style adjustments */
+    top: 10px; /* Adjust distance from top */
     display: flex !important;
-    justify-content: center !important; /* Forces it to the middle */
-    width: 100%;
-  }
-
-  /* Optional: If the buttons are inside a specific inner group */
-  .undo-redo-group {
-    margin: 0 auto;
+    justify-content: center !important;
+    gap: 10px; /* Space between the button groups */
+    padding: 8px 16px;
+    background-color: white; /* Ensure background isn't transparent over canvas */
+    border-radius: 50px; /* Optional: Pill shape looks good floating */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Optional: Drop shadow */
+    z-index: 100; /* Ensure it sits above the canvas */
   }
 }

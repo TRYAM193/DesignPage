@@ -96,7 +96,6 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
 
 
 export default function Toolbar({ id, type, object, updateObject, removeObject, addText, fabricCanvas }) {
-  console.log(object);
   const props = object?.props || {};
   const [liveProps, setLiveProps] = useState(props);
   const [googleFontUrl, setGoogleFontUrl] = useState('');

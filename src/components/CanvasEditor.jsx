@@ -466,6 +466,7 @@ export default function CanvasEditor({
             newObj.customId = objData.id;
             fabricCanvas.add(newObj);
             fabricCanvas.setActiveObject(newObj);
+            fabricCanvas.requestRenderAll();  
           }
         }
       }
@@ -482,6 +483,7 @@ export default function CanvasEditor({
         } else if (existing) {
           // Use your existing helper for images
           updateExisting(existing, objData, isDifferent);
+          fabricCanvas.requestRenderAll();
         }
       }
 

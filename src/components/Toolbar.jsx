@@ -516,6 +516,8 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
         />
       </div>
 
+      {}
+
       {/* --- 3. SHADOW/EFFECTS --- */}
       <div className="property-group">
         <h3 className="property-group-title">Shadow Effect</h3>

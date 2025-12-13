@@ -454,6 +454,7 @@ export default function CanvasEditor({
           }
         } else if (existing) {
           updateExisting(existing, objData, isDifferent);
+          return
         }
       }
 

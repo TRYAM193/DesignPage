@@ -343,11 +343,6 @@ export default function CanvasEditor({
     };
   }, [setSelectedId, setActiveTool]);
 
-  // src/components/CanvasEditor.jsx
-
-  // ... inside CanvasEditor component ...
-
-  // 🆕 MOBILE PINCH-TO-RESIZE LOGIC
   // 🆕 MOBILE PINCH-TO-RESIZE (Single Object & Active Selection)
   useEffect(() => {
     const canvas = fabricCanvasRef.current;

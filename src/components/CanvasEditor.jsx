@@ -60,7 +60,7 @@ export default function CanvasEditor({
 
   const [menuPosition, setMenuPosition] = useState(null);
   const [selectedObjectLocked, setSelectedObjectLocked] = useState(false);
-  const [selectedObjectUUID, setSelectedObjectUUID] = useState(null);
+  const [selectedObjectUUIDs, setSelectedObjectUUIDs] = useState([]);
 
   // 🆕 HELPER: Update Menu Position
   // 🆕 HELPER: Syncs menu position and checks if object is locked
@@ -430,7 +430,7 @@ export default function CanvasEditor({
        }
     };
   }, [initialized]);
-  
+
   // 🟩 Handle movement, rotation, resize
   useEffect(() => {
     const fabricCanvas = fabricCanvasRef.current;

@@ -456,7 +456,7 @@ export default function CanvasEditor({
         const children = [...obj.getObjects()];
 
         setTimeout(() => {
-          // fabricCanvas.discardActiveObject();
+          fabricCanvas.discardActiveObject();
           fabricCanvas.requestRenderAll();
 
           const present = store.getState().canvas.present;

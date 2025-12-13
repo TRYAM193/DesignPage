@@ -194,11 +194,11 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
       alert('Could not extract a valid font name from the link.');
     }
   };
+  const shapes = ['rect', 'circle', 'triangle', 'star', 'pentagon', 'hexagon', 'line'];
 
   const handleUpdateAndHistory = (key, value) => {
     const updates = { [key]: value };
     const shadowKeys = ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'];
-    const shapes = ['rect', 'circle', 'triangle', 'star', 'pentagon', 'hexagon', 'line'];
 
     if (shadowKeys.includes(key)) {
       updateObject(id, updates);

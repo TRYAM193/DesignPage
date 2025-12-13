@@ -6,9 +6,6 @@ import {
 import WebFont from 'webfontloader';
 import CircleText from '../objectAdders/CircleText';
 import { Path } from 'fabric';
-
-// 🆕 Import Shape Utils for rounding sharp corners
-// Ensure you have created this file in src/utils/shapeUtils.js
 import { 
   getStarPoints, 
   getPolygonPoints, 

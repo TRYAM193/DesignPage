@@ -247,7 +247,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           <h3 className="property-group-subtitle">Text Effects</h3>
           <div className="control-row-buttons">
              <button 
-                className={`style-button ${currentEffect === 'none' ? 'active' : ''}`}
+                className={`style-button ${currentEffect === 'straight' ? 'active' : ''}`}
                 onClick={() => applyTextEffect('straight')}
                 title="Straight"
              >

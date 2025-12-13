@@ -486,7 +486,6 @@ export default function CanvasEditor({
                   (child.type === 'group' && child.textEffect === 'circle') ? { width: child.width, height: child.height } : {}
               };
             } else {
-              // For circle text (group) or images, we just save the transforms
               updatedPresent[index].props = {
                 ...updatedPresent[index].props,
                 left: translateX,

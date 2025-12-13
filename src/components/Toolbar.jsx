@@ -128,8 +128,6 @@ const Outline = () => (
       onInput={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value), object)}
       onMouseUp={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
     />
-
-  </div>
 </>
 )
 

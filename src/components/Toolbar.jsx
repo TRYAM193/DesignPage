@@ -516,7 +516,9 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
         />
       </div>
 
-      {['rect', 'circle', 'triangle', 'text', 'circle-text', 'image'].includes(type) && }
+      {['rect', 'circle', 'triangle', 'text', 'circle-text', 'image'].includes(type) && (
+        <Outline liveProps={liveProps} handleLiveUpdate={handleLiveUpdate} handleUpdateAndHistory={handleUpdateAndHistory} object={object} />
+      )}
 
       {/* --- 3. SHADOW/EFFECTS --- */}
       <div className="property-group">

@@ -14,7 +14,7 @@ import { FabricImage } from 'fabric';
 import updateExisting from '../utils/updateExisting'
 import FloatingMenu from './FloatingMenu';
 import { handleCanvasAction } from '../utils/canvasActions';
-import ShapeAdder from '../objectAdders/Shapes'; 
+import ShapeAdder from '../objectAdders/Shapes';
 
 fabric.Object.prototype.toObject = (function (toObject) {
   return function (propertiesToInclude) {
@@ -147,7 +147,7 @@ export default function CanvasEditor({
 
           const newObj = {
             id: obj.customId,
-            type: obj.textEffect === 'circle' ? 'circle-text' : obj.type, 
+            type: obj.textEffect === 'circle' ? 'circle-text' : obj.type,
             props: {
               text: obj.text,
               left: obj.left,
@@ -186,11 +186,11 @@ export default function CanvasEditor({
       // ... (Existing loading logic kept same for brevity) ... 
       // [Previous Logic Preserved]
       try {
-          const sessionData = sessionStorage.getItem('editingDesign');
-          if (sessionData) {
-            designToLoad = JSON.parse(sessionData);
-            sessionStorage.removeItem('editingDesign');
-          }
+        const sessionData = sessionStorage.getItem('editingDesign');
+        if (sessionData) {
+          designToLoad = JSON.parse(sessionData);
+          sessionStorage.removeItem('editingDesign');
+        }
       } catch (e) { console.warn(e); }
 
       if (!designToLoad) {
@@ -203,7 +203,7 @@ export default function CanvasEditor({
         } catch (e) { console.warn(e); }
       }
 
-       if (!designToLoad) {
+      if (!designToLoad) {
         const urlParams = new URLSearchParams(window.location.search);
         designId = urlParams.get('designId');
       }
@@ -216,13 +216,13 @@ export default function CanvasEditor({
       }
 
       if (!designToLoad && designId) {
-         try {
+        try {
           const designRef = doc(firestore, `users/test-user-123/designs`, designId);
           const designSnap = await getDoc(designRef);
           if (designSnap.exists()) {
-             designToLoad = { id: designId, ...designSnap.data() };
+            designToLoad = { id: designId, ...designSnap.data() };
           }
-         } catch (e) { console.error(e); }
+        } catch (e) { console.error(e); }
       }
 
       if (designToLoad) {
@@ -230,15 +230,15 @@ export default function CanvasEditor({
         setEditingDesignId(designToLoad.id);
         if (designToLoad.canvasJSON) {
           fabricCanvas.loadFromJSON(designToLoad.canvasJSON, () => {
-             // ... (Existing mapping logic) ...
-             setTimeout(() => {
+            // ... (Existing mapping logic) ...
+            setTimeout(() => {
               fabricCanvas.requestRenderAll();
               fabricCanvas.getObjects().forEach(obj => {
                 const state = store.getState();
                 const currentObjs = state.canvas.present;
                 // Simple duplication check before adding
                 if (!currentObjs.find(o => o.id === obj.customId)) {
-                   // Add logic here if needed
+                  // Add logic here if needed
                 }
               });
             }, 90);
@@ -276,8 +276,8 @@ export default function CanvasEditor({
     };
 
     const handleMoving = () => {
-       if (isSyncingRef.current) return;
-       updateMenuPosition();
+      if (isSyncingRef.current) return;
+      updateMenuPosition();
     };
 
     canvas.on('selection:created', handleSelection);
@@ -301,15 +301,17 @@ export default function CanvasEditor({
 
   // 🟩 Touch / Pinch Logic (Preserved)
   useEffect(() => {
-     // ... (Your existing touch logic here) ...
-     const canvas = fabricCanvasRef.current;
-     if (!canvas) return;
+    // ... (Your existing touch logic here) ...
+    const canvas = fabricCanvasRef.current;
+    if (!canvas) return;
   }, [initialized]);
 
   // 🟩 Handle Modifications (User Actions)
   useEffect(() => {
     const fabricCanvas = fabricCanvasRef.current;
     if (!fabricCanvas) return;
+
+    // src/components/CanvasEditor.jsx (inside the useEffect)
 
     const handleObjectModified = (e) => {
       if (isSyncingRef.current) return;
@@ -322,57 +324,69 @@ export default function CanvasEditor({
       // --- HANDLE ACTIVE SELECTION (GROUPS) ---
       if (type === 'activeselection') {
         const children = [...obj.getObjects()];
-        fabricCanvas.discardActiveObject();
-        
-        // 2. Now read the correct values from the children
-        const present = store.getState().canvas.present;
-        let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
-        let hasChanges = false;
 
-        children.forEach((child) => {
-          const index = updatedPresent.findIndex((o) => o.id === child.customId);
-          if (index === -1) return;
+        // ⚡ FIX: Use setTimeout to prevent "Maximum call stack size exceeded"
+        setTimeout(() => {
+          // 1. Discard the group. This forces Fabric to apply the group's 
+          //    transformations to the children's properties automatically.
+          fabricCanvas.discardActiveObject();
 
-          // For TEXT, we still want to normalize scale into fontSize
-          if (child.type === 'text' || child.type === 'textbox' || child.customType === 'text') {
-            const newFontSize = child.fontSize * child.scaleX;
-            child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
-            child.setCoords();
+          const present = store.getState().canvas.present;
+          let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
+          let hasChanges = false;
 
-            updatedPresent[index].props = {
-              ...updatedPresent[index].props,
-              fontSize: newFontSize,
-              left: child.left,
-              top: child.top,
-              angle: child.angle,
-              scaleX: 1,
-              scaleY: 1
-            };
-          } else {
-            updatedPresent[index].props = {
-              ...updatedPresent[index].props,
-              left: child.left,
-              top: child.top,
-              angle: child.angle,
-              scaleX: child.scaleX,
-              scaleY: child.scaleY,
-            };
-          }
-          hasChanges = true;
-        });
+          children.forEach((child) => {
+            const index = updatedPresent.findIndex((o) => o.id === child.customId);
+            if (index === -1) return;
 
-        if (hasChanges) {
-          store.dispatch(setCanvasObjects(updatedPresent));
-        }
+            // 2. Read the "Trust Fabric" values directly from the child
+            //    (No complex matrix math needed anymore)
 
-        // 3. Restore selection quietly
-        if (children.length > 0) {
-          const sel = new fabric.ActiveSelection(children, {
-            canvas: fabricCanvas,
+            if (child.type === 'text' || child.type === 'textbox' || child.customType === 'text') {
+              // For text, we normalize scale into fontSize
+              const newFontSize = child.fontSize * child.scaleX;
+              child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
+              child.setCoords();
+
+              updatedPresent[index].props = {
+                ...updatedPresent[index].props,
+                fontSize: newFontSize,
+                left: child.left,
+                top: child.top,
+                angle: child.angle,
+                scaleX: 1,
+                scaleY: 1
+              };
+            } else {
+              // For Shapes & Images: Read exact values
+              // ⚡ FIX: Ensure scaleY is saved separately to prevent jumping/snapping
+              updatedPresent[index].props = {
+                ...updatedPresent[index].props,
+                left: child.left,
+                top: child.top,
+                angle: child.angle,
+                scaleX: child.scaleX,
+                scaleY: child.scaleY,
+                // Note: Do not force width/height updates here unless necessary
+              };
+            }
+            hasChanges = true;
           });
-          fabricCanvas.setActiveObject(sel);
-          fabricCanvas.requestRenderAll();
-        }
+
+          if (hasChanges) {
+            store.dispatch(setCanvasObjects(updatedPresent));
+          }
+
+          // 3. Restore selection quietly
+          if (children.length > 0) {
+            const sel = new fabric.ActiveSelection(children, {
+              canvas: fabricCanvas,
+            });
+            fabricCanvas.setActiveObject(sel);
+            fabricCanvas.requestRenderAll();
+          }
+        }, 0);
+
         return;
       }
 
@@ -399,6 +413,8 @@ export default function CanvasEditor({
         angle: obj.angle,
         scaleX: obj.scaleX,
         scaleY: obj.scaleY,
+        width: obj.width,
+        height: obj.height,
       });
     };
 
@@ -424,8 +440,8 @@ export default function CanvasEditor({
       selectedIds = activeObject.getObjects().map(o => o.customId);
       fabricCanvas.discardActiveObject();
     } else if (activeObject) {
-       // Also capture single selection to restore it if needed
-       selectedIds = [activeObject.customId];
+      // Also capture single selection to restore it if needed
+      selectedIds = [activeObject.customId];
     }
 
     isSyncingRef.current = true;
@@ -447,19 +463,19 @@ export default function CanvasEditor({
 
         // Check if we can just update properties (avoids destroy/create flicker)
         if (existing && existing.type === objData.type && !isCircle) {
-           existing.set(objData.props);
-           existing.setCoords();
-        } 
+          existing.set(objData.props);
+          existing.setCoords();
+        }
         else {
           if (existing) fabricCanvas.remove(existing);
 
           let newObj;
           if (isCircle) {
             newObj = CircleText(objData);
-          } 
+          }
           // Use ShapeAdder here if you have it:
           else if (['rect', 'circle', 'triangle'].includes(objData.type)) {
-             newObj = ShapeAdder(objData); 
+            newObj = ShapeAdder(objData);
           }
           else if (objData.type === 'text') {
             newObj = StraightText(objData);
@@ -468,7 +484,7 @@ export default function CanvasEditor({
           if (newObj) {
             newObj.customId = objData.id;
             fabricCanvas.add(newObj);
-            
+
             // ❌ FIXED: Do NOT set active object here. 
             // This was causing the "individual" flickering and breaking the group.
             // fabricCanvas.setActiveObject(newObj); 
@@ -504,7 +520,7 @@ export default function CanvasEditor({
 
     // 4. Layer Management
     const currentFabricObjects = fabricCanvas.getObjects();
-    let fabricObjectsArray = fabricCanvas._objects; 
+    let fabricObjectsArray = fabricCanvas._objects;
 
     canvasObjects.forEach((reduxObj, index) => {
       const fabricObj = currentFabricObjects.find((obj) => obj.customId === reduxObj.id);
@@ -521,7 +537,7 @@ export default function CanvasEditor({
       // Small timeout ensures async adds (if any fast ones) are caught, 
       // but primarily it waits for the loop to finish.
       const objectsToSelect = fabricCanvas.getObjects().filter(obj => selectedIds.includes(obj.customId));
-      
+
       if (objectsToSelect.length > 1) {
         const selection = new fabric.ActiveSelection(objectsToSelect, { canvas: fabricCanvas });
         fabricCanvas.setActiveObject(selection);
@@ -542,7 +558,7 @@ export default function CanvasEditor({
   const onMenuAction = (action) => {
     handleCanvasAction(
       action,
-      selectedObjectUUIDs, 
+      selectedObjectUUIDs,
       store.getState().canvas.present,
       dispatch,
       setCanvasObjects

@@ -95,12 +95,8 @@ export const handleCanvasAction = (action, selectedIds, canvasObjects, dispatch,
         // 3. Unshift them to the start (bottom)
         newObjects = [...toBack, ...remainingBack];
         break;
-      
-    // For 'step' movements (Bring Forward/Send Backward), it's best to loop
-    // But usually safer to stick to ToFront/ToBack for groups to avoid interleaving issues.
+        
     case 'bringForward':
-       // Simple implementation: try to move each one step up
-       // Note: This works best for single selection.
        if(selectedIds.length === 1) {
            const idx = newObjects.findIndex(o => o.id === selectedIds[0]);
            if (idx < newObjects.length - 1) {

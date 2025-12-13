@@ -517,7 +517,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
         />
       </div>
 
-      {['rect', 'circle', 'triangle'].includes(type) && (
+      {shapes.includes(type) && (
         <Outline liveProps={liveProps} handleLiveUpdate={handleLiveUpdate} handleUpdateAndHistory={handleUpdateAndHistory} object={object} />
       )}
 

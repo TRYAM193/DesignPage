@@ -94,6 +94,8 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
   fabricCanvas.requestRenderAll();
 }
 
+const out
+
 
 export default function Toolbar({ id, type, object, updateObject, removeObject, addText, fabricCanvas }) {
   const props = object?.props || {};

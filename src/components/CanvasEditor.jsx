@@ -285,39 +285,46 @@ export default function CanvasEditor({
 
   // 🟩 Handle selection
   useEffect(() => {
-    const fabricCanvas = fabricCanvasRef.current;
-    if (!fabricCanvas) return;
+    const canvas = fabricCanvasRef.current;
+    if (!canvas) return;
 
     const handleSelection = (e) => {
       const selected = e.selected?.[0];
-      if (selected && selected.customId) {
-        const newId = selected.customId;
-        const newType = selected.type;
-
-        // If it's a circle-text group, treat it as 'circle-text' type in selection
-        // This ensures the Toolbar sees it as a 'circle-text' and shows the radius slider
-        if (newId !== selected) {
-          setSelectedId(newId);
-          setActiveTool(selected.textEffect === 'circle' ? 'circle-text' : newType);
-        }
+      if (selected) {
+        setSelectedId(selected.customId);
+        setActiveTool(selected.textEffect === 'circle' ? 'circle-text' : selected.type);
+        updateMenuPosition(); // <--- Update Menu
       }
     };
 
     const handleCleared = () => {
       setSelectedId(null);
       setActiveTool(null);
+      setMenuPosition(null); // <--- Hide Menu
     };
 
-    fabricCanvas.on('selection:created', handleSelection);
-    fabricCanvas.on('selection:updated', handleSelection);
-    fabricCanvas.on('selection:cleared', handleCleared);
+    const handleMoving = () => {
+       updateMenuPosition(); // <--- Follow Object while dragging
+    };
+
+    canvas.on('selection:created', handleSelection);
+    canvas.on('selection:updated', handleSelection);
+    canvas.on('selection:cleared', handleCleared);
+    canvas.on('object:moving', handleMoving);
+    canvas.on('object:scaling', handleMoving);
+    canvas.on('object:rotating', handleMoving);
+    canvas.on('object:modified', handleMoving);
 
     return () => {
-      fabricCanvas.off('selection:created', handleSelection);
-      fabricCanvas.off('selection:updated', handleSelection);
-      fabricCanvas.off('selection:cleared', handleCleared);
+      canvas.off('selection:created', handleSelection);
+      canvas.off('selection:updated', handleSelection);
+      canvas.off('selection:cleared', handleCleared);
+      canvas.off('object:moving', handleMoving);
+      canvas.off('object:scaling', handleMoving);
+      canvas.off('object:rotating', handleMoving);
+      canvas.off('object:modified', handleMoving);
     };
-  }, [setActiveTool, setSelectedId]);
+  }, [setSelectedId, setActiveTool]);
 
   // 🟩 Handle movement, rotation, resize
   useEffect(() => {

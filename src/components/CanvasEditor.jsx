@@ -322,10 +322,6 @@ export default function CanvasEditor({
       // --- HANDLE ACTIVE SELECTION (GROUPS) ---
       if (type === 'activeselection') {
         const children = [...obj.getObjects()];
-
-        // 1. Discard the group immediately.
-        // This forces Fabric to calculate the new World Transform for each child 
-        // automatically, handling all origin/scale/rotation math for us.
         fabricCanvas.discardActiveObject();
         
         // 2. Now read the correct values from the children
@@ -353,8 +349,6 @@ export default function CanvasEditor({
               scaleY: 1
             };
           } else {
-            // For SHAPES & IMAGES: Just read the values Fabric calculated.
-            // This fixes the jumping because we match Fabric's state exactly.
             updatedPresent[index].props = {
               ...updatedPresent[index].props,
               left: child.left,
@@ -362,8 +356,6 @@ export default function CanvasEditor({
               angle: child.angle,
               scaleX: child.scaleX,
               scaleY: child.scaleY,
-              // Do NOT force width/height updates for scaling, 
-              // as that can conflict with Circle radius or Shape logic.
             };
           }
           hasChanges = true;

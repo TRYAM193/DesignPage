@@ -700,12 +700,12 @@ export default function CanvasEditor({
       <canvas ref={canvasRef} id="canvas" />
 
       {menuPosition && selectedObjectUUIDs.length > 0 && (
-    <FloatingMenu 
-        position={menuPosition} 
-        onAction={onMenuAction} 
-        isLocked={selectedObjectLocked}
-    />
-)}
+        <FloatingMenu
+          position={menuPosition}
+          onAction={onMenuAction}
+          isLocked={selectedObjectLocked}
+        />
+      )}
     </div>
   );
 }

@@ -332,6 +332,7 @@ export default function CanvasEditor({
                 angle: child.angle,
                 scaleX: 1,
                 scaleY: 1
+                ()
               };
             } else {
               // For circle text (group) or images, we just save the transforms

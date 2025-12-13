@@ -436,6 +436,8 @@ export default function CanvasEditor({
       let existing = fabricObjects.find((o) => o.customId === id);
       pastData = past.find(state => state.some(obj => obj.id === id)).find(obj => obj.id === objData.id);
       
+      if ()
+
       let newObj;
       if (objData.type === 'text') {
         if (objData.props.textEffect === 'straight') {

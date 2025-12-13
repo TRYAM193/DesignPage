@@ -485,7 +485,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             />
           </div>
 
-          <OutLine liveProps={liveProps} handleLiveUpdate={handleLiveUpdate} handleUpdateAndHistory={handleUpdateAndHistory} object={object} />
+          <Outline liveProps={liveProps} handleLiveUpdate={handleLiveUpdate} handleUpdateAndHistory={handleUpdateAndHistory} object={object} />
 
         </div>
       )}

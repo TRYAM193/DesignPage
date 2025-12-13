@@ -566,6 +566,7 @@ export default function CanvasEditor({
 
     // Small timeout to ensure sync flag clears after render
     setTimeout(() => {
+      updateMenuPosition();
       isSyncingRef.current = false;
     }, 50);
 

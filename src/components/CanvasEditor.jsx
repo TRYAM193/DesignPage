@@ -99,7 +99,7 @@ export default function CanvasEditor({
       setSelectedObjectUUIDs([]);
     }
   };
-  
+
   // 🟩 Initialize Fabric.js once
   useEffect(() => {
     const ORIGINAL_WIDTH = 800;
@@ -688,8 +688,8 @@ export default function CanvasEditor({
   const onMenuAction = (action) => {
     handleCanvasAction(
       action,
-      selectedObjectUUID,
-      store.getState().canvas.present, // Get latest from store
+      selectedObjectUUIDs, // Pass the Array
+      store.getState().canvas.present,
       dispatch,
       setCanvasObjects
     );

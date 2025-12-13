@@ -319,7 +319,7 @@ export default function CanvasEditor({
             const matrix = child.calcTransformMatrix();
             const { translateX, translateY, angle, scaleX } = fabric.util.qrDecompose(matrix);
 
-            if (child.type === 'text' || child.type === 'textbox' || child.cut) {
+            if (child.type === 'text' || child.type === 'textbox' || child.customType === 'text') {
               const newFontSize = child.fontSize * scaleX;
               child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
               child.setCoords();

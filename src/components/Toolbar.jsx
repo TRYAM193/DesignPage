@@ -257,6 +257,23 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
     updateObject(id, updates);
   };
 
+  const handleColorChange = (key, value) => {
+  // 🔹 live update (Fabric only)
+  setLiveProps(prev => ({ ...prev, [key]: value }));
+  liveUpdateFabric(fabricCanvas, id, { [key]: value }, liveProps, object);
+
+  // 🔹 clear previous commit
+  if (colorCommitTimer.current) {
+    clearTimeout(colorCommitTimer.current);
+  }
+
+  // 🔹 commit AFTER user stops changing color
+  colorCommitTimer.current = setTimeout(() => {
+    handleUpdateAndHistory(key, value);
+  }, 300); // 250–400ms feels perfect
+};
+
+
   // --- RENDER ---
   if (!object) {
     return (

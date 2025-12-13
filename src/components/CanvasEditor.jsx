@@ -58,6 +58,32 @@ export default function CanvasEditor({
   const previousStatesRef = useRef(new Map());
   const dispatch = useDispatch();
 
+  const [menuPosition, setMenuPosition] = useState(null);
+  const [selectedObjectLocked, setSelectedObjectLocked] = useState(false);
+  const [selectedObjectUUID, setSelectedObjectUUID] = useState(null);
+
+  // 🆕 HELPER: Update Menu Position
+  const updateMenuPosition = () => {
+    const activeObj = fabricCanvasRef.current?.getActiveObject();
+    if (activeObj) {
+        const boundingRect = activeObj.getBoundingRect(true); 
+        const canvasContainer = document.getElementById('canvas-wrapper');
+        
+        // Adjust for canvas position on screen
+        if(canvasContainer) {
+            setMenuPosition({
+                left: boundingRect.left + boundingRect.width / 2,
+                top: boundingRect.top 
+            });
+            setSelectedObjectLocked(activeObj.lockMovementX === true);
+            setSelectedObjectUUID(activeObj.customId);
+        }
+    } else {
+        setMenuPosition(null);
+        setSelectedObjectUUID(null);
+    }
+  };
+
   // 🟩 Initialize Fabric.js once
   useEffect(() => {
     const ORIGINAL_WIDTH = 800;

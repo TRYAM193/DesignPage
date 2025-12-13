@@ -649,7 +649,8 @@ export default function CanvasEditor({
           const newObj = ShapeAdder(objData);
           if (newObj) {
             fabricCanvas.add(newObj);
-            fabricCanvas.set
+            fabricCanvas.setActiveObject(newObj);
+            fabricCanvas.requestRenderAll();
           }
         }
       }

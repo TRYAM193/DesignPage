@@ -491,12 +491,11 @@ export default function CanvasEditor({
       previousStatesRef.current.set(objData.id, currentString);
     });
 
-    // 3. Cleanup: Remove objects that are in Fabric but NOT in Redux
     const reduxIds = new Set(canvasObjects.map(o => o.id));
     fabricObjects.forEach((obj) => {
       if (!reduxIds.has(obj.customId)) {
         fabricCanvas.remove(obj);
-        previousStatesRef.current.delete(obj.customId); // Remove from history
+        previousStatesRef.current.delete(obj.customId); 
       }
     });
 

@@ -56,6 +56,7 @@ export default function CanvasEditor({
   const canvasObjects = useSelector((state) => state.canvas.present);
   const location = useLocation();
   const previousStatesRef = useRef(new Map());
+  const dispatch = useDispatch();
 
   // 🟩 Initialize Fabric.js once
   useEffect(() => {

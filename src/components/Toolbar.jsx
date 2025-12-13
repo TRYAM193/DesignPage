@@ -521,7 +521,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
       {shapes.includes(type) && (
         <>
         <Outline liveProps={liveProps} handleLiveUpdate={handleLiveUpdate} handleUpdateAndHistory={handleUpdateAndHistory} object={object} />
-        {sharpEdges && (
+        {sharpEdges.includes(type) && (
             <>
                <div className="control-row" style={{ marginTop: '15px' }}>
                 <label className="control-label">Corner Radius</label>

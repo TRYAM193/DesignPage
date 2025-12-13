@@ -549,9 +549,9 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               />
             </>
           )}
-        </div>
       )}
       </>
+          </div>
       )}
 
       {/* --- 3. SHADOW/EFFECTS --- */}

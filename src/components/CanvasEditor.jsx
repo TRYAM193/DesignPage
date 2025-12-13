@@ -330,6 +330,105 @@ export default function CanvasEditor({
     };
   }, [setSelectedId, setActiveTool]);
 
+  // src/components/CanvasEditor.jsx
+
+// ... inside CanvasEditor component ...
+
+  // 🆕 MOBILE PINCH-TO-RESIZE LOGIC
+  useEffect(() => {
+    const canvas = fabricCanvasRef.current;
+    if (!canvas) return;
+
+    // Helper: Calculate distance between two touch points
+    const getDistance = (touches) => {
+      const [t1, t2] = touches;
+      const dx = t1.clientX - t2.clientX;
+      const dy = t1.clientY - t2.clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    let initialDistance = 0;
+    let initialScaleX = 1;
+    let initialScaleY = 1;
+    let isPinching = false;
+
+    const handleTouchStart = (e) => {
+      // Check for exactly 2 fingers (Pinch)
+      if (e.touches.length === 2) {
+        const activeObj = canvas.getActiveObject();
+        
+        // Only trigger if an object is selected
+        if (activeObj) {
+            isPinching = true;
+            initialDistance = getDistance(e.touches);
+            initialScaleX = activeObj.scaleX || 1;
+            initialScaleY = activeObj.scaleY || 1;
+            
+            // Prevent default browser zoom/scroll
+            if (e.cancelable) e.preventDefault(); 
+        }
+      }
+    };
+
+    const handleTouchMove = (e) => {
+      if (isPinching && e.touches.length === 2) {
+        const activeObj = canvas.getActiveObject();
+        if (activeObj) {
+          if (e.cancelable) e.preventDefault(); // Stop page from zooming
+          
+          const currentDistance = getDistance(e.touches);
+          
+          if (initialDistance > 0) {
+             const scaleFactor = currentDistance / initialDistance;
+             
+             // Apply the new scale relative to the start of the pinch
+             const newScaleX = initialScaleX * scaleFactor;
+             const newScaleY = initialScaleY * scaleFactor;
+
+             // Respect minimum scale limit to prevent objects vanishing
+             if (newScaleX > 0.1 && newScaleY > 0.1) {
+                 activeObj.set({
+                     scaleX: newScaleX,
+                     scaleY: newScaleY
+                 });
+                 activeObj.setCoords();
+                 canvas.requestRenderAll();
+             }
+          }
+        }
+      }
+    };
+
+    const handleTouchEnd = (e) => {
+      if (isPinching) {
+         // Fire 'modified' event so Redux history saves the change
+         const activeObj = canvas.getActiveObject();
+         if (activeObj) {
+             canvas.fire('object:modified', { target: activeObj });
+         }
+      }
+      isPinching = false;
+    };
+
+    // We attach listeners to 'upperCanvasEl' (the interactive layer)
+    // using { passive: false } is CRITICAL to allow e.preventDefault()
+    const upperCanvas = canvas.upperCanvasEl;
+    if (upperCanvas) {
+        upperCanvas.style.touchAction = 'none'; // CSS hint to browser
+        upperCanvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+        upperCanvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+        upperCanvas.addEventListener('touchend', handleTouchEnd);
+    }
+
+    return () => {
+       if (upperCanvas) {
+           upperCanvas.removeEventListener('touchstart', handleTouchStart);
+           upperCanvas.removeEventListener('touchmove', handleTouchMove);
+           upperCanvas.removeEventListener('touchend', handleTouchEnd);
+       }
+    };
+  }, [initialized]); // Run once canvas is initialized
+
   // 🟩 Handle movement, rotation, resize
   useEffect(() => {
     const fabricCanvas = fabricCanvasRef.current;

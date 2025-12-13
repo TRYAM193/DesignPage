@@ -341,12 +341,8 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           onMouseUp={(e) => handleUpdateAndHistory('opacity', Number(e.target.value) / 100)}
         />
       </div>
-
-      {/* --- 3. SHADOW/EFFECTS --- */}
-      <div className="property-group">
-        <h3 className="property-group-title">Shadow Effect</h3>
-        {/* ... (Existing Shadow Controls kept same) ... */}
-        {/* --- 3. SHADOW/EFFECTS --- */}
+      
+      {/* --- 3. SHADOW EFFECT --- */}
       <div className="property-group">
         <h3 className="property-group-title">Shadow Effect</h3>
 

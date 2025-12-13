@@ -458,7 +458,7 @@ export default function CanvasEditor({
       let existing = fabricObjects.find((o) => o.customId === objData.id);
 
       // --- A. TEXT / SHAPES OBJECTS ---
-      if (objData.type === 'text' || ['rect', 'circle', 'triangle'].includes(objData.type)) {
+      if (objData.type === 'text' || ['rect', 'circle', 'triangle', 'star', 'pentagon', 'hexagon', 'line'].includes(objData.type)) {
         const isCircle = objData.props.textEffect === 'circle';
 
         // Check if we can just update properties (avoids destroy/create flicker)

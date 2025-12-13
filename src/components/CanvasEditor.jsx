@@ -641,6 +641,8 @@ export default function CanvasEditor({
         }
       }
 
+      if (obj)
+
       previousStatesRef.current.set(objData.id, currentString);
     });
 

@@ -991,12 +991,8 @@ input[type="range"],
     
     /* 3. Pull back by 50% of its own width to center it perfectly */
     transform: translateX(-50%) !important; 
-    
-    /* 4. Ensure it doesn't stretch to full width */
     width: auto !important; 
-    
-    /* 5. Style adjustments */
-    top: 10px; /* Adjust distance from top */
+    top: 10px; 
     display: flex !important;
     justify-content: center !important;
     gap: 10px; /* Space between the button groups */

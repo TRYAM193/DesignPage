@@ -1,8 +1,20 @@
-// src/components/Toolbar.jsx
 import React, { useState, useEffect } from 'react';
-import { FiBold, FiItalic, FiUnderline, FiSearch, FiExternalLink, FiLoader, FiSlash, FiCircle, FiActivity, FiSunrise, FiFlag } from 'react-icons/fi';
+import { 
+  FiBold, FiItalic, FiUnderline, FiSearch, FiExternalLink, 
+  FiLoader, FiSlash, FiCircle, FiActivity, FiSunrise, FiFlag 
+} from 'react-icons/fi';
 import WebFont from 'webfontloader';
 import CircleText from '../objectAdders/CircleText';
+import { Path } from 'fabric';
+
+// 🆕 Import Shape Utils for rounding sharp corners
+// Ensure you have created this file in src/utils/shapeUtils.js
+import { 
+  getStarPoints, 
+  getPolygonPoints, 
+  getTrianglePoints, 
+  getRoundedPathFromPoints 
+} from '../utils/shapeUtils';
 
 const FONT_OPTIONS = ['Arial', 'Verdana', 'Tahoma', 'Georgia', 'Times New Roman', 'Courier New'];
 
@@ -27,7 +39,8 @@ function extractFontNameFromUrl(url) {
   return null;
 }
 
-// Function to directly update the Fabric object without touching Redux history
+// --- LIVE UPDATE LOGIC ---
+// Updates Fabric object directly for smooth performance without spamming Redux history
 function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
   if (!fabricCanvas) return;
   const existing = fabricCanvas.getObjects().find((o) => o.customId === id);
@@ -35,6 +48,7 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
 
   let finalUpdates = { ...updates };
 
+  // 1. Handle Shadow
   const shadowKeys = ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'];
   const shadowUpdateKeys = Object.keys(updates).filter(key => shadowKeys.includes(key));
 
@@ -49,16 +63,61 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
     shadowKeys.forEach(key => delete finalUpdates[key]);
   }
 
+  // 2. Handle Shape Rounding (Swapping Polygons for Paths)
+  const type = object.type; // Type from Redux (e.g. 'star', 'pentagon')
+  const shapeTypes = ['star', 'pentagon', 'hexagon', 'triangle'];
+
+  if (shapeTypes.includes(type) && (updates.radius !== undefined || updates.rx !== undefined)) {
+    const mergedProps = { ...currentLiveProps, ...updates };
+    // Use 'radius' or 'rx' interchangeably for the UI slider value
+    const r = mergedProps.radius !== undefined ? mergedProps.radius : (mergedProps.rx || 0);
+
+    let points = [];
+    if (type === 'star') points = getStarPoints(5, 50, 25);
+    else if (type === 'pentagon') points = getPolygonPoints(5, 50);
+    else if (type === 'hexagon') points = getPolygonPoints(6, 50);
+    else if (type === 'triangle') points = getTrianglePoints(100, 100);
+
+    // Generate smoothed path data
+    const pathData = getRoundedPathFromPoints(points, r);
+
+    // Create new Path object preserving existing transforms
+    const newPathObj = new Path(pathData, {
+      ...existing.toObject(['customId']), // Copy standard props
+      ...finalUpdates,
+      left: existing.left,
+      top: existing.top,
+      scaleX: existing.scaleX,
+      scaleY: existing.scaleY,
+      angle: existing.angle,
+      fill: mergedProps.fill,
+      stroke: mergedProps.stroke,
+      strokeWidth: mergedProps.strokeWidth,
+      path: pathData 
+    });
+
+    // Swap Objects
+    const index = fabricCanvas.getObjects().indexOf(existing);
+    fabricCanvas.remove(existing);
+    fabricCanvas.add(newPathObj);
+    if (index > -1) fabricCanvas.moveObjectTo(newPathObj, index);
+    
+    fabricCanvas.setActiveObject(newPathObj);
+    newPathObj.setCoords();
+    fabricCanvas.requestRenderAll();
+    return;
+  }
+
+  // 3. Handle Text / Rect / Circle Updates
   existing.set(finalUpdates);
 
-  // Handle specific initializations
   if (existing.type === 'text') {
     if (finalUpdates.text !== undefined || finalUpdates.fontFamily !== undefined || finalUpdates.fontSize !== undefined) {
       existing.initDimensions();
     }
   }
 
-  // Handle Circle Text regeneration
+  // 4. Handle Circle Text Group Regeneration
   if (existing.textEffect === 'circle') {
     const mergedProps = { ...currentLiveProps, ...updates };
     const newGroup = CircleText({ id: id, props: mergedProps });
@@ -73,38 +132,50 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
     fabricCanvas.requestRenderAll();
     return;
   }
-  
+
   existing.setCoords();
   fabricCanvas.requestRenderAll();
 }
 
+
 export default function Toolbar({ id, type, object, updateObject, removeObject, addText, fabricCanvas }) {
   const props = object?.props || {};
   const [liveProps, setLiveProps] = useState(props);
+  
+  // Font State
   const [googleFontUrl, setGoogleFontUrl] = useState('');
   const [showFontUrlInput, setShowFontUrlInput] = useState(false);
   const [isFontLoading, setIsFontLoading] = useState(false);
   const [originalFontFamily, setOriginalFontFamily] = useState(props.fontFamily || 'Arial');
 
-  // Ensure radius has a default
-  const [radius, setRadius] = useState(props.radius || 150);
+  // Unified Radius State (for Rects AND Shapes)
+  const [borderRadius, setBorderRadius] = useState(props.rx || props.radius || 0);
+  const [circleRadius, setCircleRadius] = useState(props.radius || 150); // Specifically for Text Circle Effect
+
+  const currentEffect = object?.textEffect || props.textEffect || 'none';
 
   useEffect(() => {
     if (object && object.props) {
       setLiveProps(object.props);
+      // Sync local state
+      setBorderRadius(object.props.rx || object.props.radius || 0);
+      setCircleRadius(object.props.radius || 150);
     }
   }, [object]);
 
   // --- HANDLERS ---
+
   const handleApplyFont = (fontName) => {
     if (!fontName || isFontLoading) return;
+
     if (FONT_OPTIONS.includes(fontName) || fontName === originalFontFamily) {
-      liveUpdateFabric(fabricCanvas, id, { fontFamily: fontName }, liveProps);
+      liveUpdateFabric(fabricCanvas, id, { fontFamily: fontName }, liveProps, object);
       handleUpdateAndHistory('fontFamily', fontName);
       return;
     }
+
     setIsFontLoading(true);
-    liveUpdateFabric(fabricCanvas, id, { fontFamily: fontName }, liveProps);
+    liveUpdateFabric(fabricCanvas, id, { fontFamily: fontName }, liveProps, object);
 
     WebFont.load({
       google: { families: [fontName] },
@@ -114,9 +185,9 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
       },
       fontinactive: (familyName) => {
         setIsFontLoading(false);
-        alert(`Failed to load font: ${familyName}.`);
+        alert(`Failed to load font: ${familyName}. Please check the spelling.`);
         setLiveProps(prev => ({ ...prev, fontFamily: originalFontFamily }));
-        liveUpdateFabric(fabricCanvas, id, { fontFamily: originalFontFamily }, liveProps);
+        liveUpdateFabric(fabricCanvas, id, { fontFamily: originalFontFamily }, liveProps, object);
         handleUpdateAndHistory('fontFamily', originalFontFamily);
       },
       timeout: 3000
@@ -131,7 +202,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
       setShowFontUrlInput(false);
       handleApplyFont(fontName);
     } else {
-      alert('Could not extract a valid font name.');
+      alert('Could not extract a valid font name from the link.');
     }
   };
 
@@ -140,21 +211,26 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const handleUpdateAndHistory = (key, value) => {
     const updates = { [key]: value };
     const shadowKeys = ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'];
+
     if (shadowKeys.includes(key)) {
       updateObject(id, updates);
       const mergedProps = { ...liveProps, [key]: value };
       const shadowObject = createFabricShadow(
-        mergedProps.shadowColor, mergedProps.shadowBlur, mergedProps.shadowOffsetX, mergedProps.shadowOffsetY
+        mergedProps.shadowColor,
+        mergedProps.shadowBlur,
+        mergedProps.shadowOffsetX,
+        mergedProps.shadowOffsetY
       );
       updateObject(id, { shadow: shadowObject });
       return;
     }
+
     updateObject(id, updates);
   };
 
   // ✅ VISUAL ONLY (Fabric)
-  // Call this onChange (sliders/color) for smooth real-time updates
-  const handleLiveUpdate = (key, value, object = null) => {
+  // Call this onChange (sliders/color) for smooth updates
+  const handleLiveUpdate = (key, value) => {
     setLiveProps(prev => ({ ...prev, [key]: value }));
     liveUpdateFabric(fabricCanvas, id, { [key]: value }, liveProps, object);
   };
@@ -162,20 +238,33 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const toggleTextStyle = (style) => {
     let propKey, nextValue;
     const currentProps = object?.props || {};
-    if (style === 'underline') { propKey = 'underline'; nextValue = !currentProps.underline; }
-    else if (style === 'italic') { propKey = 'fontStyle'; nextValue = currentProps.fontStyle === 'italic' ? 'normal' : 'italic'; }
-    else if (style === 'bold') { propKey = 'fontWeight'; nextValue = currentProps.fontWeight === 'bold' ? 'normal' : 'bold'; }
-    else return;
+
+    if (style === 'underline') {
+      propKey = 'underline';
+      nextValue = !currentProps.underline;
+    } else if (style === 'italic') {
+      propKey = 'fontStyle';
+      nextValue = currentProps.fontStyle === 'italic' ? 'normal' : 'italic';
+    } else if (style === 'bold') {
+      propKey = 'fontWeight';
+      nextValue = currentProps.fontWeight === 'bold' ? 'normal' : 'bold';
+    } else {
+      return;
+    }
     handleUpdateAndHistory(propKey, nextValue);
   };
 
   const applyTextEffect = (effectType) => {
     let updates = { textEffect: effectType };
-    if (effectType === 'circle') updates.radius = radius;
-    else if (effectType === 'none') updates.path = null;
+    if (effectType === 'circle') {
+      updates.radius = circleRadius;
+    } else if (effectType === 'none') {
+      updates.path = null;
+    }
     updateObject(id, updates);
   };
 
+  // --- RENDER ---
   if (!object) {
     return (
       <div className="property-panel-message">
@@ -184,10 +273,10 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
     );
   }
 
-  // --- DETERMINE OBJECT TYPE CATEGORY ---
   const isTextObject = type === 'text' || type === 'circle-text';
-  // Include all new shapes + line
+  // Include new shapes in the check
   const isShapeObject = ['rect', 'circle', 'triangle', 'star', 'pentagon', 'hexagon', 'line'].includes(type);
+  const supportsBorderRadius = ['rect', 'triangle', 'star', 'pentagon', 'hexagon'].includes(type);
 
   return (
     <div className="property-panel-content">
@@ -206,7 +295,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               rows="3"
               value={liveProps.text || ''}
               onBlur={(e) => handleUpdateAndHistory('text', e.target.value)}
-              onChange={(e) => handleLiveUpdate('text', e.target.value, object)}
+              onChange={(e) => handleLiveUpdate('text', e.target.value)}
               placeholder="Enter your text here"
             />
           </div>
@@ -217,50 +306,114 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             <button className={`style-button ${liveProps.fontStyle === 'italic' ? 'active' : ''}`} onClick={() => toggleTextStyle('italic')} title="Italic"><FiItalic size={16} /></button>
             <button className={`style-button ${liveProps.underline ? 'active' : ''}`} onClick={() => toggleTextStyle('underline')} title="Underline"><FiUnderline size={16} /></button>
           </div>
-          
+
+          {/* Text Effects */}
+          <h3 className="property-group-subtitle">Text Effects</h3>
+          <div className="control-row-buttons">
+            <button className={`style-button ${currentEffect === 'straight' ? 'active' : ''}`} onClick={() => applyTextEffect('straight')} title="Straight"><FiSlash size={16} /></button>
+            <button className={`style-button ${currentEffect === 'circle' ? 'active' : ''}`} onClick={() => applyTextEffect('circle')} title="Circle"><FiCircle size={16} /></button>
+            <button className={`style-button ${currentEffect === 'semicircle' ? 'active' : ''}`} onClick={() => applyTextEffect('semicircle')} title="Semicircle"><FiSunrise size={16} /></button>
+            <button className={`style-button ${currentEffect === 'flag' ? 'active' : ''}`} onClick={() => applyTextEffect('flag')} title="Flag"><FiFlag size={16} /></button>
+          </div>
+
+          {currentEffect === 'circle' && (
+            <div className="control-row full-width">
+              <div className="control-row">
+                <label className="control-label">Radius</label>
+                <span style={{ fontSize: '12px', color: '#666' }}>{circleRadius}</span>
+              </div>
+              <input
+                type="range"
+                className="slider-input"
+                min="50" max="400" step="10"
+                value={circleRadius}
+                onInput={(e) => {
+                  const val = Number(e.target.value);
+                  setCircleRadius(val);
+                }}
+                onMouseUp={(e) => updateObject(id, { radius: Number(e.target.value) })}
+                onChange={(e) => handleLiveUpdate('radius', Number(e.target.value))}
+              />
+            </div>
+          )}
+
+          {/* FONT FAMILY SECTION */}
+          <h3 className="property-group-subtitle">Font Family</h3>
+          <div className="control-row full-width font-control-group">
+            <input
+              type="text"
+              className="text-input font-input"
+              value={liveProps.fontFamily || ''}
+              onChange={(e) => handleLiveUpdate('fontFamily', e.target.value)}
+              placeholder="Enter font name (e.g., Roboto)"
+              disabled={isFontLoading}
+            />
+            <div className="font-link-helper">
+              <button
+                className="style-button primary-button apply small-button apply-button"
+                onClick={() => handleApplyFont(liveProps.fontFamily)}
+                disabled={!liveProps.fontFamily || isFontLoading}
+              >
+                {isFontLoading ? <FiLoader size={16} className="icon-spin" /> : 'Apply'}
+              </button>
+              <button className="style-button" onClick={() => setShowFontUrlInput(prev => !prev)} disabled={isFontLoading}><FiSearch size={16} /></button>
+              <a href="https://fonts.google.com/" target="_blank" rel="noopener noreferrer" className="style-button external-link-button"><FiExternalLink size={16} /></a>
+            </div>
+          </div>
+
+          {showFontUrlInput && (
+            <div className="control-row full-width font-url-input-group">
+              <p className="font-helper-text">Paste the full Google Fonts **link** or **@import** statement:</p>
+              <textarea
+                rows="2"
+                className="text-input"
+                value={googleFontUrl}
+                onChange={(e) => setGoogleFontUrl(e.target.value)}
+                placeholder="e.g., https://fonts.googleapis.com/css2?family=Roboto..."
+              />
+              <button
+                className="primary-button small-button"
+                onClick={handleUrlPaste}
+                disabled={!googleFontUrl.trim()}
+              >
+                Extract & Apply
+              </button>
+            </div>
+          )}
+
+          <h3 className="property-group-subtitle" style={{ marginTop: '15px' }}>System Presets</h3>
+          <div className="control-row full-width">
+            <select
+              className="font-select"
+              value={liveProps.fontFamily || 'Arial'}
+              onChange={(e) => handleLiveUpdate('fontFamily', e.target.value)}
+              disabled={isFontLoading}
+            >
+              {FONT_OPTIONS.map(font => <option key={font} value={font}>{font}</option>)}
+            </select>
+          </div>
+
           <div className="control-row">
             <label className="control-label">Font Size</label>
-            <input type="number" className="number-input small" value={Math.round(liveProps.fontSize || 0)} onChange={(e) => handleLiveUpdate('fontSize', Number(e.target.value), object)} onBlur={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))} />
+            <input type="number" className="number-input small" value={Math.round(liveProps.fontSize || 0)} onChange={(e) => handleLiveUpdate('fontSize', Number(e.target.value))} onBlur={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))} />
           </div>
-          <input 
-            type="range" className="slider-input" min="10" max="200" 
-            value={liveProps.fontSize || 0} 
-            onChange={(e) => handleLiveUpdate('fontSize', Number(e.target.value), object)} 
-            onMouseUp={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))} 
-            onTouchEnd={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))} 
-          />
+          <input type="range" className="slider-input" min="10" max="200" value={liveProps.fontSize || 0} onChange={(e) => handleLiveUpdate('fontSize', Number(e.target.value))} onMouseUp={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))} />
 
           <div className="control-row">
             <label className="control-label">Text Color</label>
-            <input 
-              type="color" className="color-input" 
-              value={liveProps.fill || '#000000'} 
-              onChange={(e) => handleLiveUpdate('fill', e.target.value, object)} 
-              onBlur={(e) => handleUpdateAndHistory('fill', e.target.value)} 
-            />
+            <input type="color" className="color-input" value={liveProps.fill || '#000000'} onChange={(e) => handleLiveUpdate('fill', e.target.value)} onBlur={(e) => handleUpdateAndHistory('fill', e.target.value)} />
           </div>
 
           <h3 className="property-group-title">Outline</h3>
           <div className="control-row">
              <label className="control-label">Color</label>
-             <input 
-               type="color" className="color-input" 
-               value={liveProps.stroke || '#000000'} 
-               onChange={(e) => handleLiveUpdate('stroke', e.target.value, object)} 
-               onBlur={(e) => handleUpdateAndHistory('stroke', e.target.value)} 
-             />
+             <input type="color" className="color-input" value={liveProps.stroke || '#000000'} onChange={(e) => handleLiveUpdate('stroke', e.target.value)} onBlur={(e) => handleUpdateAndHistory('stroke', e.target.value)} />
           </div>
           <div className="control-row">
              <label className="control-label">Width</label>
-             <input type="number" className="number-input small" value={Math.round(liveProps.strokeWidth || 0)} onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value), object)} onBlur={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))} />
+             <input type="number" className="number-input small" value={Math.round(liveProps.strokeWidth || 0)} onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value))} onBlur={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))} />
           </div>
-          <input 
-            type="range" className="slider-input" min="0" max="10" step="0.5" 
-            value={liveProps.strokeWidth || 0} 
-            onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value), object)} 
-            onMouseUp={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))} 
-            onTouchEnd={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
-          />
+          <input type="range" className="slider-input" min="0" max="10" step="0.5" value={liveProps.strokeWidth || 0} onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value))} onMouseUp={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))} />
         </div>
       )}
 
@@ -269,7 +422,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
         <div className="property-group">
           <h3 className="property-group-title">Shape Style</h3>
 
-          {/* Lines don't usually have a fill, so hide this input for lines */}
+          {/* Fill Color (Skip for lines) */}
           {type !== 'line' && (
             <div className="control-row">
               <label className="control-label">Fill Color</label>
@@ -277,7 +430,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
                 type="color"
                 className="color-input"
                 value={liveProps.fill || '#000000'}
-                onChange={(e) => handleLiveUpdate('fill', e.target.value, object)}
+                onChange={(e) => handleLiveUpdate('fill', e.target.value)}
                 onBlur={(e) => handleUpdateAndHistory('fill', e.target.value)}
               />
             </div>
@@ -289,7 +442,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               type="color"
               className="color-input"
               value={liveProps.stroke || '#000000'}
-              onChange={(e) => handleLiveUpdate('stroke', e.target.value, object)}
+              onChange={(e) => handleLiveUpdate('stroke', e.target.value)}
               onBlur={(e) => handleUpdateAndHistory('stroke', e.target.value)}
             />
           </div>
@@ -299,48 +452,55 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               type="number"
               className="number-input small"
               value={Math.round(liveProps.strokeWidth || 0)}
-              onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value), object)}
+              onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value))}
               onBlur={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
             />
           </div>
           <input
             type="range"
             className="slider-input"
-            min="0"
-            max={type === 'line' ? 50 : 20} // Allow thicker lines
-            step="1"
+            min="0" max={type === 'line' ? 50 : 20} step="1"
             value={liveProps.strokeWidth || 0}
-            onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value), object)}
+            onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value))}
             onMouseUp={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
-            onTouchEnd={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
           />
 
-          {/* Rounded Corners (Only for Rectangles) */}
-          {type === 'rect' && (
+          {/* 🆕 UNIVERSAL BORDER RADIUS SLIDER */}
+          {supportsBorderRadius && (
             <>
                <div className="control-row" style={{ marginTop: '15px' }}>
                 <label className="control-label">Corner Radius</label>
-                <span style={{ fontSize: '12px', color: '#666' }}>{Math.round(liveProps.rx || 0)}</span>
+                <span style={{ fontSize: '12px', color: '#666' }}>{Math.round(borderRadius)}</span>
               </div>
               <input
                 type="range"
                 className="slider-input"
                 min="0"
-                max="100"
+                max={type === 'rect' ? 100 : 40} // Limit radius for complex shapes
                 step="1"
-                value={liveProps.rx || 0}
+                value={borderRadius}
                 onChange={(e) => {
                   const val = Number(e.target.value);
-                  setLiveProps(prev => ({ ...prev, rx: val, ry: val }));
-                  liveUpdateFabric(fabricCanvas, id, { rx: val, ry: val }, liveProps, object);
+                  setBorderRadius(val);
+                  
+                  // For Rect uses 'rx/ry', for others uses 'radius' logic
+                  if (type === 'rect') {
+                      setLiveProps(prev => ({ ...prev, rx: val, ry: val }));
+                      liveUpdateFabric(fabricCanvas, id, { rx: val, ry: val }, liveProps, object);
+                  } else {
+                      setLiveProps(prev => ({ ...prev, radius: val }));
+                      liveUpdateFabric(fabricCanvas, id, { radius: val }, liveProps, object);
+                  }
                 }}
                 onMouseUp={(e) => {
                    const val = Number(e.target.value);
-                   updateObject(id, { rx: val, ry: val });
+                   const key = type === 'rect' ? 'rx' : 'radius';
+                   updateObject(id, { [key]: val, ...(type === 'rect' ? { ry: val } : {}) });
                 }}
                 onTouchEnd={(e) => {
                    const val = Number(e.target.value);
-                   updateObject(id, { rx: val, ry: val });
+                   const key = type === 'rect' ? 'rx' : 'radius';
+                   updateObject(id, { [key]: val, ...(type === 'rect' ? { ry: val } : {}) });
                 }}
               />
             </>
@@ -357,99 +517,59 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             type="number"
             className="number-input small"
             value={Math.round((liveProps.opacity || object.props.opacity || 0) * 100)}
-            onChange={(e) => handleLiveUpdate('opacity', Number(e.target.value) / 100, object)}
+            onChange={(e) => handleLiveUpdate('opacity', Number(e.target.value) / 100)}
             onBlur={(e) => handleUpdateAndHistory('opacity', Number(e.target.value) / 100)}
           />
         </div>
         <input
           type="range"
           className="slider-input"
-          min="0"
-          max="100"
-          step="1"
+          min="0" max="100" step="1"
           value={Math.round((liveProps.opacity || object.props.opacity || 0) * 100)}
-          onChange={(e) => handleLiveUpdate('opacity', Number(e.target.value) / 100, object)}
+          onChange={(e) => handleLiveUpdate('opacity', Number(e.target.value) / 100)}
           onMouseUp={(e) => handleUpdateAndHistory('opacity', Number(e.target.value) / 100)}
-          onTouchEnd={(e) => handleUpdateAndHistory('opacity', Number(e.target.value) / 100)}
         />
       </div>
 
+      {/* ================= SHADOW EFFECT ================= */}
       <div className="property-group">
         <h3 className="property-group-title">Shadow Effect</h3>
-
         <div className="control-row">
           <label className="control-label">Shadow Color</label>
-          <input
-            type="color"
-            className="color-input"
-            value={liveProps.shadowColor || '#000000'}
-            onInput={(e) => handleLiveUpdate('shadowColor', e.target.value, object)}
-            onChange={(e) => handleUpdateAndHistory('shadowColor', e.target.value)}
+          <input 
+            type="color" className="color-input" 
+            value={liveProps.shadowColor || '#000000'} 
+            onChange={(e) => handleLiveUpdate('shadowColor', e.target.value)} 
+            onBlur={(e) => handleUpdateAndHistory('shadowColor', e.target.value)} 
+          />
+        </div>
+        
+        <div className="control-row"><label className="control-label">Blur</label>
+          <input 
+            type="range" className="slider-input" min="0" max="50" 
+            value={liveProps.shadowBlur || 0} 
+            onChange={(e) => handleLiveUpdate('shadowBlur', Number(e.target.value))} 
+            onMouseUp={(e) => handleUpdateAndHistory('shadowBlur', Number(e.target.value))} 
           />
         </div>
 
-        <div className="control-row">
-          <label className="control-label">Blur</label>
-          <input
-            type="number"
-            className="number-input small"
-            value={Math.round(liveProps.shadowBlur || 0)}
-            onChange={(e) => handleLiveUpdate('shadowBlur', Number(e.target.value), object)}
-            onBlur={(e) => handleUpdateAndHistory('shadowBlur', Number(e.target.value))}
+        <div className="control-row"><label className="control-label">Offset X</label>
+          <input 
+            type="range" className="slider-input" min="-20" max="20" 
+            value={liveProps.shadowOffsetX || 0} 
+            onChange={(e) => handleLiveUpdate('shadowOffsetX', Number(e.target.value))} 
+            onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetX', Number(e.target.value))} 
           />
         </div>
-        <input
-          type="range"
-          className="slider-input"
-          min="0"
-          max="50"
-          step="1"
-          value={liveProps.shadowBlur || 0}
-          onInput={(e) => handleLiveUpdate('shadowBlur', Number(e.target.value), object)}
-          onMouseUp={(e) => handleUpdateAndHistory('shadowBlur', Number(e.target.value))}
-        />
 
-        <div className="control-row">
-          <label className="control-label">Offset X</label>
-          <input
-            type="number"
-            className="number-input small"
-            value={Math.round(liveProps.shadowOffsetX || 0)}
-            onChange={(e) => handleLiveUpdate('shadowOffsetX', Number(e.target.value), object)}
-            onBlur={(e) => handleUpdateAndHistory('shadowOffsetX', Number(e.target.value))}
+        <div className="control-row"><label className="control-label">Offset Y</label>
+          <input 
+            type="range" className="slider-input" min="-20" max="20" 
+            value={liveProps.shadowOffsetY || 0} 
+            onChange={(e) => handleLiveUpdate('shadowOffsetY', Number(e.target.value))} 
+            onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetY', Number(e.target.value))} 
           />
         </div>
-        <input
-          type="range"
-          className="slider-input"
-          min="-10"
-          max="10"
-          step="1"
-          value={liveProps.shadowOffsetX || 0}
-          onInput={(e) => handleLiveUpdate('shadowOffsetX', Number(e.target.value), object)}
-          onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetX', Number(e.target.value))}
-        />
-
-        <div className="control-row">
-          <label className="control-label">Offset Y</label>
-          <input
-            type="number"
-            className="number-input small"
-            value={Math.round(liveProps.shadowOffsetY || 0)}
-            onChange={(e) => handleLiveUpdate('shadowOffsetY', Number(e.target.value), object)}
-            onBlur={(e) => handleUpdateAndHistory('shadowOffsetY', Number(e.target.value))}
-          />
-        </div>
-        <input
-          type="range"
-          className="slider-input"
-          min="-10"
-          max="10"
-          step="1"
-          value={liveProps.shadowOffsetY || 0}
-          onInput={(e) => handleLiveUpdate('shadowOffsetY', Number(e.target.value), object)}
-          onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetY', Number(e.target.value))}
-        />
       </div>
 
       {type === 'image' && (

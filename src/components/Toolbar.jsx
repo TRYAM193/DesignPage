@@ -198,7 +198,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const handleUpdateAndHistory = (key, value) => {
     const updates = { [key]: value };
     const shadowKeys = ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'];
-    const shapes = 
+    const shapes = ['rect', 'circle', 'triangle', 'star', 'pentagon', 'hexagon', 'line'];
 
     if (shadowKeys.includes(key)) {
       updateObject(id, updates);

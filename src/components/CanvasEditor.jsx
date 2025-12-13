@@ -491,7 +491,7 @@ export default function CanvasEditor({
                 left: translateX,
                 top: translateY,
                 angle: angle,
-                scaleX: scaleX, // Use calculated scale
+                scaleX: scaleX, 
                 scaleY: scaleX,
                 width: child.width,
                 height: child.height,

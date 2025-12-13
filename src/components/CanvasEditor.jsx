@@ -436,6 +436,7 @@ export default function CanvasEditor({
       let existing = fabricObjects.find((o) => o.customId === id);
       if (past) pastData = past.find(state => state.some(obj => obj.id === id)).find(obj => obj.id === objData.id);
       console.log(pastData)
+      
       if (pastData && pastData.props === objData.props) {
         // return;
       }

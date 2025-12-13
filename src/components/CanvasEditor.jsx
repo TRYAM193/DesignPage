@@ -12,6 +12,9 @@ import { doc, getDoc } from 'firebase/firestore';
 import { firestore } from '../firebase.js';
 import { FabricImage } from 'fabric';
 import updateExisting from '../utils/updateExisting'
+import { useDispatch } from 'react-redux'; // Make sure this is imported
+import FloatingMenu from './FloatingMenu';
+import { handleCanvasAction } from '../utils/canvasActions';
 
 fabric.Object.prototype.toObject = (function (toObject) {
   return function (propertiesToInclude) {

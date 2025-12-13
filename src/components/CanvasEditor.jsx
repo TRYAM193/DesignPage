@@ -416,7 +416,7 @@ export default function CanvasEditor({
     const fabricCanvas = fabricCanvasRef.current;
     if (!fabricCanvas) return;
 
-    
+    let pastData
 
     let selectedIds = [];
     const activeObject = fabricCanvas.getActiveObject();

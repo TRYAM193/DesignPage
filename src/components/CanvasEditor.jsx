@@ -72,20 +72,45 @@ export default function CanvasEditor({
     const canvasContainer = document.getElementById('canvas-wrapper');
 
     if (activeObj && canvasContainer) {
-      const boundingRect = activeObj.getBoundingRect(true); // Get absolute coordinates
+      // A. Get Bounding Rect (Works for Group/Selection too)
+      const boundingRect = activeObj.getBoundingRect(true);
 
       setMenuPosition({
         left: boundingRect.left + boundingRect.width / 2,
         top: boundingRect.top
       });
 
-      // Sync the lock state for the icon
-      setSelectedObjectLocked(activeObj.lockMovementX === true);
-      setSelectedObjectUUID(activeObj.customId);
+      // B. Extract IDs (Handle Multi-Select)
+      if (activeObj.type === 'activeselection' || activeObj.type === 'group') {
+        // Map all children IDs
+        const ids = activeObj.getObjects().map(o => o.customId);
+        setSelectedObjectUUIDs(ids);
+
+        // For locking, if ANY object is locked, we show locked
+        const isAnyLocked = activeObj.getObjects().some(o => o.lockMovementX);
+        setSelectedObjectLocked(isAnyLocked);
+      } else {
+        // Single Object
+        setSelectedObjectUUIDs([activeObj.customId]);
+        setSelectedObjectLocked(activeObj.lockMovementX === true);
+      }
     } else {
       setMenuPosition(null);
-      setSelectedObjectUUID(null);
+      setSelectedObjectUUIDs([]);
     }
+  };
+
+  // ... inside render ...
+
+  // 3. PASS ARRAY TO ACTION HANDLER
+  const onMenuAction = (action) => {
+    handleCanvasAction(
+      action,
+      selectedObjectUUIDs, // Pass the Array
+      store.getState().canvas.present,
+      dispatch,
+      setCanvasObjects
+    );
   };
 
   // 🟩 Initialize Fabric.js once
@@ -332,7 +357,7 @@ export default function CanvasEditor({
 
   // src/components/CanvasEditor.jsx
 
-// ... inside CanvasEditor component ...
+  // ... inside CanvasEditor component ...
 
   // 🆕 MOBILE PINCH-TO-RESIZE LOGIC
   // 🆕 MOBILE PINCH-TO-RESIZE (Single Object & Active Selection)
@@ -356,18 +381,18 @@ export default function CanvasEditor({
     const handleTouchStart = (e) => {
       if (e.touches.length === 2) {
         const activeObj = canvas.getActiveObject();
-        
+
         // Works for Single Object AND ActiveSelection
         if (activeObj) {
-            // 🔒 Check if object (or selection) is locked
-            if (activeObj.lockScalingX || activeObj.lockScalingY) return;
+          // 🔒 Check if object (or selection) is locked
+          if (activeObj.lockScalingX || activeObj.lockScalingY) return;
 
-            isPinching = true;
-            initialDistance = getDistance(e.touches);
-            initialScaleX = activeObj.scaleX || 1;
-            initialScaleY = activeObj.scaleY || 1;
-            
-            if (e.cancelable) e.preventDefault(); 
+          isPinching = true;
+          initialDistance = getDistance(e.touches);
+          initialScaleX = activeObj.scaleX || 1;
+          initialScaleY = activeObj.scaleY || 1;
+
+          if (e.cancelable) e.preventDefault();
         }
       }
     };
@@ -377,27 +402,27 @@ export default function CanvasEditor({
         const activeObj = canvas.getActiveObject();
         if (activeObj) {
           if (e.cancelable) e.preventDefault();
-          
-          const currentDistance = getDistance(e.touches);
-          
-          if (initialDistance > 0) {
-             const scaleFactor = currentDistance / initialDistance;
-             
-             const newScaleX = initialScaleX * scaleFactor;
-             const newScaleY = initialScaleY * scaleFactor;
 
-             // Safety limit
-             if (newScaleX > 0.1 && newScaleY > 0.1) {
-                 // ActiveSelection inherits from Object, so .set() works perfect
-                 activeObj.set({
-                     scaleX: newScaleX,
-                     scaleY: newScaleY,
-                     centeredScaling: true // Improves feel for groups
-                 });
-                 
-                 activeObj.setCoords();
-                 canvas.requestRenderAll();
-             }
+          const currentDistance = getDistance(e.touches);
+
+          if (initialDistance > 0) {
+            const scaleFactor = currentDistance / initialDistance;
+
+            const newScaleX = initialScaleX * scaleFactor;
+            const newScaleY = initialScaleY * scaleFactor;
+
+            // Safety limit
+            if (newScaleX > 0.1 && newScaleY > 0.1) {
+              // ActiveSelection inherits from Object, so .set() works perfect
+              activeObj.set({
+                scaleX: newScaleX,
+                scaleY: newScaleY,
+                centeredScaling: true // Improves feel for groups
+              });
+
+              activeObj.setCoords();
+              canvas.requestRenderAll();
+            }
           }
         }
       }
@@ -405,29 +430,29 @@ export default function CanvasEditor({
 
     const handleTouchEnd = () => {
       if (isPinching) {
-         const activeObj = canvas.getActiveObject();
-         if (activeObj) {
-             // ⚡ Trigger 'object:modified' so Redux Sync saves the new size
-             canvas.fire('object:modified', { target: activeObj });
-         }
+        const activeObj = canvas.getActiveObject();
+        if (activeObj) {
+          // ⚡ Trigger 'object:modified' so Redux Sync saves the new size
+          canvas.fire('object:modified', { target: activeObj });
+        }
       }
       isPinching = false;
     };
 
     const upperCanvas = canvas.upperCanvasEl;
     if (upperCanvas) {
-        upperCanvas.style.touchAction = 'none';
-        upperCanvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-        upperCanvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-        upperCanvas.addEventListener('touchend', handleTouchEnd);
+      upperCanvas.style.touchAction = 'none';
+      upperCanvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+      upperCanvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+      upperCanvas.addEventListener('touchend', handleTouchEnd);
     }
 
     return () => {
-       if (upperCanvas) {
-           upperCanvas.removeEventListener('touchstart', handleTouchStart);
-           upperCanvas.removeEventListener('touchmove', handleTouchMove);
-           upperCanvas.removeEventListener('touchend', handleTouchEnd);
-       }
+      if (upperCanvas) {
+        upperCanvas.removeEventListener('touchstart', handleTouchStart);
+        upperCanvas.removeEventListener('touchmove', handleTouchMove);
+        upperCanvas.removeEventListener('touchend', handleTouchEnd);
+      }
     };
   }, [initialized]);
 

@@ -446,7 +446,12 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               className="color-input"
               value={liveProps.stroke || '#000000'}
               onChange={(e) => handleLiveUpdate('stroke', e.target.value)}
-              onBlur={(e) => handleUpdateAndHistory('stroke', e.target.value)}
+              onMouseUp={(e) => handleUpdateAndHistory('fill', e.target.value)}
+  onKeyUp={(e) => {
+    if (e.key === 'Enter') {
+      handleUpdateAndHistory('fill', e.target.value);
+    }
+  }}
             />
           </div>
           <div className="control-row">
@@ -456,7 +461,12 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               className="number-input small"
               value={Math.round(liveProps.strokeWidth || 0)}
               onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value))}
-              onBlur={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
+              onMouseUp={(e) => handleUpdateAndHistory('fill', e.target.value)}
+  onKeyUp={(e) => {
+    if (e.key === 'Enter') {
+      handleUpdateAndHistory('fill', e.target.value);
+    }
+  }}
             />
           </div>
           <input

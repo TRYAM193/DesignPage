@@ -443,7 +443,6 @@ export default function CanvasEditor({
         if (existing) {
           fabricCanvas.remove(existing);
         }
-        return
       }
 
       if (objData.type === 'image') {

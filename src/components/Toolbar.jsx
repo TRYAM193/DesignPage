@@ -266,11 +266,6 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
     );
   }
 
-  const isTextObject = type === 'text' || type === 'circle-text';
-  // Include new shapes in the check
-  const isShapeObject = ['rect', 'circle', 'triangle', 'star', 'pentagon', 'hexagon', 'line'].includes(type);
-  const supportsBorderRadius = ['rect', 'triangle', 'star', 'pentagon', 'hexagon'].includes(type);
-
   return (
     <div className="property-panel-content">
       <h2 className="property-panel-title">

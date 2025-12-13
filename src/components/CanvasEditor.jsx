@@ -15,6 +15,7 @@ import updateExisting from '../utils/updateExisting'
 import { useDispatch } from 'react-redux';
 import FloatingMenu from './FloatingMenu';
 import { handleCanvasAction } from '../utils/canvasActions';
+import ShapeAdder from '../objectAdders/Shapes';
 
 fabric.Object.prototype.toObject = (function (toObject) {
   return function (propertiesToInclude) {

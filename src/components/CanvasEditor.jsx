@@ -641,7 +641,9 @@ export default function CanvasEditor({
         }
       }
 
-      if (obj)
+      if (objData.type === 'rect' || objData.type === 'circle' || objData.type === 'triangle') {
+        
+      }
 
       previousStatesRef.current.set(objData.id, currentString);
     });

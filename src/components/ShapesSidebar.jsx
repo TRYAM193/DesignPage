@@ -77,20 +77,6 @@ export default function ShapesSidebar() {
     </div>
   );
 }
-
-// Internal Helper Component (Unchanged)
-function ShapeButton({ label, onClick, icon }) {
-    // ... existing ShapeButton code ...
-    return (
-        <button 
-            onClick={onClick}
-            // ... styles ...
-        >
-            <div style={{ pointerEvents: 'none' }}>{icon}</div>
-            <span style={{ fontSize: '13px', fontWeight: '500' }}>{label}</span>
-        </button>
-    )
-}
 // Internal Helper Component for consistent styling
 function ShapeButton({ label, onClick, icon }) {
     return (

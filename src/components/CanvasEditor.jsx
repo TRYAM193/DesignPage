@@ -475,7 +475,7 @@ export default function CanvasEditor({
             newObj = CircleText(objData);
           }
           // Use ShapeAdder here if you have it:
-          else if (['rect', 'circle', 'triangle'].includes(objData.type)) {
+          else if (shapes.includes(objData.type)) {
             newObj = ShapeAdder(objData);
           }
           else if (objData.type === 'text') {

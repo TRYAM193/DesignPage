@@ -484,10 +484,6 @@ export default function CanvasEditor({
           if (newObj) {
             newObj.customId = objData.id;
             fabricCanvas.add(newObj);
-
-            // ❌ FIXED: Do NOT set active object here. 
-            // This was causing the "individual" flickering and breaking the group.
-            // fabricCanvas.setActiveObject(newObj); 
           }
         }
       }
@@ -534,8 +530,6 @@ export default function CanvasEditor({
 
     // 5. Restore Selection (ONLY ONCE AT THE END)
     if (selectedIds.length > 0) {
-      // Small timeout ensures async adds (if any fast ones) are caught, 
-      // but primarily it waits for the loop to finish.
       const objectsToSelect = fabricCanvas.getObjects().filter(obj => selectedIds.includes(obj.customId));
 
       if (objectsToSelect.length > 1) {

@@ -401,11 +401,11 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           <div className="control-row">
             <label className="control-label">Color</label>
             <input type="color" className="color-input" value={liveProps.stroke || '#000000'} onChange={(e) => handleLiveUpdate('stroke', e.target.value)} onMouseUp={(e) => handleUpdateAndHistory('fill', e.target.value)}
-  onKeyUp={(e) => {
-    if (e.key === 'Enter') {
-      handleUpdateAndHistory('fill', e.target.value);
-    }
-  }} />
+              onKeyUp={(e) => {
+                if (e.key === 'Enter') {
+                  handleUpdateAndHistory('fill', e.target.value);
+                }
+              }} />
           </div>
           <div className="control-row">
             <label className="control-label">Width</label>
@@ -430,11 +430,11 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
                 value={liveProps.fill || '#000000'}
                 onChange={(e) => handleLiveUpdate('fill', e.target.value)}
                 onMouseUp={(e) => handleUpdateAndHistory('fill', e.target.value)}
-  onKeyUp={(e) => {
-    if (e.key === 'Enter') {
-      handleUpdateAndHistory('fill', e.target.value);
-    }
-  }}
+                onKeyUp={(e) => {
+                  if (e.key === 'Enter') {
+                    handleUpdateAndHistory('fill', e.target.value);
+                  }
+                }}
               />
             </div>
           )}
@@ -447,11 +447,11 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               value={liveProps.stroke || '#000000'}
               onChange={(e) => handleLiveUpdate('stroke', e.target.value)}
               onMouseUp={(e) => handleUpdateAndHistory('fill', e.target.value)}
-  onKeyUp={(e) => {
-    if (e.key === 'Enter') {
-      handleUpdateAndHistory('fill', e.target.value);
-    }
-  }}
+              onKeyUp={(e) => {
+                if (e.key === 'Enter') {
+                  handleUpdateAndHistory('fill', e.target.value);
+                }
+              }}
             />
           </div>
           <div className="control-row">
@@ -545,11 +545,11 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             value={liveProps.shadowColor || '#000000'}
             onChange={(e) => handleLiveUpdate('shadowColor', e.target.value)}
             onMouseUp={(e) => handleUpdateAndHistory('fill', e.target.value)}
-  onKeyUp={(e) => {
-    if (e.key === 'Enter') {
-      handleUpdateAndHistory('fill', e.target.value);
-    }
-  }}
+            onKeyUp={(e) => {
+              if (e.key === 'Enter') {
+                handleUpdateAndHistory('fill', e.target.value);
+              }
+            }}
           />
         </div>
 

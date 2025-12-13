@@ -464,15 +464,15 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
                 type="range"
                 className="slider-input"
                 min="0"
-                max={type === 'rect' ? 100 : 40} // Limit radius for complex shapes
+                max={effectiveType === 'rect' ? 100 : 40} // Limit radius for complex shapes
                 step="1"
                 value={borderRadius}
                 onChange={(e) => {
                   const val = Number(e.target.value);
                   setBorderRadius(val);
                   
-                  // For Rect uses 'rx/ry', for others uses 'radius' logic
-                  if (type === 'rect') {
+                  // Handle Rect vs Other Shapes
+                  if (effectiveType === 'rect') {
                       setLiveProps(prev => ({ ...prev, rx: val, ry: val }));
                       liveUpdateFabric(fabricCanvas, id, { rx: val, ry: val }, liveProps, object);
                   } else {
@@ -482,13 +482,9 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
                 }}
                 onMouseUp={(e) => {
                    const val = Number(e.target.value);
-                   const key = type === 'rect' ? 'rx' : 'radius';
-                   updateObject(id, { [key]: val, ...(type === 'rect' ? { ry: val } : {}) });
-                }}
-                onTouchEnd={(e) => {
-                   const val = Number(e.target.value);
-                   const key = type === 'rect' ? 'rx' : 'radius';
-                   updateObject(id, { [key]: val, ...(type === 'rect' ? { ry: val } : {}) });
+                   const key = effectiveType === 'rect' ? 'rx' : 'radius';
+                   // Save to Redux History
+                   updateObject(id, { [key]: val, ...(effectiveType === 'rect' ? { ry: val } : {}) });
                 }}
               />
             </>

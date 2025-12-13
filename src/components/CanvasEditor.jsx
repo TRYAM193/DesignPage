@@ -646,7 +646,12 @@ export default function CanvasEditor({
           updateExisting(existing, objData, isDifferent);
           fabricCanvas.requestRenderAll();
         } else {
-          newObj = ShapeAdder(objData);
+          const newObj = ShapeAdder(objData);
+          if (newObj) {
+            fabricCanvas.add(newObj);
+            fabricCanvas.set
+          }
+        }
       }
 
       previousStatesRef.current.set(objData.id, currentString);

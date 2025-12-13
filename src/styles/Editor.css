@@ -976,3 +976,19 @@ input[type="range"],
   from { transform: translateY(100%); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+/* 📱 Target screens between 550px and 768px */
+@media screen and (min-width: 550px) and (max-width: 768px) {
+  
+  /* Replace '.main-toolbar-container' with the actual class name from MainToolbar.jsx */
+  .top-bar {
+    display: flex !important;
+    justify-content: center !important; /* Forces it to the middle */
+    width: 100%;
+  }
+
+  /* Optional: If the buttons are inside a specific inner group */
+  .undo-redo-group {
+    margin: 0 auto;
+  }
+}

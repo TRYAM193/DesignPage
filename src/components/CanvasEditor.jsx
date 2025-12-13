@@ -642,7 +642,11 @@ export default function CanvasEditor({
       }
 
       if (objData.type === 'rect' || objData.type === 'circle' || objData.type === 'triangle') {
-        
+        if (existing) {
+          updateExisting(existing, objData, isDifferent);
+          fabricCanvas.requestRenderAll();
+        } else {
+          const newShape = ShapeAdder(objData);
       }
 
       previousStatesRef.current.set(objData.id, currentString);

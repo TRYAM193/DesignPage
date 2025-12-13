@@ -425,7 +425,6 @@ export default function CanvasEditor({
 
     if (isMultiSelect) {
       selectedIds = activeObject.getObjects().map(o => o.customId);
-      // Discard active object momentarily to allow updates without interference
       fabricCanvas.discardActiveObject();
     }
 
@@ -447,13 +446,11 @@ export default function CanvasEditor({
       if (objData.type === 'text') {
         const isCircle = objData.props.textEffect === 'circle';
 
-        // Optimization: If it's Straight Text -> Straight Text, just .set() properties
         if (!isCircle && existing && existing.type === 'text' && existing.textEffect !== 'circle') {
           existing.set(objData.props);
           if (objData.props.text !== undefined) existing.initDimensions();
           existing.setCoords();
         }
-        // Else: Recreate object (Circle Text OR Straight<->Circle conversion)
         else {
           if (existing) fabricCanvas.remove(existing);
 

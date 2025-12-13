@@ -171,6 +171,7 @@ export default function EditorPanel() {
                         fabricCanvas={fabricCanvas}
                         setCurrentDesign={setCurrentDesign}
                         setEditingDesignId={setEditingDesignId}
+                        past={past}
                     />
                 </main>
 

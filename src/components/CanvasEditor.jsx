@@ -332,7 +332,7 @@ export default function CanvasEditor({
                 angle: child.angle,
                 scaleX: 1,
                 scaleY: 1
-                (child.type === 'group' && child.textEffect === 'circle') ? { radius: child.radius } : {}
+                (child.type === 'group' && child.textEffect === 'circle') ? { width: child.width, heid } : {}
               };
             } else {
               // For circle text (group) or images, we just save the transforms

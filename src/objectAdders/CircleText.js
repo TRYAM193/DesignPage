@@ -12,7 +12,9 @@ export default function CircleText(objData) {
     letterSpacing: props.charSpacing || 0, // Mapped charSpacing -> letterSpacing
     color: props.fill || '#000000',
     opacity: props.opacity ?? 1,
-    shadow: props.shadow,
+    shadow:{
+      
+    }
     strokeWidth: props.strokeWidth || 0,
     strokeColor: props.stroke || '#000000',
     x: props.left,

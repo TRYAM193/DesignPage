@@ -10,7 +10,6 @@ export default function FloatingMenu({ position, onAction, isLocked }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showMore, setShowMore] = useState(false);
 
-  // Handle Resize
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
@@ -19,10 +18,11 @@ export default function FloatingMenu({ position, onAction, isLocked }) {
 
   if (!position) return null;
 
+  // --- STYLE OBJECTS ---
   const style = {
     position: 'absolute',
     left: position.left,
-    top: position.top - 60, // Position ABOVE the object
+    top: position.top - 60,
     transform: 'translateX(-50%)',
     backgroundColor: 'white',
     padding: '8px',
@@ -48,14 +48,27 @@ export default function FloatingMenu({ position, onAction, isLocked }) {
     fontSize: '18px',
   };
 
-  const hoverStyle = (e) => e.target.style.background = '#f0f0f0';
-  const leaveStyle = (e) => e.target.style.background = 'none';
-
-  // --- ACTIONS LIST ---
+  // --- ACTIONS ---
   const actions = [
-    { id: 'duplicate', icon: <FiCopy />, label: 'Duplicate', mobilePriority: 1 },
-    { id: 'delete', icon: <FiTrash2 color="red" />, label: 'Delete', mobilePriority: 2 },
-    { id: 'toggleLock', icon: isLocked ? <FiLock color="orange" /> : <FiUnlock />, label: 'Lock', mobilePriority: 3 },
+    { 
+      id: 'duplicate', 
+      icon: <FiCopy />, 
+      label: 'Duplicate', 
+      mobilePriority: 1 
+    },
+    { 
+      id: 'delete', 
+      icon: <FiTrash2 color="red" />, 
+      label: 'Delete', 
+      mobilePriority: 2 
+    },
+    { 
+      id: 'toggleLock', 
+      // ⚡ FIX: Dynamically switch icon based on isLocked prop
+      icon: isLocked ? <FiLock color="orange" /> : <FiUnlock />, 
+      label: isLocked ? 'Unlock' : 'Lock', 
+      mobilePriority: 3 
+    },
     { id: 'bringForward', icon: <FiArrowUp />, label: 'Bring Forward' },
     { id: 'sendBackward', icon: <FiArrowDown />, label: 'Send Backward' },
     { id: 'bringToFront', icon: <FiChevronsUp />, label: 'To Front' },
@@ -69,7 +82,6 @@ export default function FloatingMenu({ position, onAction, isLocked }) {
   let hiddenActions = [];
 
   if (isMobile) {
-    // Show top 3 priority items, hide rest
     visibleActions = actions.filter(a => a.mobilePriority);
     hiddenActions = actions.filter(a => !a.mobilePriority);
   }
@@ -81,24 +93,17 @@ export default function FloatingMenu({ position, onAction, isLocked }) {
           key={action.id}
           style={btnStyle}
           onClick={() => onAction(action.id)}
-          onMouseEnter={hoverStyle}
-          onMouseLeave={leaveStyle}
           title={action.label}
         >
           {action.icon}
         </button>
       ))}
 
-      {/* --- MOBILE: THREE DOTS --- */}
       {isMobile && (
         <div style={{ position: 'relative' }}>
-          <button
-            style={btnStyle}
-            onClick={() => setShowMore(!showMore)}
-          >
+          <button style={btnStyle} onClick={() => setShowMore(!showMore)}>
             <FiMoreHorizontal />
           </button>
-
           {showMore && (
             <div style={{
               position: 'absolute',

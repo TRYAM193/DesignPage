@@ -304,7 +304,6 @@ export default function CanvasEditor({
      // ... (Your existing touch logic here) ...
      const canvas = fabricCanvasRef.current;
      if (!canvas) return;
-     // [Condensed for brevity - assumes previous code is kept]
   }, [initialized]);
 
   // 🟩 Handle Modifications (User Actions)

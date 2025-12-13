@@ -47,7 +47,6 @@ export default function CanvasEditor({
   fabricCanvas,
   setEditingDesignId,
   setCurrentDesign,
-  past
 }) {
   const canvasRef = useRef(null);
   const fabricCanvasRef = useRef(null);

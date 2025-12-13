@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  FiBold, FiItalic, FiUnderline, FiSearch, FiExternalLink, 
-  FiLoader, FiSlash, FiCircle, FiActivity, FiSunrise, FiFlag 
+import {
+  FiBold, FiItalic, FiUnderline, FiSearch, FiExternalLink,
+  FiLoader, FiSlash, FiCircle, FiActivity, FiSunrise, FiFlag
 } from 'react-icons/fi';
 import WebFont from 'webfontloader';
 import CircleText from '../objectAdders/CircleText';
 import { Path } from 'fabric';
-import { 
-  getStarPoints, 
-  getPolygonPoints, 
-  getTrianglePoints, 
-  getRoundedPathFromPoints 
+import {
+  getStarPoints,
+  getPolygonPoints,
+  getTrianglePoints,
+  getRoundedPathFromPoints
 } from '../utils/shapeUtils';
 
 const FONT_OPTIONS = ['Arial', 'Verdana', 'Tahoma', 'Georgia', 'Times New Roman', 'Courier New'];
@@ -81,9 +81,9 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
 
     // Create new Path object
     const newPathObj = new Path(pathData, {
-      ...existing.toObject(['customId']), 
+      ...existing.toObject(['customId']),
       ...finalUpdates,
-      path: pathData 
+      path: pathData
     });
 
     // Swap Objects on Canvas
@@ -91,7 +91,7 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
     fabricCanvas.remove(existing);
     fabricCanvas.add(newPathObj);
     if (index > -1) fabricCanvas.moveObjectTo(newPathObj, index);
-    
+
     fabricCanvas.setActiveObject(newPathObj);
     newPathObj.setCoords();
     fabricCanvas.requestRenderAll();
@@ -111,11 +111,11 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
     const mergedProps = { ...currentLiveProps, ...updates };
     const newGroup = CircleText({ id: id, props: mergedProps });
     const index = fabricCanvas.getObjects().indexOf(existing);
-    
+
     fabricCanvas.remove(existing);
     fabricCanvas.add(newGroup);
     if (index > -1) fabricCanvas.moveObjectTo(newGroup, index);
-    
+
     fabricCanvas.setActiveObject(newGroup);
     newGroup.setCoords();
     fabricCanvas.requestRenderAll();
@@ -130,7 +130,7 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
 export default function Toolbar({ id, type, object, updateObject, removeObject, addText, fabricCanvas }) {
   const props = object?.props || {};
   const [liveProps, setLiveProps] = useState(props);
-  
+
   // Font State
   const [googleFontUrl, setGoogleFontUrl] = useState('');
   const [showFontUrlInput, setShowFontUrlInput] = useState(false);
@@ -389,17 +389,22 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
 
           <div className="control-row">
             <label className="control-label">Text Color</label>
-            <input type="color" className="color-input" value={liveProps.fill || '#000000'} onChange={(e) => handleLiveUpdate('fill', e.target.value)} onBlur={(e) => handleUpdateAndHistory('fill', e.target.value)} />
+            <input type="color" className="color-input" value={liveProps.fill || '#000000'} onChange={(e) => handleLiveUpdate('fill', e.target.value)} onMouseUp={(e) => handleUpdateAndHistory('fill', e.target.value)}
+              onKeyUp={(e) => {
+                if (e.key === 'Enter') {
+                  handleUpdateAndHistory('fill', e.target.value);
+                }
+              }} />
           </div>
 
           <h3 className="property-group-title">Outline</h3>
           <div className="control-row">
-             <label className="control-label">Color</label>
-             <input type="color" className="color-input" value={liveProps.stroke || '#000000'} onChange={(e) => handleLiveUpdate('stroke', e.target.value)} onBlur={(e) => handleUpdateAndHistory('stroke', e.target.value)} />
+            <label className="control-label">Color</label>
+            <input type="color" className="color-input" value={liveProps.stroke || '#000000'} onChange={(e) => handleLiveUpdate('stroke', e.target.value)} onBlur={(e) => handleUpdateAndHistory('stroke', e.target.value)} />
           </div>
           <div className="control-row">
-             <label className="control-label">Width</label>
-             <input type="number" className="number-input small" value={Math.round(liveProps.strokeWidth || 0)} onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value))} onBlur={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))} />
+            <label className="control-label">Width</label>
+            <input type="number" className="number-input small" value={Math.round(liveProps.strokeWidth || 0)} onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value))} onBlur={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))} />
           </div>
           <input type="range" className="slider-input" min="0" max="10" step="0.5" value={liveProps.strokeWidth || 0} onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value))} onMouseUp={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))} />
         </div>
@@ -456,7 +461,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           {/* 🆕 UNIVERSAL BORDER RADIUS SLIDER */}
           {supportsBorderRadius && (
             <>
-               <div className="control-row" style={{ marginTop: '15px' }}>
+              <div className="control-row" style={{ marginTop: '15px' }}>
                 <label className="control-label">Corner Radius</label>
                 <span style={{ fontSize: '12px', color: '#666' }}>{Math.round(borderRadius)}</span>
               </div>
@@ -470,21 +475,21 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
                 onChange={(e) => {
                   const val = Number(e.target.value);
                   setBorderRadius(val);
-                  
+
                   // Handle Rect vs Other Shapes
                   if (effectiveType === 'rect') {
-                      setLiveProps(prev => ({ ...prev, rx: val, ry: val }));
-                      liveUpdateFabric(fabricCanvas, id, { rx: val, ry: val }, liveProps, object);
+                    setLiveProps(prev => ({ ...prev, rx: val, ry: val }));
+                    liveUpdateFabric(fabricCanvas, id, { rx: val, ry: val }, liveProps, object);
                   } else {
-                      setLiveProps(prev => ({ ...prev, radius: val }));
-                      liveUpdateFabric(fabricCanvas, id, { radius: val }, liveProps, object);
+                    setLiveProps(prev => ({ ...prev, radius: val }));
+                    liveUpdateFabric(fabricCanvas, id, { radius: val }, liveProps, object);
                   }
                 }}
                 onMouseUp={(e) => {
-                   const val = Number(e.target.value);
-                   const key = effectiveType === 'rect' ? 'rx' : 'radius';
-                   // Save to Redux History
-                   updateObject(id, { [key]: val, ...(effectiveType === 'rect' ? { ry: val } : {}) });
+                  const val = Number(e.target.value);
+                  const key = effectiveType === 'rect' ? 'rx' : 'radius';
+                  // Save to Redux History
+                  updateObject(id, { [key]: val, ...(effectiveType === 'rect' ? { ry: val } : {}) });
                 }}
               />
             </>
@@ -520,38 +525,38 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
         <h3 className="property-group-title">Shadow Effect</h3>
         <div className="control-row">
           <label className="control-label">Shadow Color</label>
-          <input 
-            type="color" className="color-input" 
-            value={liveProps.shadowColor || '#000000'} 
-            onChange={(e) => handleLiveUpdate('shadowColor', e.target.value)} 
-            onBlur={(e) => handleUpdateAndHistory('shadowColor', e.target.value)} 
+          <input
+            type="color" className="color-input"
+            value={liveProps.shadowColor || '#000000'}
+            onChange={(e) => handleLiveUpdate('shadowColor', e.target.value)}
+            onBlur={(e) => handleUpdateAndHistory('shadowColor', e.target.value)}
           />
         </div>
-        
+
         <div className="control-row"><label className="control-label">Blur</label>
-          <input 
-            type="range" className="slider-input" min="0" max="50" 
-            value={liveProps.shadowBlur || 0} 
-            onChange={(e) => handleLiveUpdate('shadowBlur', Number(e.target.value))} 
-            onMouseUp={(e) => handleUpdateAndHistory('shadowBlur', Number(e.target.value))} 
+          <input
+            type="range" className="slider-input" min="0" max="50"
+            value={liveProps.shadowBlur || 0}
+            onChange={(e) => handleLiveUpdate('shadowBlur', Number(e.target.value))}
+            onMouseUp={(e) => handleUpdateAndHistory('shadowBlur', Number(e.target.value))}
           />
         </div>
 
         <div className="control-row"><label className="control-label">Offset X</label>
-          <input 
-            type="range" className="slider-input" min="-20" max="20" 
-            value={liveProps.shadowOffsetX || 0} 
-            onChange={(e) => handleLiveUpdate('shadowOffsetX', Number(e.target.value))} 
-            onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetX', Number(e.target.value))} 
+          <input
+            type="range" className="slider-input" min="-20" max="20"
+            value={liveProps.shadowOffsetX || 0}
+            onChange={(e) => handleLiveUpdate('shadowOffsetX', Number(e.target.value))}
+            onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetX', Number(e.target.value))}
           />
         </div>
 
         <div className="control-row"><label className="control-label">Offset Y</label>
-          <input 
-            type="range" className="slider-input" min="-20" max="20" 
-            value={liveProps.shadowOffsetY || 0} 
-            onChange={(e) => handleLiveUpdate('shadowOffsetY', Number(e.target.value))} 
-            onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetY', Number(e.target.value))} 
+          <input
+            type="range" className="slider-input" min="-20" max="20"
+            value={liveProps.shadowOffsetY || 0}
+            onChange={(e) => handleLiveUpdate('shadowOffsetY', Number(e.target.value))}
+            onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetY', Number(e.target.value))}
           />
         </div>
       </div>

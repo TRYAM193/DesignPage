@@ -641,7 +641,7 @@ export default function CanvasEditor({
         }
       }
 
-      if (objData.type === 'rect' || objData.type === 'circle' || objData.type === 'triangle') {
+      if (['rect', 'circle', 'triangle'].includes(objData.type)) {
         if (existing && existing.type === objData.type) {
           updateExisting(existing, objData, isDifferent);
           fabricCanvas.requestRenderAll();

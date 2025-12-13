@@ -8,8 +8,8 @@ function addShape(type, props) {
     const canvasObjects = state.canvas.present;
 
     const newShape = {
-        id: uuidv4(), // Generate unique ID
-        type, // 'rect', 'circle', 'triangle'
+        id: uuidv4(), 
+        type,
         props: {
             left: 300,  // Place in a visible area
             top: 300,

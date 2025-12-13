@@ -14,8 +14,7 @@ import { FabricImage } from 'fabric';
 import updateExisting from '../utils/updateExisting'
 import FloatingMenu from './FloatingMenu';
 import { handleCanvasAction } from '../utils/canvasActions';
-// Make sure to import ShapeAdder if you have created it, otherwise keep it commented
-// import ShapeAdder from '../objectAdders/Shapes'; 
+import ShapeAdder from '../objectAdders/Shapes'; 
 
 fabric.Object.prototype.toObject = (function (toObject) {
   return function (propertiesToInclude) {

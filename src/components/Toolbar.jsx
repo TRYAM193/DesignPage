@@ -94,7 +94,7 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
   fabricCanvas.requestRenderAll();
 }
 
-const Outline = ({liveProps, handleLiveUpdate, handleUpdateAndHistory, object}) => (
+const Outline = ({ liveProps, handleLiveUpdate, handleUpdateAndHistory, object }) => (
   <>
     <h3 className="property-group-title">Outline</h3>
 
@@ -128,7 +128,7 @@ const Outline = ({liveProps, handleLiveUpdate, handleUpdateAndHistory, object}) 
       onInput={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value), object)}
       onMouseUp={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
     />
-</>
+  </>
 )
 
 
@@ -139,6 +139,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const [showFontUrlInput, setShowFontUrlInput] = useState(false);
   const [isFontLoading, setIsFontLoading] = useState(false);
   const [originalFontFamily, setOriginalFontFamily] = useState(props.fontFamily || 'Arial');
+  const shapes = ['rect', 'circle', 'triangle', 'star', 'pentagon', 'hexagon', 'line'];
 
   // Text Effect State (from props or default)
   // We use object.textEffect if available (for circle-text which stores it on object root) or props.textEffect
@@ -194,7 +195,6 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
       alert('Could not extract a valid font name from the link.');
     }
   };
-  const shapes = ['rect', 'circle', 'triangle', 'star', 'pentagon', 'hexagon', 'line'];
 
   const handleUpdateAndHistory = (key, value) => {
     const updates = { [key]: value };

@@ -335,11 +335,12 @@ export default function CanvasEditor({
 // ... inside CanvasEditor component ...
 
   // 🆕 MOBILE PINCH-TO-RESIZE LOGIC
+  // 🆕 MOBILE PINCH-TO-RESIZE (Single Object & Active Selection)
   useEffect(() => {
     const canvas = fabricCanvasRef.current;
     if (!canvas) return;
 
-    // Helper: Calculate distance between two touch points
+    // Helper: Distance between two fingers
     const getDistance = (touches) => {
       const [t1, t2] = touches;
       const dx = t1.clientX - t2.clientX;
@@ -353,18 +354,19 @@ export default function CanvasEditor({
     let isPinching = false;
 
     const handleTouchStart = (e) => {
-      // Check for exactly 2 fingers (Pinch)
       if (e.touches.length === 2) {
         const activeObj = canvas.getActiveObject();
         
-        // Only trigger if an object is selected
+        // Works for Single Object AND ActiveSelection
         if (activeObj) {
+            // 🔒 Check if object (or selection) is locked
+            if (activeObj.lockScalingX || activeObj.lockScalingY) return;
+
             isPinching = true;
             initialDistance = getDistance(e.touches);
             initialScaleX = activeObj.scaleX || 1;
             initialScaleY = activeObj.scaleY || 1;
             
-            // Prevent default browser zoom/scroll
             if (e.cancelable) e.preventDefault(); 
         }
       }
@@ -374,23 +376,25 @@ export default function CanvasEditor({
       if (isPinching && e.touches.length === 2) {
         const activeObj = canvas.getActiveObject();
         if (activeObj) {
-          if (e.cancelable) e.preventDefault(); // Stop page from zooming
+          if (e.cancelable) e.preventDefault();
           
           const currentDistance = getDistance(e.touches);
           
           if (initialDistance > 0) {
              const scaleFactor = currentDistance / initialDistance;
              
-             // Apply the new scale relative to the start of the pinch
              const newScaleX = initialScaleX * scaleFactor;
              const newScaleY = initialScaleY * scaleFactor;
 
-             // Respect minimum scale limit to prevent objects vanishing
+             // Safety limit
              if (newScaleX > 0.1 && newScaleY > 0.1) {
+                 // ActiveSelection inherits from Object, so .set() works perfect
                  activeObj.set({
                      scaleX: newScaleX,
-                     scaleY: newScaleY
+                     scaleY: newScaleY,
+                     centeredScaling: true // Improves feel for groups
                  });
+                 
                  activeObj.setCoords();
                  canvas.requestRenderAll();
              }
@@ -399,22 +403,20 @@ export default function CanvasEditor({
       }
     };
 
-    const handleTouchEnd = (e) => {
+    const handleTouchEnd = () => {
       if (isPinching) {
-         // Fire 'modified' event so Redux history saves the change
          const activeObj = canvas.getActiveObject();
          if (activeObj) {
+             // ⚡ Trigger 'object:modified' so Redux Sync saves the new size
              canvas.fire('object:modified', { target: activeObj });
          }
       }
       isPinching = false;
     };
 
-    // We attach listeners to 'upperCanvasEl' (the interactive layer)
-    // using { passive: false } is CRITICAL to allow e.preventDefault()
     const upperCanvas = canvas.upperCanvasEl;
     if (upperCanvas) {
-        upperCanvas.style.touchAction = 'none'; // CSS hint to browser
+        upperCanvas.style.touchAction = 'none';
         upperCanvas.addEventListener('touchstart', handleTouchStart, { passive: false });
         upperCanvas.addEventListener('touchmove', handleTouchMove, { passive: false });
         upperCanvas.addEventListener('touchend', handleTouchEnd);
@@ -427,8 +429,8 @@ export default function CanvasEditor({
            upperCanvas.removeEventListener('touchend', handleTouchEnd);
        }
     };
-  }, [initialized]); // Run once canvas is initialized
-
+  }, [initialized]);
+  
   // 🟩 Handle movement, rotation, resize
   useEffect(() => {
     const fabricCanvas = fabricCanvasRef.current;

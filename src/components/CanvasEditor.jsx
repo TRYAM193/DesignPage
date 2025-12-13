@@ -11,6 +11,7 @@ import { useLocation } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { firestore } from '../firebase.js';
 import { FabricImage } from 'fabric';
+import updateExisting from '..utils/updateExisting'
 
 fabric.Object.prototype.toObject = (function (toObject) {
   return function (propertiesToInclude) {
@@ -429,79 +430,41 @@ export default function CanvasEditor({
 
     canvasObjectsMap.forEach(async (objData, id) => {
       let existing = fabricObjects.find((o) => o.customId === id);
-      
-      if (!existing) {
-        let newObj;
-        if (objData.type === 'text') {
-          if (objData.props.textEffect === 'straight') {
-            newObj = StraightText(objData);
-          } else if (objData.props.textEffect === 'circle') {
-            newObj = CircleText(objData);
-          }
+
+      let newObj;
+      if (objData.type === 'text') {
+        if (objData.props.textEffect === 'straight') {
+          newObj = StraightText(objData);
+        } else if (objData.props.textEffect === 'circle') {
+          newObj = CircleText(objData);
         }
 
-        if (objData.type === 'image') {
-          if (!existing && !fabricCanvas.getObjects().some(obj => obj.customId === objData.id)) {
-            try {
-              newObj = await FabricImage.fromURL(objData.src, { ...objData.props, customId: objData.id });
-            } catch (err) {
-              console.error("Error loading image:", err);
-            }
-          }
-        }
-        // --- UPDATE EXISTING (Standard) ---
         if (existing) {
-          if (existing.customType === 'text') {
-            console.log('removed')
-            fabricCanvas.remove(existing)
-          } else {
-
-            let updatesNeeded = {};
-            for (const key in objData.props) {
-              if (isDifferent(existing[key], objData.props[key])) {
-                updatesNeeded[key] = objData.props[key];
-              }
-            }
-
-            if (Object.keys(updatesNeeded).length > 0) {
-              // Shadow Fix
-              if (updatesNeeded.shadowColor || updatesNeeded.shadowBlur || updatesNeeded.shadowOffsetX || updatesNeeded.shadowOffsetY) {
-                const shadowObject = {
-                  color: updatesNeeded.shadowColor || existing.shadow?.color || '#000000',
-                  blur: updatesNeeded.shadowBlur || existing.shadow?.blur || 0,
-                  offsetX: updatesNeeded.shadowOffsetX || existing.shadow?.offsetX || 0,
-                  offsetY: updatesNeeded.shadowOffsetY || existing.shadow?.offsetY || 0,
-                };
-                updatesNeeded.shadow = shadowObject;
-                ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'].forEach(key => delete updatesNeeded[key]);
-              }
-
-              if (updatesNeeded.scaleX !== undefined || updatesNeeded.scaleY !== undefined) {
-                existing.set({
-                  scaleX: updatesNeeded.scaleX ?? existing.scaleX,
-                  scaleY: updatesNeeded.scaleY ?? existing.scaleY,
-                });
-                delete updatesNeeded.scaleX;
-                delete updatesNeeded.scaleY;
-              }
-
-              existing.set(updatesNeeded);
-              existing.setCoords();
-            }
-          }
-          fabricCanvas.requestRenderAll();
-        }
-
-
-        if (newObj) {
-          newObj.customId = objData.id;
-          fabricCanvas.add(newObj);
-          fabricCanvas.setActiveObject(newObj);
-          setTimeout(() => {
-            fabricCanvas.requestRenderAll();
-          }, 50);
+          fabricCanvas.remove(existing);
         }
       }
+
+      if (objData.type === 'image') {
+        if (!existing && !fabricCanvas.getObjects().some(obj => obj.customId === objData.id)) {
+          try {
+            newObj = await FabricImage.fromURL(objData.src, { ...objData.props, customId: objData.id });
+          } catch (err) {
+            console.error("Error loading image:", err);
+          }
+        } else if (existing) {
+          updateExisting(existing, objData, isDifferent);
+        }
+      }
+
+      if (newObj) {
+        newObj.customId = objData.id;
+        fabricCanvas.add(newObj);
+        fabricCanvas.setActiveObject(newObj);
+        setTimeout(() => {
+          fabricCanvas.requestRenderAll();
+        }, 50);
+      }
+
     });
 
     const ids = Array.from(canvasObjectsMap.keys());

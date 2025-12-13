@@ -1021,6 +1021,6 @@ input[type="range"],
   }
 }
 
-@media screen  {
+@media screen and (max) {
   
 }

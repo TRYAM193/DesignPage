@@ -1,4 +1,5 @@
 import * as fabric from 'fabric';
+import { blur } from 'three/tsl';
 
 export default function CircleText(objData) {
   const props = objData.props;
@@ -13,8 +14,8 @@ export default function CircleText(objData) {
     color: props.fill || '#000000',
     opacity: props.opacity ?? 1,
     shadow:{
-      
-    }
+      blur: props.shadowBlur || 0,
+    },
     strokeWidth: props.strokeWidth || 0,
     strokeColor: props.stroke || '#000000',
     x: props.left,

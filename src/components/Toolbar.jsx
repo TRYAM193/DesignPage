@@ -94,7 +94,7 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
   fabricCanvas.requestRenderAll();
 }
 
-const Outline = () => (
+const Outline = (li) => (
   <>
     <h3 className="property-group-title">Outline</h3>
 

@@ -140,7 +140,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const [isFontLoading, setIsFontLoading] = useState(false);
   const [originalFontFamily, setOriginalFontFamily] = useState(props.fontFamily || 'Arial');
   const shapes = ['rect', 'circle', 'triangle', 'star', 'pentagon', 'hexagon', 'line'];
-  const sharpEdges = ['rect', 'line', 'triangle', 'pentagon', 'hexagon'];
+  const sharpEdges = ['rect', 'line', 'triangle', 'pentagon', 'hexagon', 'star'];
 
   // Text Effect State (from props or default)
   // We use object.textEffect if available (for circle-text which stores it on object root) or props.textEffect
@@ -521,7 +521,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
       {shapes.includes(type) && (
         <>
         <Outline liveProps={liveProps} handleLiveUpdate={handleLiveUpdate} handleUpdateAndHistory={handleUpdateAndHistory} object={object} />
-        {type === 'rect' && (
+        {sharpEdges && (
             <>
                <div className="control-row" style={{ marginTop: '15px' }}>
                 <label className="control-label">Corner Radius</label>

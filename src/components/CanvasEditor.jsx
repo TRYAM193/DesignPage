@@ -437,7 +437,7 @@ export default function CanvasEditor({
       pastData = past.find(state => state.some(obj => obj.id === id)).find(obj => obj.id === objData.id);
 
       if (pastData && pastData.props === objData.props) {
-        return;
+        // return;
       }
 
       let newObj;

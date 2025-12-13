@@ -307,6 +307,9 @@ export default function CanvasEditor({
   }, [initialized]);
 
   // 🟩 Handle Modifications (User Actions)
+  // src/components/CanvasEditor.jsx
+
+  // 🟩 Handle Modifications (User Actions)
   useEffect(() => {
     const fabricCanvas = fabricCanvasRef.current;
     if (!fabricCanvas) return;
@@ -319,12 +322,12 @@ export default function CanvasEditor({
 
       const type = obj.type ? obj.type.toLowerCase() : '';
 
+      // --- HANDLE ACTIVE SELECTION (GROUPS) ---
       if (type === 'activeselection') {
         const children = [...obj.getObjects()];
 
         setTimeout(() => {
           fabricCanvas.discardActiveObject();
-          // Do NOT render here to avoid flicker
           
           const present = store.getState().canvas.present;
           let updatedPresent = present.map((o) => JSON.parse(JSON.stringify(o)));
@@ -334,10 +337,15 @@ export default function CanvasEditor({
             const index = updatedPresent.findIndex((o) => o.id === child.customId);
             if (index === -1) return;
 
+            // 1. Calculate absolute transform matrix (resolves group offsets)
             const matrix = child.calcTransformMatrix();
-            const { translateX, translateY, angle, scaleX } = fabric.util.qrDecompose(matrix);
+            
+            // 2. Decompose matrix to get 'World' values
+            // ⚠️ FIX: Extracted 'scaleY' here
+            const { translateX, translateY, angle, scaleX, scaleY } = fabric.util.qrDecompose(matrix);
 
             if (child.type === 'text' || child.type === 'textbox' || child.customType === 'text') {
+              // TEXT LOGIC (Keep as is, seems to work for you)
               const newFontSize = child.fontSize * scaleX;
               child.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
               child.setCoords();
@@ -345,20 +353,22 @@ export default function CanvasEditor({
               updatedPresent[index].props = {
                 ...updatedPresent[index].props,
                 fontSize: newFontSize,
-                left: child.left,
-                top: child.top,
-                angle: child.angle,
+                left: translateX, // Use decomposed X (handles group offset)
+                top: translateY,  // Use decomposed Y
+                angle: angle,
                 scaleX: 1,
                 scaleY: 1
               };
             } else {
+              // SHAPES & IMAGES LOGIC
+              // ⚠️ FIX: Properly saving scaleX AND scaleY
               updatedPresent[index].props = {
                 ...updatedPresent[index].props,
                 left: translateX,
                 top: translateY,
                 angle: angle,
-                scaleX: scaleX,
-                scaleY: scaleX, // Assuming uniform scale for now
+                scaleX: scaleX, 
+                scaleY: scaleY, // <--- This was previously 'scaleX' (causing the jump)
                 width: child.width,
                 height: child.height,
               };
@@ -370,6 +380,7 @@ export default function CanvasEditor({
             store.dispatch(setCanvasObjects(updatedPresent));
           }
 
+          // Restore selection
           if (children.length > 0) {
             const sel = new fabric.ActiveSelection(children, {
               canvas: fabricCanvas,
@@ -382,7 +393,8 @@ export default function CanvasEditor({
         return;
       }
 
-      // ... (Single object handling preserved) ...
+      // --- SINGLE OBJECT HANDLING ---
+      // (This part was generally fine, but good to ensure consistency)
       if (type === 'text' || type === 'textbox') {
         const newFontSize = obj.fontSize * obj.scaleX;
         obj.set({ fontSize: newFontSize, scaleX: 1, scaleY: 1 });
@@ -398,19 +410,18 @@ export default function CanvasEditor({
         return;
       }
 
-      if (obj.textEffect === 'circle' || type === 'group' || type === 'image' || type === 'rect' || type === 'circle' || type === 'triangle') {
-        updateObject(obj.customId, {
-          left: obj.left,
-          top: obj.top,
-          angle: obj.angle,
-          scaleX: obj.scaleX,
-          scaleY: obj.scaleY,
-          width: obj.width,
-          height: obj.height,
-        });
-        return;
-      }
+      // Single Shape/Image
+      updateObject(obj.customId, {
+        left: obj.left,
+        top: obj.top,
+        angle: obj.angle,
+        scaleX: obj.scaleX,
+        scaleY: obj.scaleY,
+        width: obj.width,
+        height: obj.height,
+      });
     };
+
     fabricCanvas.on('object:modified', handleObjectModified);
     return () => {
       fabricCanvas.off('object:modified', handleObjectModified);

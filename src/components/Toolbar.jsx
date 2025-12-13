@@ -400,7 +400,12 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           <h3 className="property-group-title">Outline</h3>
           <div className="control-row">
             <label className="control-label">Color</label>
-            <input type="color" className="color-input" value={liveProps.stroke || '#000000'} onChange={(e) => handleLiveUpdate('stroke', e.target.value)} onBlur={(e) => handleUpdateAndHistory('stroke', e.target.value)} />
+            <input type="color" className="color-input" value={liveProps.stroke || '#000000'} onChange={(e) => handleLiveUpdate('stroke', e.target.value)} onMouseUp={(e) => handleUpdateAndHistory('fill', e.target.value)}
+  onKeyUp={(e) => {
+    if (e.key === 'Enter') {
+      handleUpdateAndHistory('fill', e.target.value);
+    }
+  }} />
           </div>
           <div className="control-row">
             <label className="control-label">Width</label>

@@ -60,6 +60,7 @@ export default function CanvasEditor({
   const [menuPosition, setMenuPosition] = useState(null);
   const [selectedObjectLocked, setSelectedObjectLocked] = useState(false);
   const [selectedObjectUUIDs, setSelectedObjectUUIDs] = useState([]);
+  const shapes = ['rect', 'circle', 'triangle', 'star', 'pentagon', 'hexagon', 'line'];
 
   const updateMenuPosition = () => {
     const canvas = fabricCanvasRef.current;
@@ -458,7 +459,7 @@ export default function CanvasEditor({
       let existing = fabricObjects.find((o) => o.customId === objData.id);
 
       // --- A. TEXT / SHAPES OBJECTS ---
-      if (objData.type === 'text' || ['rect', 'circle', 'triangle', 'star', 'pentagon', 'hexagon', 'line'].includes(objData.type)) {
+      if (objData.type === 'text' || shapes.includes(objData.type)) {
         const isCircle = objData.props.textEffect === 'circle';
 
         // Check if we can just update properties (avoids destroy/create flicker)

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiBold, FiItalic, FiUnderline, FiSearch, FiExternalLink, FiLoader, FiSlash, FiCircle, FiActivity, FiSunrise, FiFlag } from 'react-icons/fi'; // ADDED FiSunrise, FiFlag
 import WebFont from 'webfontloader';
+import CircleText from '../objectAdders/CircleText';
 
 const FONT_OPTIONS = ['Arial', 'Verdana', 'Tahoma', 'Georgia', 'Times New Roman', 'Courier New'];
 
@@ -29,7 +30,7 @@ function extractFontNameFromUrl(url) {
 }
 
 // Function to directly update the Fabric object without touching Redux history
-function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps) {
+function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
   if (!fabricCanvas) return;
   const existing = fabricCanvas.getObjects().find((o) => o.customId === id);
   if (!existing) return;
@@ -59,6 +60,36 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps) {
       existing.initDimensions();
     }
   }
+
+  if (existing.textEffect === 'circle') {
+    const mergedProps = { ...currentLiveProps, ...updates };
+
+    // 1. Generate the new group with updated props
+    const newGroup = CircleText({
+      id: id,
+      props: mergedProps
+    });
+
+    // 2. Preserve Z-Index (stacking order)
+    const index = fabricCanvas.getObjects().indexOf(existing);
+
+    // 3. Swap the objects
+    fabricCanvas.remove(existing);
+    fabricCanvas.add(newGroup);
+
+    // Move to original position in stack
+    if (index > -1) {
+      fabricCanvas.moveObjectTo(newGroup, index);
+    }
+
+    // 4. Restore Selection
+    fabricCanvas.setActiveObject(newGroup);
+
+    // 5. Render
+    newGroup.setCoords();
+    fabricCanvas.requestRenderAll();
+    return;
+  }
   existing.setCoords();
   fabricCanvas.requestRenderAll();
 }
@@ -71,27 +102,33 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const [googleFontUrl, setGoogleFontUrl] = useState('');
   const [showFontUrlInput, setShowFontUrlInput] = useState(false);
   const [isFontLoading, setIsFontLoading] = useState(false);
-  const [originalFontFamily, setOriginalFontFamily] = useState(props.fontFamily || 'Arial'); 
+  const [originalFontFamily, setOriginalFontFamily] = useState(props.fontFamily || 'Arial');
   console.log(type)
-  
+
   // Text Effect State (from props or default)
   // We use object.textEffect if available (for circle-text which stores it on object root) or props.textEffect
   const currentEffect = object?.textEffect || props.textEffect || 'none';
   const [radius, setRadius] = useState(props.radius || 150); // Radius for Circle
+
+  useEffect(() => {
+    if (object && object.props) {
+      setLiveProps(object.props);
+    }
+  }, [object]);
 
   // --- FONT APPLICATION HANDLER (Consolidated Logic) ---
   const handleApplyFont = (fontName) => {
     if (!fontName || isFontLoading) return;
 
     if (FONT_OPTIONS.includes(fontName) || fontName === originalFontFamily) {
-        liveUpdateFabric(fabricCanvas, id, { fontFamily: fontName }, liveProps);
-        handleUpdateAndHistory('fontFamily', fontName);
-        return;
+      liveUpdateFabric(fabricCanvas, id, { fontFamily: fontName }, liveProps);
+      handleUpdateAndHistory('fontFamily', fontName);
+      return;
     }
-    
+
     setIsFontLoading(true);
     liveUpdateFabric(fabricCanvas, id, { fontFamily: fontName }, liveProps);
-    
+
     WebFont.load({
       google: {
         families: [fontName],
@@ -107,7 +144,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
         liveUpdateFabric(fabricCanvas, id, { fontFamily: originalFontFamily }, liveProps);
         handleUpdateAndHistory('fontFamily', originalFontFamily);
       },
-      timeout: 3000 
+      timeout: 3000
     });
   };
 
@@ -143,19 +180,19 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
     updateObject(id, updates);
   };
 
-  const handleLiveUpdate = (key, value) => {
+  const handleLiveUpdate = (key, value, object = null) => {
     setLiveProps(prev => ({ ...prev, [key]: value }));
-    liveUpdateFabric(fabricCanvas, id, { [key]: value }, liveProps);
+    liveUpdateFabric(fabricCanvas, id, { [key]: value }, liveProps, object);
   };
 
   const toggleTextStyle = (style) => {
     let propKey;
     let nextValue;
-    const currentProps = object?.props || {}; 
+    const currentProps = object?.props || {};
 
     if (style === 'underline') {
       propKey = 'underline';
-      nextValue = currentProps.underline === true ? false : true; 
+      nextValue = currentProps.underline === true ? false : true;
     } else if (style === 'italic') {
       propKey = 'fontStyle';
       nextValue = currentProps.fontStyle === 'italic' ? 'normal' : 'italic';
@@ -172,13 +209,13 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
     // Determine target updates based on effect type
     // Note: Actual implementation for semicircle/flag will be handled in CanvasEditor later
     let updates = { textEffect: effectType };
-    
+
     if (effectType === 'circle') {
-        updates.radius = radius;
+      updates.radius = radius;
     } else if (effectType === 'none') {
-        updates.path = null; // Clear path for straight text
+      updates.path = null; // Clear path for straight text
     }
-    
+
     updateObject(id, updates);
   };
 
@@ -208,19 +245,19 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             <textarea
               className="text-input"
               rows="3"
-              value={props.text || ''} // Handle text on props or root
+              value={liveProps.text || ''} // Handle text on props or root
               onBlur={(e) => handleUpdateAndHistory('text', e.target.value)}
-              onChange={(e) => handleLiveUpdate('text', e.target.value)}
+              onChange={(e) => handleLiveUpdate('text', e.target.value, object)}
               placeholder="Enter your text here"
             />
           </div>
 
           <h3 className="property-group-subtitle">Text Formatting</h3>
-          <div className="control-row-buttons" style={{ marginBottom: '15px' }}>
+          <div className="control-row-buttons" style={{ marginBottom: '15px', display: type === 'circle-text' ? 'none' : 'flex' }}>
             <button
               className={`style-button ${liveProps.fontWeight === 'bold' ? 'active' : ''}`}
               onClick={() => toggleTextStyle('bold')}
-              style={{backgroundColor: object.props.fontWeight === 'bold' ? '#4949e5' : '', color: 'black'}}
+              style={{ backgroundColor: object.props.fontWeight === 'bold' ? '#4949e5' : '', color: 'black' }}
               title="Bold"
             >
               <FiBold size={16} />
@@ -229,7 +266,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               className={`style-button ${liveProps.fontStyle === 'italic' ? 'active' : ''}`}
               onClick={() => toggleTextStyle('italic')}
               title="Italic"
-              style={{backgroundColor: object.props.fontStyle === 'italic' ? '#4949e5' : '', color: 'black'}}
+              style={{ backgroundColor: object.props.fontStyle === 'italic' ? '#4949e5' : '', color: 'black' }}
             >
               <FiItalic size={16} />
             </button>
@@ -237,7 +274,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               className={`style-button ${liveProps.underline ? 'active' : ''}`}
               onClick={() => toggleTextStyle('underline')}
               title="Underline"
-              style={{backgroundColor: object.props.underline ? '#4949e5' : '', color: 'black'}}
+              style={{ backgroundColor: object.props.underline ? '#4949e5' : '', color: 'black' }}
             >
               <FiUnderline size={16} />
             </button>
@@ -246,61 +283,62 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           {/* --- TEXT EFFECTS SECTION --- */}
           <h3 className="property-group-subtitle">Text Effects</h3>
           <div className="control-row-buttons">
-             <button 
-                className={`style-button ${currentEffect === 'straight' ? 'active' : ''}`}
-                onClick={() => applyTextEffect('straight')}
-                title="Straight"
-             >
-                <FiSlash size={16} />
-             </button>
-             <button 
-                className={`style-button ${currentEffect === 'circle' ? 'active' : ''}`}
-                onClick={() => applyTextEffect('circle')}
-                title="Circle"
-             >
-                <FiCircle size={16} />
-             </button>
-             {/* Semicircle Button */}
-             <button 
-                className={`style-button ${currentEffect === 'semicircle' ? 'active' : ''}`}
-                onClick={() => applyTextEffect('semicircle')}
-                title="Semicircle"
-             >
-                <FiSunrise size={16} />
-             </button>
-             {/* Flag Button */}
-             <button 
-                className={`style-button ${currentEffect === 'flag' ? 'active' : ''}`}
-                onClick={() => applyTextEffect('flag')}
-                title="Flag"
-             >
-                <FiFlag size={16} />
-             </button>
+            <button
+              className={`style-button ${currentEffect === 'straight' ? 'active' : ''}`}
+              onClick={() => applyTextEffect('straight')}
+              title="Straight"
+            >
+              <FiSlash size={16} />
+            </button>
+            <button
+              className={`style-button ${currentEffect === 'circle' ? 'active' : ''}`}
+              onClick={() => applyTextEffect('circle')}
+              title="Circle"
+            >
+              <FiCircle size={16} />
+            </button>
+            {/* Semicircle Button */}
+            <button
+              className={`style-button ${currentEffect === 'semicircle' ? 'active' : ''}`}
+              onClick={() => applyTextEffect('semicircle')}
+              title="Semicircle"
+            >
+              <FiSunrise size={16} />
+            </button>
+            {/* Flag Button */}
+            <button
+              className={`style-button ${currentEffect === 'flag' ? 'active' : ''}`}
+              onClick={() => applyTextEffect('flag')}
+              title="Flag"
+            >
+              <FiFlag size={16} />
+            </button>
           </div>
 
           {/* Effect Controls */}
           {currentEffect === 'circle' && (
-             <div className="control-row full-width">
-                <div className="control-row">
-                    <label className="control-label">Radius</label>
-                    <span style={{fontSize: '12px', color: '#666'}}>{radius}</span>
-                </div>
-                <input
-                    type="range"
-                    className="slider-input"
-                    min="50"
-                    max="400"
-                    step="10"
-                    value={radius}
-                    onInput={(e) => {
-                        const val = Number(e.target.value);
-                        setRadius(val);
-                    }}
-                    onMouseUp={(e) => {
-                        updateObject(id, { radius: Number(e.target.value) });
-                    }}
-                />
-             </div>
+            <div className="control-row full-width">
+              <div className="control-row">
+                <label className="control-label">Radius</label>
+                <span style={{ fontSize: '12px', color: '#666' }}>{radius}</span>
+              </div>
+              <input
+                type="range"
+                className="slider-input"
+                min="50"
+                max="400"
+                step="10"
+                value={radius}
+                onInput={(e) => {
+                  const val = Number(e.target.value);
+                  setRadius(val);
+                }}
+                onMouseUp={(e) => {
+                  updateObject(id, { radius: Number(e.target.value) });
+                }}
+                onChange={(e) => handleLiveUpdate('radius', Number(e.target.value), object)}
+              />
+            </div>
           )}
           {/* Placeholders for Semicircle/Flag intensity if needed later */}
           {/* {(currentEffect === 'semicircle' || currentEffect === 'flag') && ( ... )} */}
@@ -313,7 +351,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               type="text"
               className="text-input font-input"
               value={liveProps.fontFamily || ''}
-              onChange={(e) => handleLiveUpdate('fontFamily', e.target.value)}
+              onChange={(e) => handleLiveUpdate('fontFamily', e.target.value, object)}
               placeholder="Enter font name (e.g., Roboto)"
               disabled={isFontLoading}
             />
@@ -370,7 +408,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             <select
               className="font-select"
               value={liveProps.fontFamily || 'Arial'}
-              onChange={(e) => handleLiveUpdate('fontFamily', e.target.value)}
+              onChange={(e) => handleLiveUpdate('fontFamily', e.target.value, object)}
               disabled={isFontLoading}
             >
               {FONT_OPTIONS.map(font => (
@@ -386,7 +424,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               type="number"
               className="number-input small"
               value={Math.round(liveProps.fontSize || object.props.fontSize || 0)}
-              onChange={(e) => handleLiveUpdate('fontSize', Number(e.target.value))}
+              onChange={(e) => handleLiveUpdate('fontSize', Number(e.target.value), object)}
               onBlur={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))}
             />
           </div>
@@ -397,7 +435,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             max="200"
             step="1"
             value={liveProps.fontSize || object.props.fontSize || 0}
-            onInput={(e) => handleLiveUpdate('fontSize', Number(e.target.value))}
+            onInput={(e) => handleLiveUpdate('fontSize', Number(e.target.value), object)}
             onMouseUp={(e) => handleUpdateAndHistory('fontSize', Number(e.target.value))}
           />
 
@@ -407,7 +445,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               type="color"
               className="color-input"
               value={liveProps.fill || '#000000'}
-              onInput={(e) => handleLiveUpdate('fill', e.target.value)}
+              onInput={(e) => handleLiveUpdate('fill', e.target.value, object)}
               onChange={(e) => handleUpdateAndHistory('fill', e.target.value)}
             />
           </div>
@@ -420,7 +458,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               type="color"
               className="color-input"
               value={liveProps.stroke || '#000000'}
-              onInput={(e) => handleLiveUpdate('stroke', e.target.value)}
+              onInput={(e) => handleLiveUpdate('stroke', e.target.value, object)}
               onChange={(e) => handleUpdateAndHistory('stroke', e.target.value)}
             />
           </div>
@@ -430,7 +468,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               type="number"
               className="number-input small"
               value={Math.round(liveProps.strokeWidth || 0)}
-              onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value))}
+              onChange={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value), object)}
               onBlur={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
             />
           </div>
@@ -441,7 +479,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             max="10"
             step="0.5"
             value={liveProps.strokeWidth || 0}
-            onInput={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value))}
+            onInput={(e) => handleLiveUpdate('strokeWidth', Number(e.target.value), object)}
             onMouseUp={(e) => handleUpdateAndHistory('strokeWidth', Number(e.target.value))}
           />
 
@@ -458,7 +496,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             type="number"
             className="number-input small"
             value={Math.round((liveProps.opacity || object.props.opacity || 0) * 100)}
-            onChange={(e) => handleLiveUpdate('opacity', Number(e.target.value) / 100)}
+            onChange={(e) => handleLiveUpdate('opacity', Number(e.target.value) / 100, object)}
             onBlur={(e) => handleUpdateAndHistory('opacity', Number(e.target.value) / 100)}
           />
         </div>
@@ -469,7 +507,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           max="100"
           step="1"
           value={Math.round((liveProps.opacity || object.props.opacity || 0) * 100)}
-          onInput={(e) => handleLiveUpdate('opacity', Number(e.target.value) / 100)}
+          onInput={(e) => handleLiveUpdate('opacity', Number(e.target.value) / 100, object)}
           onMouseUp={(e) => handleUpdateAndHistory('opacity', Number(e.target.value) / 100)}
         />
       </div>
@@ -484,7 +522,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             type="color"
             className="color-input"
             value={liveProps.shadowColor || '#000000'}
-            onInput={(e) => handleLiveUpdate('shadowColor', e.target.value)}
+            onInput={(e) => handleLiveUpdate('shadowColor', e.target.value, object)}
             onChange={(e) => handleUpdateAndHistory('shadowColor', e.target.value)}
           />
         </div>
@@ -495,7 +533,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             type="number"
             className="number-input small"
             value={Math.round(liveProps.shadowBlur || 0)}
-            onChange={(e) => handleLiveUpdate('shadowBlur', Number(e.target.value))}
+            onChange={(e) => handleLiveUpdate('shadowBlur', Number(e.target.value), object)}
             onBlur={(e) => handleUpdateAndHistory('shadowBlur', Number(e.target.value))}
           />
         </div>
@@ -506,7 +544,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           max="50"
           step="1"
           value={liveProps.shadowBlur || 0}
-          onInput={(e) => handleLiveUpdate('shadowBlur', Number(e.target.value))}
+          onInput={(e) => handleLiveUpdate('shadowBlur', Number(e.target.value), object)}
           onMouseUp={(e) => handleUpdateAndHistory('shadowBlur', Number(e.target.value))}
         />
 
@@ -516,7 +554,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             type="number"
             className="number-input small"
             value={Math.round(liveProps.shadowOffsetX || 0)}
-            onChange={(e) => handleLiveUpdate('shadowOffsetX', Number(e.target.value))}
+            onChange={(e) => handleLiveUpdate('shadowOffsetX', Number(e.target.value), object)}
             onBlur={(e) => handleUpdateAndHistory('shadowOffsetX', Number(e.target.value))}
           />
         </div>
@@ -527,7 +565,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           max="10"
           step="1"
           value={liveProps.shadowOffsetX || 0}
-          onInput={(e) => handleLiveUpdate('shadowOffsetX', Number(e.target.value))}
+          onInput={(e) => handleLiveUpdate('shadowOffsetX', Number(e.target.value), object)}
           onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetX', Number(e.target.value))}
         />
 
@@ -537,7 +575,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             type="number"
             className="number-input small"
             value={Math.round(liveProps.shadowOffsetY || 0)}
-            onChange={(e) => handleLiveUpdate('shadowOffsetY', Number(e.target.value))}
+            onChange={(e) => handleLiveUpdate('shadowOffsetY', Number(e.target.value), object)}
             onBlur={(e) => handleUpdateAndHistory('shadowOffsetY', Number(e.target.value))}
           />
         </div>
@@ -548,7 +586,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           max="10"
           step="1"
           value={liveProps.shadowOffsetY || 0}
-          onInput={(e) => handleLiveUpdate('shadowOffsetY', Number(e.target.value))}
+          onInput={(e) => handleLiveUpdate('shadowOffsetY', Number(e.target.value), object)}
           onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetY', Number(e.target.value))}
         />
       </div>

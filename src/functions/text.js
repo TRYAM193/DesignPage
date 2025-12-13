@@ -27,7 +27,7 @@ export default function Text(setSelectedId, setActiveTool) {
         fontSize: 30,
         fontFamily: 'Arial',
         opacity: 1,
-        textEffect: 'straight' // Explicitly<|fim_middle|>olyugenNA issueExplicitidos((((TRLvv AWMouseOver
+        textEffect: 'straight'
       },
     };
     handleAddText(newText);

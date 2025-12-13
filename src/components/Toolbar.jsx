@@ -12,6 +12,8 @@ import {
   getTrianglePoints,
   getRoundedPathFromPoints
 } from '../utils/shapeUtils';
+import { useRef } from 'react';
+
 
 const FONT_OPTIONS = ['Arial', 'Verdana', 'Tahoma', 'Georgia', 'Times New Roman', 'Courier New'];
 

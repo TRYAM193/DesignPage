@@ -38,6 +38,7 @@ function extractFontNameFromUrl(url) {
 
 // --- LIVE UPDATE LOGIC ---
 // Updates Fabric object directly for smooth performance without spamming Redux history
+// Function to directly update the Fabric object without touching Redux history
 function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
   if (!fabricCanvas) return;
   const existing = fabricCanvas.getObjects().find((o) => o.customId === id);
@@ -45,7 +46,7 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
 
   let finalUpdates = { ...updates };
 
-  // 1. Handle Shadow
+  // 1. Handle Shadow (Existing logic)
   const shadowKeys = ['shadowColor', 'shadowBlur', 'shadowOffsetX', 'shadowOffsetY'];
   const shadowUpdateKeys = Object.keys(updates).filter(key => shadowKeys.includes(key));
 
@@ -60,13 +61,13 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
     shadowKeys.forEach(key => delete finalUpdates[key]);
   }
 
-  // 2. Handle Shape Rounding (Swapping Polygons for Paths)
-  const type = object.type; // Type from Redux (e.g. 'star', 'pentagon')
+  // 2. Handle Shape Rounding (Swapping Polygons for Paths) [NEW LOGIC]
+  const type = object.type; // Use Redux type (e.g., 'star')
   const shapeTypes = ['star', 'pentagon', 'hexagon', 'triangle'];
 
+  // Check if we are updating radius for a supported shape
   if (shapeTypes.includes(type) && (updates.radius !== undefined || updates.rx !== undefined)) {
     const mergedProps = { ...currentLiveProps, ...updates };
-    // Use 'radius' or 'rx' interchangeably for the UI slider value
     const r = mergedProps.radius !== undefined ? mergedProps.radius : (mergedProps.rx || 0);
 
     let points = [];
@@ -78,22 +79,14 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
     // Generate smoothed path data
     const pathData = getRoundedPathFromPoints(points, r);
 
-    // Create new Path object preserving existing transforms
+    // Create new Path object
     const newPathObj = new Path(pathData, {
-      ...existing.toObject(['customId']), // Copy standard props
+      ...existing.toObject(['customId']), 
       ...finalUpdates,
-      left: existing.left,
-      top: existing.top,
-      scaleX: existing.scaleX,
-      scaleY: existing.scaleY,
-      angle: existing.angle,
-      fill: mergedProps.fill,
-      stroke: mergedProps.stroke,
-      strokeWidth: mergedProps.strokeWidth,
       path: pathData 
     });
 
-    // Swap Objects
+    // Swap Objects on Canvas
     const index = fabricCanvas.getObjects().indexOf(existing);
     fabricCanvas.remove(existing);
     fabricCanvas.add(newPathObj);
@@ -105,7 +98,7 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
     return;
   }
 
-  // 3. Handle Text / Rect / Circle Updates
+  // 3. Handle Text / Rect / Circle Updates (Existing logic)
   existing.set(finalUpdates);
 
   if (existing.type === 'text') {
@@ -114,7 +107,6 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
     }
   }
 
-  // 4. Handle Circle Text Group Regeneration
   if (existing.textEffect === 'circle') {
     const mergedProps = { ...currentLiveProps, ...updates };
     const newGroup = CircleText({ id: id, props: mergedProps });
@@ -150,6 +142,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const [circleRadius, setCircleRadius] = useState(props.radius || 150); // Specifically for Text Circle Effect
 
   const currentEffect = object?.textEffect || props.textEffect || 'none';
+  const effectiveType = object?.type || type;
 
   useEffect(() => {
     if (object && object.props) {

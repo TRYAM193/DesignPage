@@ -516,7 +516,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
         />
       </div>
 
-      {[r]}
+      {['rect', 'circle', 'triangle', 'text', 'circle-text', 'image'].includes(type) && }
 
       {/* --- 3. SHADOW/EFFECTS --- */}
       <div className="property-group">

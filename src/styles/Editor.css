@@ -1023,6 +1023,6 @@ input[type="range"],
 
 @media screen and (max-width: 370px) {
   .top-bar-button{
-    pad
+    padding: 5px;
   }
 }

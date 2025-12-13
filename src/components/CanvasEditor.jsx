@@ -567,6 +567,16 @@ export default function CanvasEditor({
 
   }, [canvasObjects, initialized]);
 
+  const onMenuAction = (action) => {
+      handleCanvasAction(
+          action, 
+          selectedObjectUUID, 
+          store.getState().canvas.present, // Get latest from store
+          dispatch, 
+          setCanvasObjects
+      );
+  };
+
   return (
     <div ref={wrapperRef} id="canvas-wrapper">
       <canvas ref={canvasRef} id="canvas" />

@@ -142,7 +142,7 @@ export default function CanvasEditor({
     };
   }, []);
 
-  // Load Saved Designs 
+  // Load Saved Designs from location.state
   useEffect(() => {
     if (location.state?.designToLoad && fabricCanvas) {
       const design = location.state.designToLoad;

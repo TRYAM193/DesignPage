@@ -248,7 +248,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           <div className="control-row-buttons">
              <button 
                 className={`style-button ${currentEffect === 'none' ? 'active' : ''}`}
-                onClick={() => applyTextEffect('none')}
+                onClick={() => applyTextEffect('straight')}
                 title="Straight"
              >
                 <FiSlash size={16} />

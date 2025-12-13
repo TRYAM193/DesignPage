@@ -15,6 +15,9 @@ export default function CircleText(objData) {
     opacity: props.opacity ?? 1,
     shadow:{
       blur: props.shadowBlur || 0,
+      offsetX: props.shadowOffsetX || 0,
+      offsetY: props.shadowOffsetY || 0,
+      color: props.shadowColor || '#000000'
     },
     strokeWidth: props.strokeWidth || 0,
     strokeColor: props.stroke || '#000000',

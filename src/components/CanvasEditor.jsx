@@ -159,7 +159,7 @@ export default function CanvasEditor({
 
           const newObj = {
             id: obj.customId,
-            type: obj.textEffect === 'circle' ? 'circle-text' : obj.type, // Rehydrate type
+            type: obj.textEffect === 'circle' ? 'circle-text' : obj.type, 
             props: {
               text: obj.text,
               left: obj.left,

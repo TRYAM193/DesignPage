@@ -979,7 +979,7 @@ input[type="range"],
 
 /* 📱 Target screens between 550px and 768px */
 /* 📱 Tablet/Mobile: Force Top Bar to Absolute Center */
-@media screen and (min-width: 550px) and (max-width: 768px) {
+@media screen and  (max-width: 768px) {
   
   .top-bar,
   .consolidated-bar {

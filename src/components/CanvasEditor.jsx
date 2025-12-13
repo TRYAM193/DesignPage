@@ -12,7 +12,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { firestore } from '../firebase.js';
 import { FabricImage } from 'fabric';
 import updateExisting from '../utils/updateExisting'
-import { useDispatch } from 'react-redux'; 
+import { useDispatch } from 'react-redux';
 import FloatingMenu from './FloatingMenu';
 import { handleCanvasAction } from '../utils/canvasActions';
 
@@ -63,24 +63,28 @@ export default function CanvasEditor({
   const [selectedObjectUUID, setSelectedObjectUUID] = useState(null);
 
   // 🆕 HELPER: Update Menu Position
+  // 🆕 HELPER: Syncs menu position and checks if object is locked
   const updateMenuPosition = () => {
-    const activeObj = fabricCanvasRef.current?.getActiveObject();
-    if (activeObj) {
-        const boundingRect = activeObj.getBoundingRect(true); 
-        const canvasContainer = document.getElementById('canvas-wrapper');
-        
-        // Adjust for canvas position on screen
-        if(canvasContainer) {
-            setMenuPosition({
-                left: boundingRect.left + boundingRect.width / 2,
-                top: boundingRect.top 
-            });
-            setSelectedObjectLocked(activeObj.lockMovementX === true);
-            setSelectedObjectUUID(activeObj.customId);
-        }
+    const canvas = fabricCanvasRef.current;
+    if (!canvas) return;
+
+    const activeObj = canvas.getActiveObject();
+    const canvasContainer = document.getElementById('canvas-wrapper');
+
+    if (activeObj && canvasContainer) {
+      const boundingRect = activeObj.getBoundingRect(true); // Get absolute coordinates
+
+      setMenuPosition({
+        left: boundingRect.left + boundingRect.width / 2,
+        top: boundingRect.top
+      });
+
+      // Sync the lock state for the icon
+      setSelectedObjectLocked(activeObj.lockMovementX === true);
+      setSelectedObjectUUID(activeObj.customId);
     } else {
-        setMenuPosition(null);
-        setSelectedObjectUUID(null);
+      setMenuPosition(null);
+      setSelectedObjectUUID(null);
     }
   };
 
@@ -304,7 +308,7 @@ export default function CanvasEditor({
     };
 
     const handleMoving = () => {
-       updateMenuPosition(); // <--- Follow Object while dragging
+      updateMenuPosition(); // <--- Follow Object while dragging
     };
 
     canvas.on('selection:created', handleSelection);
@@ -502,7 +506,7 @@ export default function CanvasEditor({
             newObj.customId = objData.id;
             fabricCanvas.add(newObj);
             fabricCanvas.setActiveObject(newObj);
-            fabricCanvas.requestRenderAll();  
+            fabricCanvas.requestRenderAll();
           }
         }
       }
@@ -530,7 +534,7 @@ export default function CanvasEditor({
     fabricObjects.forEach((obj) => {
       if (!reduxIds.has(obj.customId)) {
         fabricCanvas.remove(obj);
-        previousStatesRef.current.delete(obj.customId); 
+        previousStatesRef.current.delete(obj.customId);
       }
     });
 
@@ -568,13 +572,13 @@ export default function CanvasEditor({
   }, [canvasObjects, initialized]);
 
   const onMenuAction = (action) => {
-      handleCanvasAction(
-          action, 
-          selectedObjectUUID, 
-          store.getState().canvas.present, // Get latest from store
-          dispatch, 
-          setCanvasObjects
-      );
+    handleCanvasAction(
+      action,
+      selectedObjectUUID,
+      store.getState().canvas.present, // Get latest from store
+      dispatch,
+      setCanvasObjects
+    );
   };
 
   return (
@@ -582,11 +586,11 @@ export default function CanvasEditor({
       <canvas ref={canvasRef} id="canvas" />
 
       {menuPosition && selectedObjectUUID && (
-          <FloatingMenu 
-              position={menuPosition} 
-              onAction={onMenuAction} 
-              isLocked={selectedObjectLocked}
-          />
+        <FloatingMenu
+          position={menuPosition}
+          onAction={onMenuAction}
+          isLocked={selectedObjectLocked}
+        />
       )}
     </div>
   );

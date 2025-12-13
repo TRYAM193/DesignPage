@@ -52,7 +52,7 @@ export default function CanvasEditor({
   const wrapperRef = useRef(null);
   const canvasObjects = useSelector((state) => state.canvas.present);
   const location = useLocation();
-  const previousStatesRef = useRef(new Map());
+
   // 🟩 Initialize Fabric.js once
   useEffect(() => {
     const ORIGINAL_WIDTH = 800;
@@ -411,129 +411,104 @@ export default function CanvasEditor({
     return map;
   }, [canvasObjects]);
 
-  // 🟩 Sync Redux state → Fabric (OPTIMIZED)
-useEffect(() => {
-  if (!initialized) return;
-  const fabricCanvas = fabricCanvasRef.current;
-  if (!fabricCanvas) return;
+  useEffect(() => {
+    if (!initialized) return;
+    const fabricCanvas = fabricCanvasRef.current;
+    if (!fabricCanvas) return;
 
-  // 1. Handle Active Selection (Multiselect)
-  let selectedIds = [];
-  const activeObject = fabricCanvas.getActiveObject();
-  const isMultiSelect = activeObject && activeObject.type?.toLowerCase() === 'activeselection';
+    let selectedIds = [];
+    const activeObject = fabricCanvas.getActiveObject();
 
-  if (isMultiSelect) {
-    selectedIds = activeObject.getObjects().map(o => o.customId);
-    // Discard active object momentarily to allow updates without interference
-    fabricCanvas.discardActiveObject(); 
-  }
+    const isMultiSelect = activeObject && activeObject.type?.toLowerCase() === 'activeselection';
 
-  isSyncingRef.current = true;
-  const fabricObjects = fabricCanvas.getObjects();
-
-  // 2. Iterate Redux Objects and Sync ONLY Changes
-  canvasObjects.forEach(async (objData) => {
-    // Generate a unique signature for the current object state
-    // We use JSON.stringify because your Redux slice breaks object references
-    const currentString = JSON.stringify(objData);
-    const previousString = previousStatesRef.current.get(objData.id);
-
-    // ⚡ CHECK: If props match exactly, SKIP this object
-    if (currentString === previousString) {
-      return; 
+    if (isMultiSelect) {
+      selectedIds = activeObject.getObjects().map(o => o.customId);
+      fabricCanvas.discardActiveObject();
     }
 
-    // If we are here, something changed. Update the Fabric object.
-    let existing = fabricObjects.find((o) => o.customId === objData.id);
+    isSyncingRef.current = true;
+    const fabricObjects = fabricCanvas.getObjects();
 
-    // --- A. TEXT OBJECTS ---
-    if (objData.type === 'text') {
-      const isCircle = objData.props.textEffect === 'circle';
+    canvasObjectsMap.forEach(async (objData, id) => {
+      let existing = fabricObjects.find((o) => o.customId === id);
 
-      // Optimization: If it's Straight Text -> Straight Text, just .set() properties
-      if (!isCircle && existing && existing.type === 'text' && existing.textEffect !== 'circle') {
-          existing.set(objData.props);
-          if (objData.props.text !== undefined) existing.initDimensions();
-          existing.setCoords();
-      } 
-      // Else: Recreate object (Circle Text OR Straight<->Circle conversion)
-      else {
-          if (existing) fabricCanvas.remove(existing);
-          
-          let newObj;
-          if (isCircle) {
-            newObj = CircleText(objData);
-          } else {
-            newObj = StraightText(objData);
-          }
-
-          if (newObj) {
-            newObj.customId = objData.id;
-            fabricCanvas.add(newObj);
-          }
-      }
-    }
-
-    // --- B. IMAGE OBJECTS ---
-    if (objData.type === 'image') {
-      if (!existing && !fabricCanvas.getObjects().some(obj => obj.customId === objData.id)) {
-        try {
-          const newObj = await FabricImage.fromURL(objData.src, { ...objData.props, customId: objData.id });
-           fabricCanvas.add(newObj);
-        } catch (err) {
-          console.error("Error loading image:", err);
+      let newObj;
+      if (objData.type === 'text') {
+        if (objData.props.textEffect === 'straight') {
+          newObj = StraightText(objData);
+        } else if (objData.props.textEffect === 'circle') {
+          newObj = CircleText(objData);
         }
-      } else if (existing) {
-        // Use your existing helper for images
-        updateExisting(existing, objData, isDifferent);
+
+        if (existing) {
+          fabricCanvas.remove(existing);
+        }
+      }
+
+      if (objData.type === 'image') {
+        if (!existing && !fabricCanvas.getObjects().some(obj => obj.customId === objData.id)) {
+          try {
+            newObj = await FabricImage.fromURL(objData.src, { ...objData.props, customId: objData.id });
+          } catch (err) {
+            console.error("Error loading image:", err);
+          }
+        } else if (existing) {
+          updateExisting(existing, objData, isDifferent);
+          return
+        }
+      }
+
+      if (newObj) {
+        newObj.customId = objData.id;
+        fabricCanvas.add(newObj);
+        fabricCanvas.setActiveObject(newObj);
+        setTimeout(() => {
+          fabricCanvas.requestRenderAll();
+        }, 50);
+      }
+
+    });
+
+    const ids = Array.from(canvasObjectsMap.keys());
+    fabricObjects.forEach((obj) => {
+      if (!ids.includes(obj.customId)) fabricCanvas.remove(obj);
+    });
+
+    // Z-Index Sorting
+    const currentFabricObjects = fabricCanvas.getObjects();
+    let fabricObjectsArray = fabricCanvas._objects;
+
+    canvasObjects.forEach((reduxObj, index) => {
+      const fabricObj = currentFabricObjects.find(
+        (obj) => obj.customId === reduxObj.id
+      );
+
+      if (fabricObj) {
+        const currentIndex = fabricObjectsArray.indexOf(fabricObj);
+        if (currentIndex !== index) {
+          fabricObjectsArray.splice(currentIndex, 1);
+          fabricObjectsArray.splice(index, 0, fabricObj);
+          fabricCanvas._objects = fabricObjectsArray;
+        }
+      }
+    });
+
+    if (selectedIds.length > 0) {
+      const objectsToSelect = fabricCanvas.getObjects().filter(obj => selectedIds.includes(obj.customId));
+      if (objectsToSelect.length > 0) {
+        const selection = new fabric.ActiveSelection(objectsToSelect, {
+          canvas: fabricCanvas,
+        });
+        fabricCanvas.setActiveObject(selection);
       }
     }
-    
-    // UPDATE HISTORY: Save the new string as the "past" state for next render
-    previousStatesRef.current.set(objData.id, currentString);
-  });
 
-  // 3. Cleanup: Remove objects that are in Fabric but NOT in Redux
-  const reduxIds = new Set(canvasObjects.map(o => o.id));
-  fabricObjects.forEach((obj) => {
-    if (!reduxIds.has(obj.customId)) {
-      fabricCanvas.remove(obj);
-      previousStatesRef.current.delete(obj.customId); // Remove from history
-    }
-  });
+    fabricCanvas.requestRenderAll();
 
-  // 4. Layer Management (Z-Index)
-  // Only move layers if the order has actually changed
-  const currentFabricObjects = fabricCanvas.getObjects();
-  let fabricObjectsArray = fabricCanvas._objects; // Access internal array for speed
-
-  canvasObjects.forEach((reduxObj, index) => {
-    const fabricObj = currentFabricObjects.find((obj) => obj.customId === reduxObj.id);
-    if (fabricObj) {
-      const currentIndex = fabricObjectsArray.indexOf(fabricObj);
-      if (currentIndex !== index) {
-        fabricCanvas.moveObjectTo(fabricObj, index);
-      }
-    }
-  });
-
-  // 5. Restore Selection
-  if (selectedIds.length > 0) {
-    const objectsToSelect = fabricCanvas.getObjects().filter(obj => selectedIds.includes(obj.customId));
-    if (objectsToSelect.length > 0) {
-      const selection = new fabric.ActiveSelection(objectsToSelect, { canvas: fabricCanvas });
-      fabricCanvas.setActiveObject(selection);
-    }
-  }
-
-  fabricCanvas.requestRenderAll();
-
-  // Small timeout to ensure sync flag clears after render
-  setTimeout(() => {
-    isSyncingRef.current = false;
-  }, 50);
-
-}, [canvasObjects, initialized]);
+    setTimeout(() => {
+      isSyncingRef.current = false;
+    }, 100);
+  }, [canvasObjects, initialized, canvasObjectsMap]);
 
   return (
     <div ref={wrapperRef} id="canvas-wrapper">

@@ -580,6 +580,14 @@ export default function CanvasEditor({
   return (
     <div ref={wrapperRef} id="canvas-wrapper">
       <canvas ref={canvasRef} id="canvas" />
+
+      {menuPosition && selectedObjectUUID && (
+          <FloatingMenu 
+              position={menuPosition} 
+              onAction={onMenuAction} 
+              isLocked={selectedObjectLocked}
+          />
+      )}
     </div>
   );
 }

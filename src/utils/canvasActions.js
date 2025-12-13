@@ -1,101 +1,127 @@
 // src/utils/canvasActions.js
 import { v4 as uuidv4 } from 'uuid';
 
-export const handleCanvasAction = (action, selectedId, canvasObjects, dispatch, setCanvasObjects) => {
-  if (!selectedId || !canvasObjects) return;
+export const handleCanvasAction = (action, selectedIds, canvasObjects, dispatch, setCanvasObjects) => {
+  if (!selectedIds || selectedIds.length === 0 || !canvasObjects) return;
 
-  const currentIndex = canvasObjects.findIndex(o => o.id === selectedId);
-  if (currentIndex === -1) return;
-
-  const object = canvasObjects[currentIndex];
+  // We operate on a copy of the array
   let newObjects = [...canvasObjects];
 
   switch (action) {
-    // --- LAYERING ---
-    case 'bringForward':
-      if (currentIndex < newObjects.length - 1) {
-        [newObjects[currentIndex], newObjects[currentIndex + 1]] = 
-        [newObjects[currentIndex + 1], newObjects[currentIndex]];
-      }
+    // --- DELETE (Multi) ---
+    case 'delete':
+      // Filter OUT any object that is in the selectedIds list
+      newObjects = newObjects.filter(obj => !selectedIds.includes(obj.id));
       break;
 
+    // --- DUPLICATE (Multi) ---
+    case 'duplicate':
+      // Find all objects to duplicate
+      const objectsToDuplicate = newObjects.filter(obj => selectedIds.includes(obj.id));
+      
+      const duplicates = objectsToDuplicate.map(obj => ({
+        ...obj,
+        id: uuidv4(), // New ID
+        props: {
+          ...obj.props,
+          left: (obj.props.left || 0) + 20, // Offset so they don't stack directly on top
+          top: (obj.props.top || 0) + 20
+        }
+      }));
+      
+      newObjects = [...newObjects, ...duplicates];
+      break;
+
+    // --- LOCK/UNLOCK (Multi) ---
+    case 'toggleLock':
+      // Check if the *first* object is locked to decide target state (toggle)
+      const firstObj = newObjects.find(o => o.id === selectedIds[0]);
+      if (!firstObj) return;
+      
+      const targetLockState = !firstObj.props.lockMovementX; // Toggle based on first
+
+      newObjects = newObjects.map(obj => {
+        if (selectedIds.includes(obj.id)) {
+          return {
+            ...obj,
+            props: {
+              ...obj.props,
+              lockMovementX: targetLockState,
+              lockMovementY: targetLockState,
+              lockRotation: targetLockState,
+              lockScalingX: targetLockState,
+              lockScalingY: targetLockState,
+              hasControls: !targetLockState, // Hide controls if locked
+            }
+          };
+        }
+        return obj;
+      });
+      break;
+
+    // --- FLIP (Multi) ---
+    case 'flipHorizontal':
+    case 'flipVertical':
+      const prop = action === 'flipHorizontal' ? 'flipX' : 'flipY';
+      newObjects = newObjects.map(obj => {
+        if (selectedIds.includes(obj.id)) {
+          return {
+            ...obj,
+            props: { ...obj.props, [prop]: !obj.props[prop] }
+          };
+        }
+        return obj;
+      });
+      break;
+
+    // --- LAYERING (Multi - Simplified) ---
+    // Handling Z-index for multi-selection is complex. 
+    // This logic moves ALL selected items to Front/Back as a block.
+    
     case 'bringToFront':
-      newObjects.splice(currentIndex, 1);
-      newObjects.push(object);
-      break;
-
-    case 'sendBackward':
-      if (currentIndex > 0) {
-        [newObjects[currentIndex], newObjects[currentIndex - 1]] = 
-        [newObjects[currentIndex - 1], newObjects[currentIndex]];
-      }
-      break;
+        // 1. Extract selected objects
+        const toFront = newObjects.filter(o => selectedIds.includes(o.id));
+        // 2. Remove them from original array
+        const remainingFront = newObjects.filter(o => !selectedIds.includes(o.id));
+        // 3. Push them to the end (top)
+        newObjects = [...remainingFront, ...toFront];
+        break;
 
     case 'sendToBack':
-      newObjects.splice(currentIndex, 1);
-      newObjects.unshift(object);
-      break;
-
-    // --- DUPLICATE ---
-    case 'duplicate':
-      const newProps = { 
-        ...object.props, 
-        left: (object.props.left || 0) + 20, 
-        top: (object.props.top || 0) + 20 
-      };
+        // 1. Extract selected objects
+        const toBack = newObjects.filter(o => selectedIds.includes(o.id));
+        // 2. Remove them
+        const remainingBack = newObjects.filter(o => !selectedIds.includes(o.id));
+        // 3. Unshift them to the start (bottom)
+        newObjects = [...toBack, ...remainingBack];
+        break;
       
-      const newObj = {
-        ...object,
-        id: uuidv4(), // Generate new ID
-        props: newProps
-      };
-      newObjects.push(newObj);
-      break;
+    // For 'step' movements (Bring Forward/Send Backward), it's best to loop
+    // But usually safer to stick to ToFront/ToBack for groups to avoid interleaving issues.
+    case 'bringForward':
+       // Simple implementation: try to move each one step up
+       // Note: This works best for single selection.
+       if(selectedIds.length === 1) {
+           const idx = newObjects.findIndex(o => o.id === selectedIds[0]);
+           if (idx < newObjects.length - 1) {
+               [newObjects[idx], newObjects[idx + 1]] = [newObjects[idx + 1], newObjects[idx]];
+           }
+       }
+       break;
 
-    // --- DELETE ---
-    case 'delete':
-      newObjects.splice(currentIndex, 1);
-      break;
-
-    // --- FLIP ---
-    case 'flipHorizontal':
-      newObjects[currentIndex] = {
-        ...object,
-        props: { ...object.props, flipX: !object.props.flipX }
-      };
-      break;
-
-    case 'flipVertical':
-      newObjects[currentIndex] = {
-        ...object,
-        props: { ...object.props, flipY: !object.props.flipY }
-      };
-      break;
-
-    // --- LOCK/UNLOCK ---
-    case 'toggleLock':
-      const isLocked = object.props.lockMovementX; // Check current state
-      const lockState = !isLocked;
-      
-      newObjects[currentIndex] = {
-        ...object,
-        props: {
-          ...object.props,
-          lockMovementX: lockState,
-          lockMovementY: lockState,
-          lockRotation: lockState,
-          lockScalingX: lockState,
-          lockScalingY: lockState,
-          hasControls: !lockState, // Hide controls when locked
-          // We keep 'selectable: true' so they can click it to Unlock it
-        }
-      };
-      break;
+    case 'sendBackward':
+       if(selectedIds.length === 1) {
+           const idx = newObjects.findIndex(o => o.id === selectedIds[0]);
+           if (idx > 0) {
+               [newObjects[idx], newObjects[idx - 1]] = [newObjects[idx - 1], newObjects[idx]];
+           }
+       }
+       break;
 
     default:
       return;
   }
 
-  // Dispatch update to Redux
+  // Dispatch update
   dispatch(setCanvasObjects(newObjects));
 };

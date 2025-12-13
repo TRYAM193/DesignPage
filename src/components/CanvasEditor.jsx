@@ -12,7 +12,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { firestore } from '../firebase.js';
 import { FabricImage } from 'fabric';
 import updateExisting from '../utils/updateExisting'
-import { useDispatch } from 'react-redux'; // Make sure this is imported
+import { useDispatch } from 'react-redux'; 
 import FloatingMenu from './FloatingMenu';
 import { handleCanvasAction } from '../utils/canvasActions';
 

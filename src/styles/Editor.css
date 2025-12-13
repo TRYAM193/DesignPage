@@ -977,19 +977,12 @@ input[type="range"],
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* 📱 Target screens between 550px and 768px */
-/* 📱 Tablet/Mobile: Force Top Bar to Absolute Center */
 @media screen and (min-width: 550px) and (max-width: 768px) {
   
   .top-bar,
   .consolidated-bar {
-    /* 1. Detach from normal flow to position freely */
     position: absolute !important; 
-    
-    /* 2. Move left edge to the exact middle of the screen */
     left: 50% !important; 
-    
-    /* 3. Pull back by 50% of its own width to center it perfectly */
     transform: translateX(-50%) !important; 
     width: auto !important; 
     top: 10px; 

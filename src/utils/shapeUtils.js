@@ -122,3 +122,54 @@ export const getTrapezoidPoints = (width, height) => {
     { x: -width/2, y: height/2 }      // Bottom-Left
   ];
 };
+
+export const getLightningPoints = (width, height) => {
+  return [
+    { x: width * 0.1, y: -height * 0.3 },
+    { x: -width * 0.1, y: -height * 0.3 },
+    { x: width * 0.3, y: -height * 0.5 }, // Top tip
+    { x: -width * 0.1, y: 0.1 * height },
+    { x: width * 0.1, y: 0.1 * height },
+    { x: -width * 0.3, y: height * 0.5 }, // Bottom tip
+    { x: width * 0.1, y: -height * 0.1 }
+  ];
+};
+
+export const getHeartPath = (width, height) => {
+  // SVG Path for a heart
+  const w = width / 2;
+  const h = height / 2;
+  // This is a standard Bezier heart shape
+  return `
+    M 0 ${-h * 0.3}
+    C 0 ${-h} ${-w} ${-h} ${-w} ${-h * 0.3}
+    C ${-w} ${h * 0.2} ${-w * 0.5} ${h * 0.6} 0 ${h}
+    C ${w * 0.5} ${h * 0.6} ${w} ${h * 0.2} ${w} ${-h * 0.3}
+    C ${w} ${-h} 0 ${-h} 0 ${-h * 0.3}
+    z
+  `.replace(/\s+/g, ' ').trim();
+};
+
+export const getBubblePath = (width, height) => {
+  const r = 10; // corner radius
+  const w = width / 2;
+  const h = height / 2;
+  const tailSize = 20;
+  
+  // Rect with rounded corners and a tail at bottom-right
+  return `
+    M ${-w + r} ${-h}
+    L ${w - r} ${-h}
+    Q ${w} ${-h} ${w} ${-h + r}
+    L ${w} ${h - r - tailSize}
+    Q ${w} ${h - tailSize} ${w - r} ${h - tailSize}
+    L ${w * 0.4} ${h - tailSize}
+    L ${w * 0.2} ${h}
+    L ${w * 0.1} ${h - tailSize}
+    L ${-w + r} ${h - tailSize}
+    Q ${-w} ${h - tailSize} ${-w} ${h - r - tailSize}
+    L ${-w} ${-h + r}
+    Q ${-w} ${-h} ${-w + r} ${-h}
+    z
+  `.replace(/\s+/g, ' ').trim();
+};

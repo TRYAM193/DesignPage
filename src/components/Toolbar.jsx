@@ -6,11 +6,9 @@ import {
 import WebFont from 'webfontloader';
 import CircleText from '../objectAdders/CircleText';
 import { Path } from 'fabric';
-import {
-  getStarPoints,
-  getPolygonPoints,
-  getTrianglePoints,
-  getRoundedPathFromPoints
+import { 
+  getStarPoints, getPolygonPoints, getTrianglePoints, getRoundedPathFromPoints,
+  getArrowPoints, getDiamondPoints, getTrapezoidPoints 
 } from '../utils/shapeUtils';
 import { useRef } from 'react';
 

@@ -1,6 +1,9 @@
 // src/objectAdders/Shapes.js
 import { Rect, Circle, Triangle, Polygon, Line, Path } from 'fabric';
-import { getStarPoints, getPolygonPoints, getTrianglePoints, getRoundedPathFromPoints } from '../utils/shapeUtils';
+import { 
+  getStarPoints, getPolygonPoints, getTrianglePoints, getRoundedPathFromPoints,
+  getArrowPoints, getDiamondPoints, getTrapezoidPoints 
+} from '../utils/shapeUtils';
 
 export default function ShapeAdder(obj) {
   if (!obj) return null;

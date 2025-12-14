@@ -416,7 +416,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           <h3 className="property-group-title">Outline</h3>
           <div className="control-row">
             <label className="control-label">Color</label>
-            <input type="color" className="color-input" value={liveProps.stroke || '#000000'} onChange={(e) => handleColorChange('fill', e.target.value)} />
+            <input type="color" className="color-input" value={liveProps.stroke || '#000000'} onChange={(e) => handleColorChange('stroke', e.target.value)} />
           </div>
           <div className="control-row">
             <label className="control-label">Width</label>

@@ -262,20 +262,20 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   };
 
   const handleColorChange = (key, value) => {
-  // 🔹 live update (Fabric only)
-  setLiveProps(prev => ({ ...prev, [key]: value }));
-  liveUpdateFabric(fabricCanvas, id, { [key]: value }, liveProps, object);
+    // 🔹 live update (Fabric only)
+    setLiveProps(prev => ({ ...prev, [key]: value }));
+    liveUpdateFabric(fabricCanvas, id, { [key]: value }, liveProps, object);
 
-  // 🔹 clear previous commit
-  if (colorCommitTimer.current) {
-    clearTimeout(colorCommitTimer.current);
-  }
+    // 🔹 clear previous commit
+    if (colorCommitTimer.current) {
+      clearTimeout(colorCommitTimer.current);
+    }
 
-  // 🔹 commit AFTER user stops changing color
-  colorCommitTimer.current = setTimeout(() => {
-    handleUpdateAndHistory(key, value);
-  }, 300); // 250–400ms feels perfect
-};
+    // 🔹 commit AFTER user stops changing color
+    colorCommitTimer.current = setTimeout(() => {
+      handleUpdateAndHistory(key, value);
+    }, 300); // 250–400ms feels perfect
+  };
 
 
   // --- RENDER ---
@@ -410,13 +410,13 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
 
           <div className="control-row">
             <label className="control-label">Text Color</label>
-            <input type="color" className="color-input" value={liveProps.fill || '#000000'} onChange={(e) => handleColorChange('fill', e.target.value)}/>
+            <input type="color" className="color-input" value={liveProps.fill || '#000000'} onChange={(e) => handleColorChange('fill', e.target.value)} />
           </div>
 
           <h3 className="property-group-title">Outline</h3>
           <div className="control-row">
             <label className="control-label">Color</label>
-            <input type="color" className="color-input" value={liveProps.stroke || '#000000'} onChange={(e) => handleColorChange('fill', e.target.value)}/>
+            <input type="color" className="color-input" value={liveProps.stroke || '#000000'} onChange={(e) => handleColorChange('fill', e.target.value)} />
           </div>
           <div className="control-row">
             <label className="control-label">Width</label>
@@ -544,7 +544,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             type="color"
             className="color-input"
             value={liveProps.shadowColor || '#000000'}
-              onChange={(e) => handleColorChange('fill', e.target.value)}
+            onChange={(e) => handleColorChange('fill', e.target.value)}
           />
         </div>
 

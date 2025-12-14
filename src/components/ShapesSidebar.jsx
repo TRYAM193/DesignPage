@@ -39,6 +39,9 @@ export default function ShapesSidebar() {
         // Lines rely on stroke, not fill
         shapeProps = { width: 100, height: 4, strokeWidth: 4, stroke: '#3b82f6', fill: null }; 
         break;
+      case 'arrow': shapeProps = { radius: 0 }; break;
+      case 'diamond': shapeProps = { radius: 0 }; break;
+      case 'trapezoid': shapeProps = { radius: 0 }; break;
       default: break;
     }
 

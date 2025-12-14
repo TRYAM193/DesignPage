@@ -1,8 +1,8 @@
 // src/objectAdders/Shapes.js
 import { Rect, Circle, Triangle, Polygon, Line, Path } from 'fabric';
-import { 
+import {
   getStarPoints, getPolygonPoints, getTrianglePoints, getRoundedPathFromPoints,
-  getArrowPoints, getDiamondPoints, getTrapezoidPoints 
+  getArrowPoints, getDiamondPoints, getTrapezoidPoints
 } from '../utils/shapeUtils';
 
 export default function ShapeAdder(obj) {
@@ -35,20 +35,20 @@ export default function ShapeAdder(obj) {
   } else if (type === 'triangle') {
     // Standard triangle doesn't support radius, so we use points -> path if needed
     if (radius > 0) {
-        points = getTrianglePoints(100, 100);
-        isPathBased = true;
+      points = getTrianglePoints(100, 100);
+      isPathBased = true;
     }
-  }else if (type === 'arrow') { 
-    points = getArrowPoints(100, 100); 
-    isPathBased = true; 
+  } else if (type === 'arrow') {
+    points = getArrowPoints(100, 100);
+    isPathBased = true;
   }
-  else if (type === 'diamond') { 
-    points = getDiamondPoints(100, 150); 
-    isPathBased = true; 
+  else if (type === 'diamond') {
+    points = getDiamondPoints(100, 150);
+    isPathBased = true;
   }
-  else if (type === 'trapezoid') { 
-    points = getTrapezoidPoints(100, 80); 
-    isPathBased = true; 
+  else if (type === 'trapezoid') {
+    points = getTrapezoidPoints(100, 80);
+    isPathBased = true;
   }
 
   // RETURN LOGIC
@@ -67,13 +67,13 @@ export default function ShapeAdder(obj) {
     case 'rect': return new Rect(options);
     case 'circle': return new Circle(options);
     case 'triangle': return new Triangle(options);
-    case 'line': 
-        return new Line([0, 0, 100, 0], { 
-            ...options, 
-            stroke: options.stroke || options.fill || '#000000', 
-            strokeWidth: options.strokeWidth || 4, 
-            fill: null 
-        });
+    case 'line':
+      return new Line([0, 0, 100, 0], {
+        ...options,
+        stroke: options.stroke || options.fill || '#000000',
+        strokeWidth: options.strokeWidth || 4,
+        fill: null
+      });
     default: return null;
   }
 }

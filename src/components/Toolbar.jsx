@@ -78,6 +78,7 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
     else if (type === 'arrow') points = getArrowPoints(100, 100);
     else if (type === 'diamond') points = getDiamondPoints(100, 150);
     else if (type === 'trapezoid') points = getTrapezoidPoints(100, 80);
+    else if (type === 'lightning') points = getLightningPoints(50, 100);
 
     // Generate smoothed path data
     const pathData = getRoundedPathFromPoints(points, r);

@@ -537,41 +537,80 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
       {/* ================= SHADOW EFFECT ================= */}
       <div className="property-group">
         <h3 className="property-group-title">Shadow Effect</h3>
+
         <div className="control-row">
           <label className="control-label">Shadow Color</label>
           <input
-            type="color" className="color-input"
+            type="color"
+            className="color-input"
             value={liveProps.shadowColor || '#000000'}
-            onChange={(e) => handleColorChange('fill', e.target.value)}
+            onInput={(e) => handleLiveUpdate('shadowColor', e.target.value, object)}
+            onChange={(e) => handleUpdateAndHistory('shadowColor', e.target.value)}
           />
         </div>
 
-        <div className="control-row"><label className="control-label">Blur</label>
+        <div className="control-row">
+          <label className="control-label">Blur</label>
           <input
-            type="range" className="slider-input" min="0" max="50"
-            value={liveProps.shadowBlur || 0}
-            onChange={(e) => handleLiveUpdate('shadowBlur', Number(e.target.value))}
-            onMouseUp={(e) => handleUpdateAndHistory('shadowBlur', Number(e.target.value))}
+            type="number"
+            className="number-input small"
+            value={Math.round(liveProps.shadowBlur || 0)}
+            onChange={(e) => handleLiveUpdate('shadowBlur', Number(e.target.value), object)}
+            onBlur={(e) => handleUpdateAndHistory('shadowBlur', Number(e.target.value))}
           />
         </div>
+        <input
+          type="range"
+          className="slider-input"
+          min="0"
+          max="50"
+          step="1"
+          value={liveProps.shadowBlur || 0}
+          onInput={(e) => handleLiveUpdate('shadowBlur', Number(e.target.value), object)}
+          onMouseUp={(e) => handleUpdateAndHistory('shadowBlur', Number(e.target.value))}
+        />
 
-        <div className="control-row"><label className="control-label">Offset X</label>
+        <div className="control-row">
+          <label className="control-label">Offset X</label>
           <input
-            type="range" className="slider-input" min="-20" max="20"
-            value={liveProps.shadowOffsetX || 0}
-            onChange={(e) => handleLiveUpdate('shadowOffsetX', Number(e.target.value))}
-            onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetX', Number(e.target.value))}
+            type="number"
+            className="number-input small"
+            value={Math.round(liveProps.shadowOffsetX || 0)}
+            onChange={(e) => handleLiveUpdate('shadowOffsetX', Number(e.target.value), object)}
+            onBlur={(e) => handleUpdateAndHistory('shadowOffsetX', Number(e.target.value))}
           />
         </div>
+        <input
+          type="range"
+          className="slider-input"
+          min="-10"
+          max="10"
+          step="1"
+          value={liveProps.shadowOffsetX || 0}
+          onInput={(e) => handleLiveUpdate('shadowOffsetX', Number(e.target.value), object)}
+          onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetX', Number(e.target.value))}
+        />
 
-        <div className="control-row"><label className="control-label">Offset Y</label>
+        <div className="control-row">
+          <label className="control-label">Offset Y</label>
           <input
-            type="range" className="slider-input" min="-20" max="20"
-            value={liveProps.shadowOffsetY || 0}
-            onChange={(e) => handleLiveUpdate('shadowOffsetY', Number(e.target.value))}
-            onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetY', Number(e.target.value))}
+            type="number"
+            className="number-input small"
+            value={Math.round(liveProps.shadowOffsetY || 0)}
+            onChange={(e) => handleLiveUpdate('shadowOffsetY', Number(e.target.value), object)}
+            onBlur={(e) => handleUpdateAndHistory('shadowOffsetY', Number(e.target.value))}
           />
         </div>
+        <input
+          type="range"
+          className="slider-input"
+          min="-10"
+          max="10"
+          step="1"
+          value={liveProps.shadowOffsetY || 0}
+          onInput={(e) => handleLiveUpdate('shadowOffsetY', Number(e.target.value), object)}
+          onMouseUp={(e) => handleUpdateAndHistory('shadowOffsetY', Number(e.target.value))}
+        />
       </div>
 
       {type === 'image' && (

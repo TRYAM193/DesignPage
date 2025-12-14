@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setCanvasObjects } from '../redux/canvasSlice';
 import { v4 as uuidv4 } from 'uuid';
 // Using React Icons for the UI
-import { FiSquare, FiCircle, FiTriangle, FiStar, FiHexagon, FiMinus } from 'react-icons/fi';
+import { FiSquare, FiCircle, FiTriangle, FiStar, FiHexagon, FiMinus, FiArrowRight, FiNavigation, FiServer } from 'react-icons/fi';
 // You can also use explicit SVG icons if preferred
 
 export default function ShapesSidebar() {

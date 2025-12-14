@@ -8,7 +8,7 @@ import CircleText from '../objectAdders/CircleText';
 import { Path } from 'fabric';
 import {
   getStarPoints, getPolygonPoints, getTrianglePoints, getRoundedPathFromPoints,
-  getArrowPoints, getDiamondPoints, getTrapezoidPoints
+  getArrowPoints, getDiamondPoints, getTrapezoidPoints, getLightningPoints
 } from '../utils/shapeUtils';
 import { useRef } from 'react';
 

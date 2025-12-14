@@ -2,7 +2,7 @@
 import { Rect, Circle, Triangle, Polygon, Line, Path } from 'fabric';
 import {
   getStarPoints, getPolygonPoints, getTrianglePoints, getRoundedPathFromPoints,
-  getArrowPoints, getDiamondPoints, getTrapezoidPoints
+  getArrowPoints, getDiamondPoints, getTrapezoidPoints, getLightningPoints, getHeartPath, getBubblePath
 } from '../utils/shapeUtils';
 
 export default function ShapeAdder(obj) {

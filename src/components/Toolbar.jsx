@@ -542,13 +542,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
           <input
             type="color" className="color-input"
             value={liveProps.shadowColor || '#000000'}
-            onChange={(e) => handleLiveUpdate('shadowColor', e.target.value)}
-            onMouseUp={(e) => handleUpdateAndHistory('fill', e.target.value)}
-            onKeyUp={(e) => {
-              if (e.key === 'Enter') {
-                handleUpdateAndHistory('fill', e.target.value);
-              }
-            }}
+            onChange={(e) => handleColorChange('fill', e.target.value)}
           />
         </div>
 

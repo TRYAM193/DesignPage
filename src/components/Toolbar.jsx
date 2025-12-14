@@ -6,9 +6,9 @@ import {
 import WebFont from 'webfontloader';
 import CircleText from '../objectAdders/CircleText';
 import { Path } from 'fabric';
-import { 
+import {
   getStarPoints, getPolygonPoints, getTrianglePoints, getRoundedPathFromPoints,
-  getArrowPoints, getDiamondPoints, getTrapezoidPoints 
+  getArrowPoints, getDiamondPoints, getTrapezoidPoints
 } from '../utils/shapeUtils';
 import { useRef } from 'react';
 
@@ -63,7 +63,7 @@ function liveUpdateFabric(fabricCanvas, id, updates, currentLiveProps, object) {
 
   // 2. Handle Shape Rounding (Swapping Polygons for Paths) [NEW LOGIC]
   const type = object.type; // Use Redux type (e.g., 'star')
-  const shapeTypes = ['star', 'pentagon', 'hexagon', 'triangle'];
+  const shapeTypes = ['star', 'pentagon', 'hexagon', 'triangle', 'arrow', 'diamond', 'trapezoid']; // 🆕
 
   // Check if we are updating radius for a supported shape
   if (shapeTypes.includes(type) && (updates.radius !== undefined || updates.rx !== undefined)) {

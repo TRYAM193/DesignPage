@@ -141,14 +141,15 @@ export const getLightningPoints = (width, height) => {
   const h = height / 2;
 
   return [
-    { x:  w * 0.2,  y: -h },        // Top tip
-    { x: -w * 0.15, y: -h * 0.35 }, // Sharp left drop
-    { x:  w * 0.35, y: -h * 0.15 }, // Strong right jut
-    { x: -w * 0.25, y:  h * 0.2 },  // Hard left zig
-    { x:  w * 0.1,  y:  h * 0.4 },  // Small correction
-    { x: -w * 0.05, y:  h }         // Bottom tip
+    { x:  w * 0.15, y: -h },          // Top tip
+    { x: -w * 0.25, y: -h * 0.4 },    // Left down
+    { x:  w * 0.3,  y: -h * 0.2 },    // Right out
+    { x: -w * 0.35, y:  h * 0.3 },    // Left zig
+    { x:  w * 0.05, y:  h * 0.45 },   // Small right
+    { x: -w * 0.05, y:  h }           // Bottom tip
   ];
 };
+
 
 
 export const getHeartPath = (width, height) => {

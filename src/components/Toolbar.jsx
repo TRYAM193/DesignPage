@@ -149,7 +149,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
   const effectiveType = object?.type || type;
   const isTextObject = effectiveType === 'text' || effectiveType === 'circle-text';
   const isShapeObject = ['rect', 'circle', 'triangle', 'star', 'pentagon', 'hexagon', 'line', 'arrow', 'diamond', 'trapezoid', 'heart', 'lightning', 'bubble'].includes(effectiveType);
-  const supportsBorderRadius = ['rect', 'triangle', 'star', 'pentagon', 'hexagon', 'arrow', 'diamond', 'trapezoid'].includes(effectiveType);
+  const supportsBorderRadius = ['rect', 'triangle', 'star', 'pentagon', 'hexagon', 'arrow', 'diamond', 'trapezoid', 'lightning'].includes(effectiveType);
   const colorCommitTimer = useRef(null);
 
 

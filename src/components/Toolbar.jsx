@@ -544,8 +544,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
             type="color"
             className="color-input"
             value={liveProps.shadowColor || '#000000'}
-            onInput={(e) => handleLiveUpdate('shadowColor', e.target.value, object)}
-            onChange={(e) => handleUpdateAndHistory('shadowColor', e.target.value)}
+              onChange={(e) => handleColorChange('fill', e.target.value)}
           />
         </div>
 

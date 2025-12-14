@@ -136,9 +136,6 @@ export const getLightningPoints = (width, height) => {
   ];
 };
 
-
-
-
 export const getHeartPath = (width, height) => {
   // SVG Path for a heart
   const w = width / 2;

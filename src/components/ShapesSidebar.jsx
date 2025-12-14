@@ -73,7 +73,25 @@ export default function ShapesSidebar() {
 
           <ShapeButton label="Arrow" onClick={() => handleAddShape('arrow')} icon={<FiArrowRight size={24} />} />
           <ShapeButton label="Diamond" onClick={() => handleAddShape('diamond')} icon={<div style={{ transform: 'rotate(45deg)' }}><FiSquare size={20} /></div>} />
-          <ShapeButton label="Trapezoid" onClick={() => handleAddShape('trapezoid')} icon={<FiServer size={24} />} />
+          <ShapeButton 
+            label="Trapezoid" 
+            onClick={() => handleAddShape('trapezoid')} 
+            icon={
+              <svg 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                {/* Draws a trapezoid shape: Bottom-Left -> Bottom-Right -> Top-Right -> Top-Left -> Close */}
+                <path d="M4 20h16l-4-16H8L4 20z" />
+              </svg>
+            } 
+          />
        </div>
     </div>
   );

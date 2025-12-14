@@ -450,7 +450,7 @@ export default function Toolbar({ id, type, object, updateObject, removeObject, 
               type="color"
               className="color-input"
               value={liveProps.stroke || '#000000'}
-              onChange={(e) => handleColorChange('fill', e.target.value)}
+              onChange={(e) => handleColorChange('stroke', e.target.value)}
             />
           </div>
           <div className="control-row">

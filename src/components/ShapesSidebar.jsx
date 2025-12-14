@@ -70,6 +70,10 @@ export default function ShapesSidebar() {
           <ShapeButton label="Star" onClick={() => handleAddShape('star')} icon={<FiStar size={24} />} />
           <ShapeButton label="Pentagon" onClick={() => handleAddShape('pentagon')} icon={<FiHexagon size={24} />} />
           <ShapeButton label="Line" onClick={() => handleAddShape('line')} icon={<FiMinus size={24} />} />
+
+          <ShapeButton label="Arrow" onClick={() => handleAddShape('arrow')} icon={<FiArrowRight size={24} />} />
+          <ShapeButton label="Diamond" onClick={() => handleAddShape('diamond')} icon={<div style={{ transform: 'rotate(45deg)' }}><FiSquare size={20} /></div>} />
+          <ShapeButton label="Trapezoid" onClick={() => handleAddShape('trapezoid')} icon={<FiServer size={24} />} />
        </div>
     </div>
   );

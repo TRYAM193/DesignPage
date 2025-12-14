@@ -21,6 +21,7 @@ export default function ShapeAdder(obj) {
 
   let points = [];
   let isPathBased = false;
+  let customPath = null;
 
   // Generate points based on type
   if (type === 'star') {

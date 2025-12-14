@@ -88,3 +88,37 @@ export const getRoundedPathFromPoints = (points, radius) => {
   path += "z"; // Close path
   return path;
 };
+
+export const getArrowPoints = (width, height) => {
+  const headWidth = width * 0.4;
+  const tailWidth = height * 0.4;
+  // Arrow pointing right
+  return [
+    { x: -width/2, y: -tailWidth/2 },             // Tail top-left
+    { x: width/2 - headWidth, y: -tailWidth/2 },  // Tail top-right (meet head)
+    { x: width/2 - headWidth, y: -height/2 },     // Head top wing
+    { x: width/2, y: 0 },                         // Tip
+    { x: width/2 - headWidth, y: height/2 },      // Head bottom wing
+    { x: width/2 - headWidth, y: tailWidth/2 },   // Tail bottom-right
+    { x: -width/2, y: tailWidth/2 }               // Tail bottom-left
+  ];
+};
+
+export const getDiamondPoints = (width, height) => {
+  return [
+    { x: 0, y: -height/2 }, // Top
+    { x: width/2, y: 0 },   // Right
+    { x: 0, y: height/2 },  // Bottom
+    { x: -width/2, y: 0 }   // Left
+  ];
+};
+
+export const getTrapezoidPoints = (width, height) => {
+  const topWidth = width * 0.6;
+  return [
+    { x: -topWidth/2, y: -height/2 }, // Top-Left
+    { x: topWidth/2, y: -height/2 },  // Top-Right
+    { x: width/2, y: height/2 },      // Bottom-Right
+    { x: -width/2, y: height/2 }      // Bottom-Left
+  ];
+};

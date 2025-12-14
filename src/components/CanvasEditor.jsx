@@ -61,7 +61,10 @@ export default function CanvasEditor({
   const [selectedObjectLocked, setSelectedObjectLocked] = useState(false);
   const [selectedObjectUUIDs, setSelectedObjectUUIDs] = useState([]);
   const shapes = ['rect', 'circle', 'triangle', 'star', 'pentagon', 'hexagon', 'line'];
-
+const shapeTypes = [
+  'rect', 'circle', 'triangle', 'star', 'pentagon', 'hexagon', 'line',
+  'arrow', 'diamond', 'trapezoid' // 🆕 Added these
+];
   const updateMenuPosition = () => {
     const canvas = fabricCanvasRef.current;
     if (!canvas) return;

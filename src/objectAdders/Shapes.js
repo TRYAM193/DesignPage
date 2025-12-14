@@ -38,6 +38,17 @@ export default function ShapeAdder(obj) {
         points = getTrianglePoints(100, 100);
         isPathBased = true;
     }
+  }else if (type === 'arrow') { 
+    points = getArrowPoints(100, 100); 
+    isPathBased = true; 
+  }
+  else if (type === 'diamond') { 
+    points = getDiamondPoints(100, 150); 
+    isPathBased = true; 
+  }
+  else if (type === 'trapezoid') { 
+    points = getTrapezoidPoints(100, 80); 
+    isPathBased = true; 
   }
 
   // RETURN LOGIC

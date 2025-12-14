@@ -132,7 +132,7 @@ export const getLightningPoints = (width, height) => {
     { x: w * 0.3, y: -h * 0.1 },  // 3. Middle Right (Jut out)
     { x: -w * 0.3, y: h },        // 4. Bottom Tip
     { x: w * 0.1, y: h * 0.1 },   // 5. Middle Right (Neck Lower)
-    { x: -w * 0.6, y: h  }   // 6. Middle Left (Jut out Lower)
+    { x: -w * 0.6, y: h * 0.1 }   // 6. Middle Left (Jut out Lower)
   ];
 };
 

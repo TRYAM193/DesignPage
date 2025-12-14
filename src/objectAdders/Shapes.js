@@ -49,6 +49,20 @@ export default function ShapeAdder(obj) {
   else if (type === 'trapezoid') {
     points = getTrapezoidPoints(100, 80);
     isPathBased = true;
+  }if (type === 'lightning') { 
+    points = getLightningPoints(50, 100); 
+    isPathBased = true; 
+  }
+  else if (type === 'heart') {
+    customPath = getHeartPath(100, 90);
+  }
+  else if (type === 'bubble') {
+    customPath = getBubblePath(120, 80);
+  }
+
+  // 1. Handle Custom Paths (Heart, Bubble) - No radius math needed
+  if (customPath) {
+    return new Path(customPath, { ...options });
   }
 
   // RETURN LOGIC

@@ -42,6 +42,9 @@ export default function ShapesSidebar() {
       case 'arrow': shapeProps = { radius: 0 }; break;
       case 'diamond': shapeProps = { radius: 0 }; break;
       case 'trapezoid': shapeProps = { radius: 0 }; break;
+      case 'lightning': shapeProps = { radius: 0 }; break;
+      case 'heart': shapeProps = {}; break; // Heart doesn't typically need corner radius
+      case 'bubble': shapeProps = {}; break;
       default: break;
     }
 

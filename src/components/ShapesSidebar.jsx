@@ -18,7 +18,7 @@ export default function ShapesSidebar() {
     const commonProps = {
       left: 400, // Center of 800x800 canvas
       top: 400,
-      fill: '#3b82f6',
+      fill: '#000000',
       stroke: '#000000',
       strokeWidth: 0,
       opacity: 1,

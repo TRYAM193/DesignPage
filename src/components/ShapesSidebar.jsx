@@ -95,6 +95,9 @@ export default function ShapesSidebar() {
               </svg>
             } 
           />
+          <ShapeButton label="Heart" onClick={() => handleAddShape('heart')} icon={<FiHeart size={24} />} />
+          <ShapeButton label="Bolt" onClick={() => handleAddShape('lightning')} icon={<FiZap size={24} />} />
+          <ShapeButton label="Bubble" onClick={() => handleAddShape('bubble')} icon={<FiMessageSquare size={24} />} />
        </div>
     </div>
   );
